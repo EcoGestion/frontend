@@ -2,33 +2,33 @@
 'use client'
 import { useState } from 'react';
 import {auth} from '../firebaseConfig';
-import {signInWithEmailAndPassword} from "firebase/auth";
 import { useRouter } from 'next/navigation';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
-const Login = () => {
+const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
-  const backend_url = process.env.BACKEND_URL;
 
-  const handleLogin = async () => {
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('Usuario autenticado:', await userCredential.user.getIdToken());
-      router.push('/home');
-
-    } catch (error) {
-      console.log(error);
-    }
+  const handleSignUp = async () => {
+    createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      console.log(userCredential)
+      router.push("/login")
+    })
+    .catch((error) => {
+      console.log(error)
+    });
   };
 
-  const redirecToSignUp = () => {
-    router.push('/create-account')
+  const redirecToLogIn = () => {
+    router.push('/login')
   }
 
   return (
     <div className ="flex flex-col items-center justify-center gap-5 h-screen" >
       <h1>Eco Gestion</h1>
+      <h1>Crear Cuenta</h1>
       <input
         type="email"
         placeholder="Correo electrónico"
@@ -43,11 +43,11 @@ const Login = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button className="bg-white px-5 text-black" onClick={handleLogin}>Iniciar sesión</button>
-      <button className="bg-white px-5 text-black" onClick={redirecToSignUp}>Crear cuenta</button>
+      <button className="bg-white px-5 text-black" onClick={handleSignUp}>Crear Cuenta</button>
+      <button className="bg-white px-5 text-black" onClick={redirecToLogIn}>Volver atrás</button>
     </div>
   );
 };
 
-export default Login;
+export default SignUp;
 
