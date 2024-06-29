@@ -1,5 +1,9 @@
 # frontend
 
-## npm i
+## Start project
 
-## npm run dev
+```
+npm install
+npm run dev
+```
+
