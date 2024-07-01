@@ -9,7 +9,6 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
-  const backend_url = process.env.BACKEND_URL;
 
   const handleLogin = async () => {
     try {
