@@ -13,7 +13,7 @@ const SignUpGenerador = () => {
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       console.log(userCredential)
-      router.push("/login/cooperativa")
+      router.replace("/login/generador")
     })
     .catch((error) => {
       console.log(error)
