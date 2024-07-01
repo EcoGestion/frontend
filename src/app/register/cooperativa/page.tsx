@@ -67,5 +67,3 @@ const SignUpCooperativa = () => {
 };
 
 export default SignUpCooperativa;
-
-// className="bg-[rgb(57,194,99)] hover:bg-[rgb(50,175,89)] text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300"
