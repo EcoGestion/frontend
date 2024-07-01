@@ -1,33 +1,33 @@
+// pages/login.tsx
 'use client'
 import { useState } from 'react';
-import {auth} from '../../firebaseConfig';
+import {auth} from '../firebaseConfig';
+import {signInWithEmailAndPassword} from "firebase/auth";
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
 
-const SignUpCooperativa = () => {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
 
-  const handleSignUp = async () => {
-    createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      console.log(userCredential)
-      router.push("/login/cooperativa")
-    })
-    .catch((error) => {
-      console.log(error)
-    });
+  const handleLogin = async () => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log('Usuario autenticado:', await userCredential.user.getIdToken());
+      router.push('/home');
+
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const redirecToLogIn = () => {
-    router.back();
+  const redirecToSignUp = () => {
+    router.push('/create-account')
   }
 
   return (
     <div className ="flex flex-col items-center justify-center gap-5 h-screen" >
       <h1>Eco Gestion</h1>
-      <h1>Crear Cuenta</h1>
       <input
         type="email"
         placeholder="Correo electrónico"
@@ -42,10 +42,11 @@ const SignUpCooperativa = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button className="bg-white px-5 text-black" onClick={handleSignUp}>Crear Cuenta</button>
-      <button className="bg-white px-5 text-black" onClick={redirecToLogIn}>Volver atrás</button>
+      <button className="bg-white px-5 text-black" onClick={handleLogin}>Iniciar sesión</button>
+      <button className="bg-white px-5 text-black" onClick={redirecToSignUp}>Crear cuenta</button>
     </div>
   );
 };
 
-export default SignUpCooperativa;
+export default Login;
+

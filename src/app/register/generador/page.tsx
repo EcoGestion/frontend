@@ -1,32 +1,51 @@
 'use client'
-import React, { useEffect } from 'react';
-import {auth} from '../../firebaseConfig'
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { useState } from 'react';
+import {auth} from '../../firebaseConfig';
 import { useRouter } from 'next/navigation';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
-// /register/generador
-
-const RegisterGenerador = () => {
+const SignUpGenerador = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const router = useRouter();
 
-  const handleBack = () => {
-    // Redirigir a la página anterior
-    router.back();
+  const handleSignUp = async () => {
+    createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      console.log(userCredential)
+      router.push("/login/cooperativa")
+    })
+    .catch((error) => {
+      console.log(error)
+    });
   };
 
-  return (
-    <div className='flex flex-col items-center justify-center gap-5 h-screen'>
-      Registro de generador
-      <button 
-            className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 mt-4" 
-            onClick={handleBack}
-          >
-          Volver
-      </button>
-    </div>
+  const redirecToLogIn = () => {
+    router.back();
+  }
 
-    
+  return (
+    <div className ="flex flex-col items-center justify-center gap-5 h-screen" >
+      <h1>Eco Gestion</h1>
+      <h1>Crear Cuenta</h1>
+      <input
+        type="email"
+        placeholder="Correo electrónico"
+        className = "text-black"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Contraseña"
+        className = "text-black"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button className="bg-white px-5 text-black" onClick={handleSignUp}>Crear Cuenta</button>
+      <button className="bg-white px-5 text-black" onClick={redirecToLogIn}>Volver atrás</button>
+    </div>
   );
 };
 
-export default RegisterGenerador;
+export default SignUpGenerador;
