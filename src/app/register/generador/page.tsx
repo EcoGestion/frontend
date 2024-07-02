@@ -3,6 +3,7 @@ import { useState } from 'react';
 import {auth} from '../../firebaseConfig';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import GreenRoundedButton from '@/components/greenRoundedButton';
 
 const SignUpGenerador = () => {
   const [email, setEmail] = useState('');
@@ -46,12 +47,7 @@ const SignUpGenerador = () => {
         />
 
         <div className="flex gap-4 mt-4">
-        <button
-          className="bg-[rgb(57,194,99)] hover:bg-[rgb(50,175,89)] text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300"
-          onClick={handleSignUp}
-        >
-            Crear Cuenta
-        </button>
+        <GreenRoundedButton onClick={handleSignUp} buttonTitle="Crear Cuenta" />
         <button
           className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 " 
           onClick={handle_back}

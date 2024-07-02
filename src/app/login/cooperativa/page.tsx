@@ -3,6 +3,8 @@ import { use, useState } from 'react';
 import {auth} from '../../firebaseConfig';
 import {signInWithEmailAndPassword} from "firebase/auth";
 import { useRouter } from 'next/navigation';
+import GreenRoundedButton from '@/components/greenRoundedButton';
+import BlueRoundedButton from '@/components/blueRoundedButton';
 
 // /login/cooperativa
 
@@ -53,18 +55,8 @@ const LoginCooperativa = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
           <div className="flex gap-4 mt-4">
-            <button 
-              className="bg-[rgb(57,194,99)] hover:bg-[rgb(50,175,89)] text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300" 
-              onClick={handleLogin}
-            >
-              Iniciar sesión
-            </button>
-            <button 
-              className="bg-[rgb(76,200,230)] hover:bg-[rgb(68,180,207)] text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300" 
-              onClick={handleRegister}
-            >
-              Registrarse
-            </button>
+            <GreenRoundedButton onClick={handleLogin} buttonTitle="Iniciar sesión" />
+            <BlueRoundedButton onClick={handleRegister} buttonTitle="Registrarse" />
           </div>
           <button 
             className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 mt-4" 
