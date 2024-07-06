@@ -17,7 +17,7 @@ const SignUpCooperativa = () => {
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       console.log(userCredential)
-      router.replace("/login/cooperativa")
+      router.replace("/register/cooperativa/onboarding/page1")
     })
     .catch((error) => {
       console.log(error)
