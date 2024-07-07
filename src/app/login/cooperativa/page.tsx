@@ -1,5 +1,5 @@
 'use client'
-import { use, useState } from 'react';
+import { FormEvent, use, useState } from 'react';
 import {auth} from '../../firebaseConfig';
 import {signInWithEmailAndPassword} from "firebase/auth";
 import { useRouter } from 'next/navigation';
@@ -13,7 +13,7 @@ const LoginCooperativa = () => {
   const [password, setPassword] = useState('');
   const router = useRouter();
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e:FormEvent) => {
     e.preventDefault();
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);

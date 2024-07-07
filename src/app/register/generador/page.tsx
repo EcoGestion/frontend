@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import {auth} from '../../firebaseConfig';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
@@ -11,7 +11,7 @@ const SignUpGenerador = () => {
   const [password, setPassword] = useState('');
   const router = useRouter();
 
-  const handleSignUp = async (e) => {
+  const handleSignUp = async (e:FormEvent) => {
     e.preventDefault();
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
