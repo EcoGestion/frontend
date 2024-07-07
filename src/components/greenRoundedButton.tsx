@@ -1,8 +1,14 @@
 // GREEN ROUNDED BUTTON
 
-const GreenRoundedButton = ({
+interface GreenRoundedButtonProps {
+    onClick?: () => void;
+    buttonTitle: string;
+    type?: "button" | "submit" | "reset";
+}
+
+const GreenRoundedButton: React.FC<GreenRoundedButtonProps> = ({
     onClick = () => {},
-    buttonTitle = '',
+    buttonTitle,
     type = 'button',
 }) => {
     return (

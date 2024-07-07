@@ -9,7 +9,7 @@ import BlueRoundedButton from '../components/blueRoundedButton';
 const InitialPage = () => {
   const router = useRouter();
 
-  const handleLogInTypeSelection = ((userType) => {
+  const handleLogInTypeSelection = ((userType:string) => {
     router.push('/login/' + userType);
   })
 
