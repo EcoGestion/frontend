@@ -1,17 +1,25 @@
 'use client'
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/state/store';
+import { setUserAddress } from '@/state/userAddressSlice';
 import GreenRoundedButton from '@/components/greenRoundedButton';
 
 const onboardingCooperativa = () => {
-  const [calle, setCalle] = useState('');
-  const [altura, setAltura] = useState('');
-  const [ciudad, setCiudad] = useState('');
-  const [provincia, setProvincia] = useState('');
-  const [codigoPostal, setCodigoPostal] = useState('');
+  const userAddress = useSelector((state: RootState) => state.userAddress);
+  const dispatch = useDispatch();
+
+  const [calle, setCalle] = useState(userAddress.calle);
+  const [altura, setAltura] = useState(userAddress.altura);
+  const [ciudad, setCiudad] = useState(userAddress.ciudad);
+  const [provincia, setProvincia] = useState(userAddress.provincia);
+  const [codigoPostal, setCodigoPostal] = useState(userAddress.codigoPostal);
+
   const router = useRouter();
 
   const nextPage = () => {
+    dispatch(setUserAddress({ calle, altura, ciudad, provincia, codigoPostal }));
     router.push('/register/cooperativa/onboarding/page2');
   }
 
@@ -110,7 +118,7 @@ const onboardingCooperativa = () => {
               />
             </div>
             <div className="mt-6 flex justify-end">
-            <GreenRoundedButton onClick={nextPage}>Siguiente</GreenRoundedButton>
+            <GreenRoundedButton onClick={nextPage} buttonTitle='Siguiente'/>
             </div>
           </div>
         </div>

@@ -1,25 +1,31 @@
 'use client'
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/state/store';
+import { setReciclablesCooperativa } from '@/state/reciclablesCooperativaSlice';
 import GreenRoundedButton from '@/components/greenRoundedButton';
 
 const onboardingCooperativa = () => {
+  const reciclablesCooperativa = useSelector((state: RootState) => state.reciclablesCooperativa);
+  const dispatch = useDispatch();
+
   const router = useRouter();
 
   const [items, setItems] = useState([
-    { id: 1, label: 'Papel', checked: false },
-    { id: 2, label: 'Metal', checked: false },
-    { id: 3, label: 'Vidrio', checked: false },
-    { id: 4, label: 'Plástico', checked: false },
-    { id: 5, label: 'Cartón', checked: false },
-    { id: 6, label: 'Tetra Brik', checked: false },
-    { id: 7, label: 'Telgopor', checked: false },
-    { id: 8, label: 'Pilas', checked: false },
-    { id: 9, label: 'Aceite', checked: false },
-    { id: 10, label: 'Electrónicos', checked: false },
+    { id: 1, label: 'Papel', checked: reciclablesCooperativa.papel },
+    { id: 2, label: 'Metal', checked: reciclablesCooperativa.metal },
+    { id: 3, label: 'Vidrio', checked: reciclablesCooperativa.vidrio },
+    { id: 4, label: 'Plástico', checked: reciclablesCooperativa.plastico },
+    { id: 5, label: 'Cartón', checked: reciclablesCooperativa.carton },
+    { id: 6, label: 'Tetra Brik', checked: reciclablesCooperativa.tetraBrik },
+    { id: 7, label: 'Telgopor', checked: reciclablesCooperativa.telgopor },
+    { id: 8, label: 'Pilas', checked: reciclablesCooperativa.pilas },
+    { id: 9, label: 'Aceite', checked: reciclablesCooperativa.aceite },
+    { id: 10, label: 'Electrónicos', checked: reciclablesCooperativa.electronicos},
   ]);
 
-  const handleCheckboxChange = (id) => {
+  const handleCheckboxChange = (id : number) => {
     setItems(
       items.map(item =>
         item.id === id ? { ...item, checked: !item.checked } : item
@@ -28,10 +34,34 @@ const onboardingCooperativa = () => {
   };
 
   const handle_next = () => {
+    dispatch(setReciclablesCooperativa({
+      papel: items[0].checked,
+      metal: items[1].checked,
+      vidrio: items[2].checked,
+      plastico: items[3].checked,
+      carton: items[4].checked,
+      tetraBrik: items[5].checked,
+      telgopor: items[6].checked,
+      pilas: items[7].checked,
+      aceite: items[8].checked,
+      electronicos: items[9].checked,
+    }));
     router.push('/register/cooperativa/onboarding/page3');
   }
 
   const handle_back = () => {
+    dispatch(setReciclablesCooperativa({
+      papel: items[0].checked,
+      metal: items[1].checked,
+      vidrio: items[2].checked,
+      plastico: items[3].checked,
+      carton: items[4].checked,
+      tetraBrik: items[5].checked,
+      telgopor: items[6].checked,
+      pilas: items[7].checked,
+      aceite: items[8].checked,
+      electronicos: items[9].checked,
+    }));
     router.back();
   };
 

@@ -1,30 +1,35 @@
 'use client'
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/state/store';
+import { setHorariosCooperativa } from '@/state/horariosCooperativaSlice';
 import GreenRoundedButton from '@/components/greenRoundedButton';
 
 const onboardingCooperativa = () => {
-  // ToDo: Implementar estado para guardar los datos de la cooperativa
   // ToDo: Enviar datos al backend
+  const horariosCooperativa = useSelector((state: RootState) => state.horariosCooperativa);
+  const dispatch = useDispatch();
+
   const router = useRouter();
 
   const [days, setDays] = useState([
-    { id: 1, name: 'Lunes', active: false, from: '', to: '' },
-    { id: 2, name: 'Martes', active: false, from: '', to: '' },
-    { id: 3, name: 'Miércoles', active: false, from: '', to: '' },
-    { id: 4, name: 'Jueves', active: false, from: '', to: '' },
-    { id: 5, name: 'Viernes', active: false, from: '', to: '' },
-    { id: 6, name: 'Sábado', active: false, from: '', to: '' },
-    { id: 7, name: 'Domingo', active: false, from: '', to: '' },
+    { id: 1, name: 'Lunes', active: horariosCooperativa.lunes.active, from: horariosCooperativa.lunes.from, to: horariosCooperativa.lunes.to },
+    { id: 2, name: 'Martes', active: horariosCooperativa.martes.active, from: horariosCooperativa.martes.from, to: horariosCooperativa.martes.to },
+    { id: 3, name: 'Miércoles', active: horariosCooperativa.miercoles.active, from: horariosCooperativa.miercoles.from, to: horariosCooperativa.miercoles.to },
+    { id: 4, name: 'Jueves', active: horariosCooperativa.jueves.active, from: horariosCooperativa.jueves.from, to: horariosCooperativa.jueves.to },
+    { id: 5, name: 'Viernes', active: horariosCooperativa.viernes.active, from: horariosCooperativa.viernes.from, to: horariosCooperativa.viernes.to },
+    { id: 6, name: 'Sábado', active: horariosCooperativa.sabado.active, from: horariosCooperativa.sabado.from, to: horariosCooperativa.sabado.to },
+    { id: 7, name: 'Domingo', active: horariosCooperativa.domingo.active, from: horariosCooperativa.domingo.from, to: horariosCooperativa.domingo.to },
   ]);
 
-  const toggleDay = (id) => {
+  const toggleDay = (id : number) => {
     setDays(days.map(day => 
       day.id === id ? { ...day, active: !day.active } : day
     ));
   };
 
-  const handleTimeChange = (id, field, value) => {
+  const handleTimeChange = (id:number, field: 'from'|'to', value:string) => {
     setDays(days.map(day =>
       day.id === id ? { ...day, [field]: value } : day
     ));
@@ -39,10 +44,28 @@ const onboardingCooperativa = () => {
 
 
   const handle_next = () => {
+    dispatch(setHorariosCooperativa({
+      lunes: { active: days[0].active, from: days[0].from, to: days[0].to },
+      martes: { active: days[1].active, from: days[1].from, to: days[1].to },
+      miercoles: { active: days[2].active, from: days[2].from, to: days[2].to },
+      jueves: { active: days[3].active, from: days[3].from, to: days[3].to },
+      viernes: { active: days[4].active, from: days[4].from, to: days[4].to },
+      sabado: { active: days[5].active, from: days[5].from, to: days[5].to },
+      domingo: { active: days[6].active, from: days[6].from, to: days[6].to },
+    }));
     // Enviar a home page
   }
 
   const handle_back = () => {
+    dispatch(setHorariosCooperativa({
+      lunes: { active: days[0].active, from: days[0].from, to: days[0].to },
+      martes: { active: days[1].active, from: days[1].from, to: days[1].to },
+      miercoles: { active: days[2].active, from: days[2].from, to: days[2].to },
+      jueves: { active: days[3].active, from: days[3].from, to: days[3].to },
+      viernes: { active: days[4].active, from: days[4].from, to: days[4].to },
+      sabado: { active: days[5].active, from: days[5].from, to: days[5].to },
+      domingo: { active: days[6].active, from: days[6].from, to: days[6].to },
+    }));
     router.back();
   };
 
@@ -57,7 +80,8 @@ const onboardingCooperativa = () => {
           <li key={day.id} className="flex items-center justify-between p-4 bg-gray-100 rounded-lg shadow-md w-full max-w-2xl mx-auto">
             <button 
               onClick={() => toggleDay(day.id)} 
-              className={`w-10 h-6 flex items-center bg-gray-300 rounded-full p-1 duration-300 ease-in-out ${day.active ? 'bg-cyan-800' : ''}`}
+              className={`w-10 h-6 flex items-center rounded-full p-1 duration-300 ease-in-out ${day.active ? 'bg-cyan-800' : 'bg-gray-300'}`}
+
             >
               <div 
                 className={`bg-white w-4 h-4 rounded-full shadow-md transform duration-300 ease-in-out ${day.active ? 'translate-x-4' : ''}`}
@@ -71,7 +95,8 @@ const onboardingCooperativa = () => {
                 value={day.from}
                 onChange={(e) => handleTimeChange(day.id, 'from', e.target.value)}
                 disabled={!day.active}
-                className={`text-sm bg-white border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-gray-600 ${!day.active ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`text-sm bg-white border border-gray-300 rounded-md shadow-sm focus:ring-2 ${day.active ? 'focus:ring-cyan-800' : 'focus:ring-gray-600'} ${!day.active ? 'opacity-50 cursor-not-allowed' : ''}`}
+
               >
                 <option value="" disabled>Desde</option>
                 {timeOptions.map(time => (

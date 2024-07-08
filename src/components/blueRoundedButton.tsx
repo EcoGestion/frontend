@@ -1,8 +1,14 @@
 // BLUE ROUNDED BUTTON
 
-const BlueRoundedButton = ({
+interface BlueRoundedButtonProps {
+    onClick?: () => void;
+    buttonTitle: string;
+    type?: "button" | "submit" | "reset";
+}
+
+const BlueRoundedButton: React.FC<BlueRoundedButtonProps> = ({
     onClick = () => {},
-    buttonTitle = '',
+    buttonTitle,
     type = 'button',
 }) => {
     return (
