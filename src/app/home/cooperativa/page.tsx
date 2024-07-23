@@ -1,11 +1,11 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import {auth} from '../firebaseConfig'
+import {auth} from '../../firebaseConfig'
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import 'dotenv/config'
 
-const Home = () => {
+const HomeCooperativa = () => {
   const router = useRouter();
   const [user, setUser] = useState({});
   const [accessToken, setAccessToken] = useState("");
@@ -14,6 +14,9 @@ const Home = () => {
 
   const logOut = (() => {
     signOut(auth)
+    .then(() => {
+      router.replace("/")
+    })
   })
 
   const testBackend = () => {
@@ -65,4 +68,4 @@ const Home = () => {
   }
 };
 
-export default Home;
+export default HomeCooperativa;
