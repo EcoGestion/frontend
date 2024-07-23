@@ -13,13 +13,12 @@ const LoginCooperativa = () => {
   const [password, setPassword] = useState('');
   const router = useRouter();
 
-  const handleLogin = async (e:FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log('Usuario autenticado:', await userCredential.user.getIdToken());
       router.push('/home/cooperativa');
-
     } catch (error) {
       console.log(error);
     }

@@ -1,21 +1,34 @@
 'use client'
 import { FormEvent, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { setUserEmail, setUserName, setUserSession } from '@/state/userSessionSlice';
+import { RootState } from '@/state/store';
 import {auth} from '../../firebaseConfig';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import GreenRoundedButton from '@/components/greenRoundedButton';
 
 const SignUpGenerador = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const userSession = useSelector((state: RootState) => state.userSession);
+  const dispatch = useDispatch();
+
+  const [name, setName] = useState(userSession.name);
+  const [email, setEmail] = useState(userSession.email);
   const [password, setPassword] = useState('');
   const router = useRouter();
 
-  const handleSignUp = async (e:FormEvent) => {
+  const handleSignUp = async (e: FormEvent) => {
     e.preventDefault();
+
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       console.log(userCredential)
+      dispatch(setUserSession({
+        name: name,
+        userId: null, //cambiar por id del back
+        email: email,
+        firebaseToken: userCredential.user.uid,
+      }))
       router.replace("/login/generador")
     })
     .catch((error) => {

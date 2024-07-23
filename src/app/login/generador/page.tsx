@@ -13,7 +13,7 @@ const LoginGenerador = () => {
   const [password, setPassword] = useState('');
   const router = useRouter();
 
-  const handleLogin = async (e:FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
