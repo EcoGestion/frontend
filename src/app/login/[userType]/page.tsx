@@ -20,7 +20,7 @@ const Login = ({ params }: { params: { userType: string } }) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log('Usuario autenticado:', await userCredential.user.getIdToken());
-      router.replace('/home' + userType);
+      router.replace('/home/' + userType);
     } catch (error) {
       console.log(error);
     }
