@@ -1,14 +1,26 @@
 'use client'
 import React, { useEffect } from 'react';
 import {auth} from './firebaseConfig'
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import { RootState } from '@/state/store';
+import { useSelector } from 'react-redux';
 import GreenRoundedButton from '../components/greenRoundedButton';
 import BlueRoundedButton from '../components/blueRoundedButton';
 import RootLayout from './layout';
 
 const InitialPage = () => {
+  const userSession = useSelector((state: RootState) => state.userSession);
   const router = useRouter();
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // ToDo: Enviar a home de cada tipo de usuario -> Cambiar estado a persistente
+        //router.push('/home/' + userType);
+      }
+    });
+  }, []);
 
   const handleLogInTypeSelection = ((userType:string) => {
     router.push('/login/' + userType);

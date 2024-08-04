@@ -3,6 +3,8 @@ import { FormEvent, use, useState } from 'react';
 import {auth} from '../../firebaseConfig';
 import {signInWithEmailAndPassword} from "firebase/auth";
 import { useRouter } from 'next/navigation';
+import { useDispatch } from 'react-redux';
+import { setUserSession } from '@/state/userSessionSlice';
 import GreenRoundedButton from '@/components/greenRoundedButton';
 import BlueRoundedButton from '@/components/blueRoundedButton';
 
@@ -10,6 +12,7 @@ import BlueRoundedButton from '@/components/blueRoundedButton';
 
 const Login = ({ params }: { params: { userType: string } }) => {
   const userType = params.userType;
+  const dispatch = useDispatch();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,7 +22,10 @@ const Login = ({ params }: { params: { userType: string } }) => {
     e.preventDefault();
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('Usuario autenticado:', await userCredential.user.getIdToken());
+      dispatch(setUserSession({
+        email: email,
+        userType: userType,
+        firebaseToken: await userCredential.user.getIdToken()}));
       router.replace('/home/' + userType);
     } catch (error) {
       console.log(error);

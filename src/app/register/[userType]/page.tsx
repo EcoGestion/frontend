@@ -32,6 +32,7 @@ const SignUp = ({ params }: { params: { userType: string } }) => {
         name: name,
         userId: userCredential.user.uid, // ToDo: definir si cambiar por id del back
         email: email,
+        userType: userType,
         firebaseToken: userCredential.user.uid,
       }))
       router.replace("/register/" + userType + "/onboarding/page1")
