@@ -26,11 +26,10 @@ const SignUpCooperativa = () => {
       console.log(userCredential)
       dispatch(setUserSession({
         name: name,
-        userId: null, //cambiar por id del back
         email: email,
-        firebaseToken: userCredential.user.uid,
+        userId: userCredential.user.uid,
       }))
-      router.replace("/register/cooperativa/onboarding/page1")
+      router.replace("/register/cooperativa/onboarding")
     })
     .catch((error) => {
       console.log(error)

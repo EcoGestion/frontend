@@ -1,27 +1,28 @@
 'use client'
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '@/state/store';
-import { setUserAddress } from '@/state/userAddressSlice';
 import GreenRoundedButton from '@/components/greenRoundedButton';
 
-const onboardingCooperativa = () => {
-  const userAddress = useSelector((state: RootState) => state.userAddress);
-  const dispatch = useDispatch();
+const OnboardingCooperativaFormStep1 = ({ nextStep, address, setAddress }) => {
+  const [street, setStreet] = useState(address.street);
+  const [number, setNumber] = useState(address.number);
+  const [city, setCity] = useState(address.city);
+  const [province, setProvince] = useState(address.province);
+  const [postalCode, setPostalCode] = useState(address.postalCode);
 
-  const [calle, setCalle] = useState(userAddress.calle);
-  const [altura, setAltura] = useState(userAddress.altura);
-  const [ciudad, setCiudad] = useState(userAddress.ciudad);
-  const [provincia, setProvincia] = useState(userAddress.provincia);
-  const [codigoPostal, setCodigoPostal] = useState(userAddress.codigoPostal);
+  const nextForm = () => {
+    const address = {
+      street: street,
+      number: number,
+      city: city,
+      province: province,
+      postalCode: postalCode
+    }
+    setAddress(address)
+    nextStep();
+  }
 
   const router = useRouter();
-
-  const nextPage = () => {
-    dispatch(setUserAddress({ calle, altura, ciudad, provincia, codigoPostal }));
-    router.push('/register/cooperativa/onboarding/page2');
-  }
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-white">
@@ -48,8 +49,9 @@ const onboardingCooperativa = () => {
                 name="street-address"
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                value={calle}
-                onChange={(e) => setCalle(e.target.value)}
+                value={street}
+                required
+                onChange={(e) => setStreet(e.target.value)}
               />
             </div>
           </div>
@@ -64,8 +66,9 @@ const onboardingCooperativa = () => {
                 name="street-address"
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                value={altura}
-                onChange={(e) => setAltura(e.target.value)}
+                value={number}
+                required
+                onChange={(e) => setNumber(e.target.value)}
               />
             </div>
           </div>
@@ -81,8 +84,9 @@ const onboardingCooperativa = () => {
                 name="ciudad"
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                value={ciudad}
-                onChange={(e) => setCiudad(e.target.value)}
+                value={city}
+                required
+                onChange={(e) => setCity(e.target.value)}
               />
             </div>
           </div>
@@ -97,8 +101,9 @@ const onboardingCooperativa = () => {
                 name="provincia"
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                value={provincia}
-                onChange={(e) => setProvincia(e.target.value)}
+                value={province}
+                required
+                onChange={(e) => setProvince(e.target.value)}
               />
             </div>
           </div>
@@ -113,12 +118,12 @@ const onboardingCooperativa = () => {
                 name="codigoPostal"
                 type="text"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                value={codigoPostal}
-                onChange={(e) => setCodigoPostal(e.target.value)}
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
               />
             </div>
             <div className="mt-6 flex justify-end">
-            <GreenRoundedButton onClick={nextPage} buttonTitle='Siguiente'/>
+            <GreenRoundedButton onClick={nextForm} buttonTitle='Siguiente'/>
             </div>
           </div>
         </div>
@@ -128,4 +133,4 @@ const onboardingCooperativa = () => {
   );
 };
 
-export default onboardingCooperativa;
+export default OnboardingCooperativaFormStep1;
