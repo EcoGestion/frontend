@@ -30,12 +30,10 @@ const SignUp = ({ params }: { params: { userType: string } }) => {
       console.log(userCredential)
       dispatch(setUserSession({
         name: name,
-        userId: userCredential.user.uid, // ToDo: definir si cambiar por id del back
         email: email,
-        userType: userType,
-        firebaseToken: userCredential.user.uid,
+        userId: userCredential.user.uid,
       }))
-      router.replace("/register/" + userType + "/onboarding/page1")
+      router.replace("/register/" + userType + "/onboarding")
     })
     .catch((error) => {
       console.log(error)
