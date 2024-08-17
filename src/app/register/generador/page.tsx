@@ -25,9 +25,8 @@ const SignUpGenerador = () => {
       console.log(userCredential)
       dispatch(setUserSession({
         name: name,
-        userId: null, //cambiar por id del back
         email: email,
-        firebaseToken: userCredential.user.uid,
+        userId: userCredential.user.uid,
       }))
       router.replace("/login/generador")
     })
