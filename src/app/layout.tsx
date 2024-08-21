@@ -15,11 +15,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Provider store={store}>
-        <NextUIProvider>
-          <body className={inter.className}>{children}</body>
-        </NextUIProvider>
-      </Provider>
+      <body className={inter.className}>
+        <Provider store={store}>
+          <NextUIProvider>
+            {children}
+          </NextUIProvider>
+        </Provider>
+      </body>
     </html>
+
   );
 }

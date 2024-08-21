@@ -13,7 +13,9 @@ const NavBar = () => {
     return (
         <Navbar isBordered>
         <NavbarBrand>
-            <p className="font-bold text-inherit ">LOGO APP</p>
+            <Link color="foreground" href="/home/cooperativa">
+                <p className="font-bold text-inherit ">LOGO APP</p>
+            </Link>
         </NavbarBrand>
 
         <NavbarContent className="hidden sm:flex gap-4" justify="center">
@@ -38,7 +40,7 @@ const NavBar = () => {
 
         <NavbarContent justify="end">
         <NavbarItem>
-          <Button as={Link} color="primary" href="#" variant="flat">
+          <Button as={Link} color="primary" href="/" variant="flat">
             Cerrar Sesión
           </Button>
         </NavbarItem>

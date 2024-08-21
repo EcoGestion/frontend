@@ -15,7 +15,7 @@ const InitialPage = () => {
   })
 
   return (
-    <RootLayout>
+    
       <div className='flex flex-col items-center justify-center gap-5 h-screen bg-white'>
         <h1 className='text-4xl font-bold text-gray-800 mb-4'>Bienvenido al sistema EcoGestion</h1>
         <p className='text-lg text-gray-600 mb-6'>Por favor, seleccione su tipo de usuario:</p>
@@ -30,7 +30,7 @@ const InitialPage = () => {
           />
         </div>
       </div>
-    </RootLayout>
+    
   );
 };
 
