@@ -2,11 +2,15 @@
 import React, { useEffect, useState } from 'react';
 import {auth} from '../../firebaseConfig'
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { useDispatch } from 'react-redux';
+import { clearUserSession } from '@/state/userSessionSlice';
 import { useRouter } from 'next/navigation';
 import 'dotenv/config'
 
 const HomeCooperativa = () => {
+  const dispatch = useDispatch();
   const router = useRouter();
+
   const [user, setUser] = useState({});
   const [accessToken, setAccessToken] = useState("");
   const [response, setResponse] = useState("");
@@ -15,6 +19,7 @@ const HomeCooperativa = () => {
   const logOut = (() => {
     signOut(auth)
     .then(() => {
+      dispatch(clearUserSession());
       router.replace("/")
     })
   })
