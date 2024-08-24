@@ -1,5 +1,7 @@
 import { NextUIProvider, Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button } from '@nextui-org/react';
-import NavBar  from "./components/NavBar";
+import NavBar  from "../../../components/NavBar";
+import React from 'react';
+import NavBarMobile from '../../../components/NavBarMobile';
 
 export default function HomeLayout({
   children,
@@ -8,10 +10,11 @@ export default function HomeLayout({
 }) {
   return (
     <NextUIProvider>
-      <NavBar />
+        <NavBar />
       <div>
         {children}
       </div>
+        <NavBarMobile />
     </NextUIProvider>
   );
 }
