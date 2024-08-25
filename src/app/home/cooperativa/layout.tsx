@@ -11,7 +11,7 @@ export default function HomeLayout({
   return (
     <NextUIProvider>
         <NavBar />
-      <div>
+      <div className='bg-background-color'>
         {children}
       </div>
         <NavBarMobile />

@@ -63,7 +63,7 @@ const NavBar = () => {
             </Link>
             </NavbarItem>
 
-            <NavbarMenuToggle className="text-lg w-10" aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+            <NavbarMenuToggle className="text-lg h-10 text-black" aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
             </div>
         </NavbarContent>
 
@@ -73,7 +73,7 @@ const NavBar = () => {
             <Link
               className="w-full"
               color={
-                index === menuItems.length - 1 ? "danger" : "foreground"
+                index === menuItems.length - 1 ? "danger" : "black"
               }
               href="#"
               size="lg"

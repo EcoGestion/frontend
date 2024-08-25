@@ -9,6 +9,9 @@ const config: Config = {
     "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}"
   ],
   theme: {
+    colors: {
+      'background-color': '#9ceca8  '
+    },
     extend: {
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
@@ -17,6 +20,8 @@ const config: Config = {
       },
     },
     screens: {
+      'xs': '430px',
+
       'sm': '640px',
       // => @media (min-width: 640px) { ... }
 
