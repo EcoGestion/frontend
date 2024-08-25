@@ -30,39 +30,41 @@ const NavBar = () => {
     };
 
     return (
-      <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='flex justify-center'>
+      <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='flex justify-center w-full'>
         <NavbarBrand>
             <Link color="foreground" href="/home/cooperativa">
                 <p className="font-bold text-inherit">LOGO APP</p>
             </Link>
         </NavbarBrand>
 
-        <NavbarContent className="flex flex-row hidden sm:block gap-14 sticky-bottom w-full" justify="center">
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa')}>
+        <NavbarContent className="ml-14 hidden sm:block sticky-bottom w-full items-center text-center h-1/2" justify="end">
+          <div className='flex flex-row items-center self-center gap-12'>
+            <NavbarItem isActive={isActiveRoute('/home/cooperativa')} className='w-8'>
             <Link color="foreground" href="/home/cooperativa">
               <HomeIcon fontSize='large'/>
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa/pagina1')}>
-            <Link color="foreground" href="/home/cooperativa/pedidos">
+            <NavbarItem isActive={isActiveRoute('/home/cooperativa/pedidos')} className='w-10'>
+            <Link color="foreground" href="/home/cooperativa/pedidos" >
                 <ReceiptIcon fontSize='large'/>
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa/pagina1')} >
+            <NavbarItem isActive={isActiveRoute('/home/cooperativa/pedidos/crear')}  className='w-10'>
             <Link color="foreground" href="/home/cooperativa/pedidos/crear">
                 <AddIcon fontSize='large'/>
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa/pagina2')}>
+            <NavbarItem isActive={isActiveRoute('/home/cooperativa/perfil')} className='w-10'>
             <Link color="foreground" href="/home/cooperativa/perfil">
                 <AccountBoxIcon fontSize='large'/>
             </Link>
             </NavbarItem>
 
-            <NavbarMenuToggle className="text-lg" aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+            <NavbarMenuToggle className="text-lg w-10" aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+            </div>
         </NavbarContent>
 
         <NavbarMenu>
