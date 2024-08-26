@@ -73,7 +73,7 @@ const NavBar = () => {
             <Link
               className="w-full"
               color={
-                index === menuItems.length - 1 ? "danger" : "black"
+                index === menuItems.length - 1 ? "danger" : "foreground"
               }
               href="#"
               size="lg"
