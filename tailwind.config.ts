@@ -12,6 +12,10 @@ const config: Config = {
     colors: {
       'background-color': '#f5f5f5',
       'black': '#000000',
+      'green':{
+        'dark': '#3f833e',
+        'light': '#4ec55d',
+      },
     },
     extend: {
       backgroundImage: {

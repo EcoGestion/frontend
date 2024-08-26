@@ -30,10 +30,10 @@ const NavBar = () => {
     };
 
     return (
-      <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='flex justify-center w-full'>
+      <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='hidden sm:flex justify-center w-full'>
         <NavbarBrand>
             <Link color="foreground" href="/home/cooperativa">
-                <p className="font-bold text-inherit">LOGO APP</p>
+              <p className="font-bold text-green-dark text-lg">EcoGestion</p>
             </Link>
         </NavbarBrand>
 
