@@ -6,6 +6,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import AddIcon from '@mui/icons-material/Add';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 
 const NavBarMobile = () => {
     const currentPath = usePathname();
@@ -55,10 +56,11 @@ const NavBarMobile = () => {
             </Link>
             </NavbarItem>
 
-            <NavbarMenuToggle className="text-lg" aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+            <NavbarMenuToggle className="text-lg w-10 h-10" aria-label={isMenuOpen ? "Close menu" : "Open menu"}>
+            </NavbarMenuToggle>
         </NavbarContent>
 
-        <NavbarMenu>
+        <NavbarMenu className='text-black'>
         {menuItems.map((item, index) => (
           <NavbarMenuItem key={`${item}-${index}`}>
             <Link

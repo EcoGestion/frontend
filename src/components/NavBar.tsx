@@ -30,7 +30,7 @@ const NavBar = () => {
     };
 
     return (
-      <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='hidden sm:flex justify-center w-full'>
+      <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='flex block justify-center w-full'>
         <NavbarBrand>
             <Link color="foreground" href="/home/cooperativa">
               <p className="font-bold text-green-dark text-lg">EcoGestion</p>
@@ -63,7 +63,7 @@ const NavBar = () => {
             </Link>
             </NavbarItem>
 
-            <NavbarMenuToggle className="text-lg h-10 text-black" aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+            <NavbarMenuToggle className="text-lg h-10 w-10" aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
             </div>
         </NavbarContent>
 
