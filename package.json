@@ -2,6 +2,7 @@
   "name": "eco-gestion",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -17,6 +18,9 @@
     "@nextui-org/react": "^2.4.6",
     "@reduxjs/toolkit": "^2.2.6",
     "@tailwindcss/forms": "^0.5.7",
+    "@reduxjs/toolkit": "^2.2.6",
+    "@tailwindcss/forms": "^0.5.7",
+    "axios": "^1.7.3",
     "bootstrap": "^5.3.3",
     "dotenv": "^16.4.5",
     "firebase": "^10.12.2",
