@@ -44,6 +44,9 @@ export default function onboarding() {
     }
     catch (error) {
       console.log("Error al crear usuario", error);
+      alert("Error al crear usuario. \nPor favor, intente nuevamente.");
+      setLoading(false);
+      setStep(2);
     }
     finally{
       setLoading(false)

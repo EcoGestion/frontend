@@ -29,6 +29,7 @@ export default function Onboarding() {
     }
   }, [step]);
 
+  // ToDO: Agregar phone
   const sendForm = async () => {
     const body = {
       username: user.name,
@@ -36,8 +37,9 @@ export default function Onboarding() {
       type: "COOP",
       firebase_id: user.userId,
       address: address,
+      phone: "123456789",
       days: availableSchedule,
-      waste_type_config: recyclableObjects.filter(item => item.checked).map(item => ({ name: item.label }))
+      waste_type_config: recyclableObjects.filter(item => item.checked).map(item => ({ name: item.name }))
     }
     console.log(body);
     try {
@@ -47,17 +49,20 @@ export default function Onboarding() {
     }
     catch (error) {
       console.log("Error al crear usuario", error);
+      alert("Error al crear usuario. \nPor favor, intente nuevamente.");
+      setLoading(false);
+      setStep(3);
     }
     finally{
-      setLoading(false)
-    }   
+      setLoading(false);
+    } 
   }
   
   return (
     <div>
       {step === 1 && <OnboardingCooperativaFormStep1 nextStep={nextStep} setAddress={setAddress} address={address} />}
       {step === 2 && <OnboardingCooperativaFormStep2 nextStep={nextStep} prevStep={prevStep} setRecyclableObjects={setRecyclableObjects} recyclableObjects={recyclableObjects} />}
-      {step === 3 && <OnboardingCooperativaFormStep3 nextStep={nextStep} prevStep={prevStep} setAvailableSchedule={setAvailableSchedule} />}
+      {step === 3 && <OnboardingCooperativaFormStep3 nextStep={nextStep} prevStep={prevStep} setAvailableSchedule={setAvailableSchedule} availableSchedule={availableSchedule} />}
       {loading && <Spinner/>}
 
     </div>
