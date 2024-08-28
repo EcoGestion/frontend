@@ -27,20 +27,21 @@ export default function onboarding() {
     }
   }, [step]);
 
+  // ToDO: Agregar phone
   const sendForm = async () => {
     const body = {
       username: user.name,
       email: user.email,
-      type: "GEN",
+      type: organizationType,
       firebase_id: user.userId,
       address: address,
-      organization_type: organizationType
+      phone: "123456789"
     }
     console.log(body);
     try {
       const response = await createUser(body)
       console.log("Usuario creado: ", response);
-      router.replace("/home/cooperativa");
+      router.replace("/home/generador");
     }
     catch (error) {
       console.log("Error al crear usuario", error);
@@ -50,7 +51,7 @@ export default function onboarding() {
     }
     finally{
       setLoading(false)
-    }   
+    }
   }
   
   return (

@@ -7,17 +7,17 @@ const OnboardingGeneradorFormStep2 = ({prevStep, nextStep, organizationType, set
   const [orgType, setOrgType] = useState(organizationType);
 
   const options = [
-    { value: "1", label: "Consorcios de edificios" },
-    { value: "2", label: "Oficinas y edificios corporativos" },
-    { value: "3", label: "Hoteles" },
-    { value: "4", label: "Restaurantes" },
-    { value: "5", label: "Supermercados" },
-    { value: "6", label: "Empresas" },
-    { value: "7", label: "Clubes" },
-    { value: "8", label: "Hospitales y clinicas" },
-    { value: "9", label: "Instituciones educativas" },
-    { value: "10", label: "Fabricas y plantas de producción" },
-    { value: "11", label: "Otros" }
+    { value: "GEN_BUILDING", label: "Consorcios de edificios" },
+    { value: "GEN_OFFICE", label: "Oficinas y edificios corporativos" },
+    { value: "GEN_HOTEL", label: "Hoteles" },
+    { value: "GEN_RESTAURANT", label: "Restaurantes" },
+    { value: "GEN_MARKET", label: "Supermercados" },
+    { value: "GEN_COMPANY", label: "Empresas" },
+    { value: "GEN_CLUB", label: "Clubes" },
+    { value: "GEN_HOSPITAL", label: "Hospitales y clinicas" },
+    { value: "GEN_EDUCATIONAL_INSTITUTION", label: "Instituciones educativas" },
+    { value: "GEN_FACTORY", label: "Fabricas y plantas de producción" },
+    { value: "GEN_OTHER", label: "Otros" }
   ];
 
   const nextForm = () => {
