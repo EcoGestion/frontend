@@ -1,10 +1,19 @@
-const PaginaPrueba = () => {
+import React from "react";
+import Order from "../../../../components/Order";
+
+const OrderList = () => {
+    const orders = [
+        {title:"Empanadas"}
+        ,
+    ]
     return (
-        <div className="flex flex-col items-center justify-center h-screen">
-            <h1 className="text-4xl font-bold">Pedidos</h1>
-            <h2 className="">Texto grande para probar scroll</h2>
+        <div className="flex flex-col items-center justify-start  h-screen">
+            <h1 className="text-4xl font-bold py-4">Mis pedidos</h1>
+            {orders.map((order) => (
+                <Order props = {order} />
+            ) )}
         </div>
     );
 };
 
-export default PaginaPrueba;
+export default OrderList;
