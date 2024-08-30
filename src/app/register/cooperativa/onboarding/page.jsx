@@ -1,6 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { setUserId } from '@/state/userSessionSlice';
 import OnboardingCooperativaFormStep1 from "./components/FormStep1.jsx"
 import OnboardingCooperativaFormStep2 from './components/FormStep2.jsx';
 import OnboardingCooperativaFormStep3 from './components/FormStep3.jsx';
@@ -10,6 +12,7 @@ import Spinner from '../../../../components/Spinner.tsx';
 
 export default function Onboarding() {
   const user = useSelector((state) => state.userSession);
+  const dispatch = useDispatch();
   
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -45,6 +48,7 @@ export default function Onboarding() {
     try {
       const response = await createUser(body)
       console.log("Usuario creado: ", response);
+      dispatch(setUserId(response.id));
       router.replace("/home/cooperativa");
     }
     catch (error) {

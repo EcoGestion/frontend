@@ -1,8 +1,7 @@
 'use client'
 import { FormEvent, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { setUserSession } from '@/state/userSessionSlice';
-import { RootState } from '@/state/store';
 import {auth} from '../../firebaseConfig';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
@@ -12,12 +11,10 @@ import GreenRoundedButton from '@/components/greenRoundedButton';
 
 const SignUp = ({ params }: { params: { userType: string } }) => {
   const userType = params.userType;
-  
-  const userSession = useSelector((state: RootState) => state.userSession);
   const dispatch = useDispatch();
 
-  const [name, setName] = useState(userSession.name);
-  const [email, setEmail] = useState(userSession.email);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const router = useRouter();
@@ -31,7 +28,7 @@ const SignUp = ({ params }: { params: { userType: string } }) => {
       dispatch(setUserSession({
         name: name,
         email: email,
-        userId: userCredential.user.uid,
+        userId: '',
       }))
       router.replace("/register/" + userType + "/onboarding")
     })

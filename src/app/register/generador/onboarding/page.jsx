@@ -1,6 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { setUserId } from '@/state/userSessionSlice';
 import OnboardingGeneradorFormStep1 from './components/FormStep1.jsx';
 import OnboardingGeneradorFormStep2 from './components/FormStep2.jsx';
 import { useRouter } from 'next/navigation';
@@ -9,6 +11,7 @@ import Spinner from '../../../../components/Spinner.tsx';
 
 export default function onboarding() {
   const user = useSelector((state) => state.userSession);
+  const dispatch = useDispatch();
   
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -41,6 +44,7 @@ export default function onboarding() {
     try {
       const response = await createUser(body)
       console.log("Usuario creado: ", response);
+      dispatch(setUserId(response.id));
       router.replace("/home/generador");
     }
     catch (error) {
