@@ -1,5 +1,7 @@
 'use client'
 import { useState } from 'react';
+import { Card } from '@nextui-org/react';
+import TimeSelector from '@/components/TimeSelector';
 import GreenRoundedButton from '@/components/greenRoundedButton';
 
 const OnboardingCooperativaFormStep3 = ({prevStep, nextStep, setAvailableSchedule, availableSchedule}) => {
@@ -12,16 +14,6 @@ const OnboardingCooperativaFormStep3 = ({prevStep, nextStep, setAvailableSchedul
     { id: 6, name: 'SATURDAY', name_spanish: 'Sábado', active: false, begin_at: "00:00", end_at: "00:00" },
     { id: 7, name: 'SUNDAY', name_spanish: 'Domingo', active: false, begin_at: "00:00", end_at: "00:00" }
   ]);
-
-  const daysToSpanish = {
-    'MONDAY': "Lunes",
-    'TUESDAY': "Martes",
-    'WEDNESDAY': "Miercoles",
-    'THURSDAY': "Jueves",
-    'FRIDAY': "Viernes",
-    'SATURDAY': "Sábado",
-    'SUNDAY': "Domingo"
-  }
 
   const toggleDay = (id) => {
     setDays(days.map(day => 
@@ -55,54 +47,15 @@ const OnboardingCooperativaFormStep3 = ({prevStep, nextStep, setAvailableSchedul
 
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-white">
-      <div className="border border-gray-900/10 rounded-lg p-6">
-
+    <div className="flex flex-col items-center justify-center h-screen bg-white w-full">
+      <div className="border border-gray-900/10 rounded-lg p-6 shadow-md w-full max-w-2xl ">
         <p className="text-sm leading-6 font-bold text-gray-800">Disponibilidad horaria</p>
-
-        <ul className="space-y-4">
-        {days.map(day => (
-          <li key={day.id} className="flex items-center justify-between p-4 bg-gray-100 rounded-lg shadow-md w-full max-w-2xl mx-auto">
-            <button 
-              onClick={() => toggleDay(day.id)} 
-              className={`w-10 h-6 flex items-center rounded-full p-1 duration-300 ease-in-out ${day.active ? 'bg-cyan-800' : 'bg-gray-300'}`}
-
-            >
-              <div 
-                className={`bg-white w-4 h-4 rounded-full shadow-md transform duration-300 ease-in-out ${day.active ? 'translate-x-4' : ''}`}
-              ></div>
-            </button>
-            <span className={`text-lg mx-2 ${day.active ? 'text-cyan-800' : 'text-gray-600'}`}>
-              {day.name_spanish}
-            </span>
-            <div className="flex space-x-2">
-              <select
-                value={day.from}
-                onChange={(e) => handleTimeChange(day.id, 'from', e.target.value)}
-                disabled={!day.active}
-                className={`text-sm bg-white border border-gray-300 rounded-md shadow-sm focus:ring-2 ${day.active ? 'focus:ring-cyan-800' : 'focus:ring-gray-600'} ${!day.active ? 'opacity-50 cursor-not-allowed' : ''}`}
-
-              >
-                <option value="" disabled>Desde</option>
-                {timeOptions.map(time => (
-                  <option key={time} value={time}>{time}</option>
-                ))}
-              </select>
-              <select
-                value={day.to}
-                onChange={(e) => handleTimeChange(day.id, 'to', e.target.value)}
-                disabled={!day.active}
-                className={`text-sm bg-white border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-gray-600 ${!day.active ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                <option value="" disabled>Hasta</option>
-                {timeOptions.map(time => (
-                  <option key={time} value={time}>{time}</option>
-                ))}
-              </select>
-            </div>
-          </li>
-        ))}
-      </ul>
+        <TimeSelector
+          days={days}
+          handleTimeChange={handleTimeChange}
+          editable
+          toggleDay={toggleDay}
+        />
 
       <div className="flex gap-4 mt-4">
           <button
