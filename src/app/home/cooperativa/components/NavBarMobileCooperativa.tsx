@@ -1,15 +1,15 @@
 'use client'
 import React from 'react';
 import { usePathname } from 'next/navigation';
-import { Navbar, NavbarContent, NavbarBrand, NavbarItem, Link, Button, NavbarMenuToggle, NavbarMenuItem, NavbarMenu } from '@nextui-org/react';
+import { Navbar, NavbarContent, NavbarItem, Link, Button, NavbarMenuToggle, NavbarMenuItem, NavbarMenu } from '@nextui-org/react';
 import HomeIcon from '@mui/icons-material/Home';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import AddIcon from '@mui/icons-material/Add';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 
-const NavBar = () => {
+const NavBarMobileCooperativa = () => {
     const currentPath = usePathname();
-
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
     const menuItems = [
@@ -30,44 +30,37 @@ const NavBar = () => {
     };
 
     return (
-      <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='flex block justify-center w-full'>
-        <NavbarBrand>
-            <Link color="foreground" href="/home/cooperativa">
-              <p className="font-bold text-green-dark text-lg">EcoGestion</p>
-            </Link>
-        </NavbarBrand>
-
-        <NavbarContent className="ml-14 hidden sm:block sticky-bottom w-full items-center text-center h-1/2" justify="end">
-          <div className='flex flex-row items-center self-center gap-12'>
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa')} className='w-8'>
+        <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='flex bottom-0 justify-center border-1 sm:hidden'>
+        <NavbarContent className="flex sm:hidden gap-9 xs:gap-14 sticky-bottom w-full" justify="center">
+            <NavbarItem isActive={isActiveRoute('/home/cooperativa')}>
             <Link color="foreground" href="/home/cooperativa">
               <HomeIcon fontSize='large'/>
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa/pedidos')} className='w-10'>
-            <Link color="foreground" href="/home/cooperativa/pedidos" >
+            <NavbarItem isActive={isActiveRoute('/home/cooperativa/pagina1')}>
+            <Link color="foreground" href="/home/cooperativa/pedidos">
                 <ReceiptIcon fontSize='large'/>
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa/pedidos/crear')}  className='w-10'>
+            <NavbarItem isActive={isActiveRoute('/home/cooperativa/pagina1')} >
             <Link color="foreground" href="/home/cooperativa/pedidos/crear">
                 <AddIcon fontSize='large'/>
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa/perfil')} className='w-10'>
+            <NavbarItem isActive={isActiveRoute('/home/cooperativa/pagina2')}>
             <Link color="foreground" href="/home/cooperativa/perfil">
                 <AccountBoxIcon fontSize='large'/>
             </Link>
             </NavbarItem>
 
-            <NavbarMenuToggle className="text-lg h-10 w-10" aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
-            </div>
+            <NavbarMenuToggle className="text-lg w-10 h-10" aria-label={isMenuOpen ? "Close menu" : "Open menu"}>
+            </NavbarMenuToggle>
         </NavbarContent>
 
-        <NavbarMenu>
+        <NavbarMenu className='text-black'>
         {menuItems.map((item, index) => (
           <NavbarMenuItem key={`${item}-${index}`}>
             <Link
@@ -83,8 +76,9 @@ const NavBar = () => {
           </NavbarMenuItem>
         ))}
       </NavbarMenu>
-      </Navbar>
+
+        </Navbar>
     )
 };
 
-export default NavBar;
+export default NavBarMobileCooperativa;
