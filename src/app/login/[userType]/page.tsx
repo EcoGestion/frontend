@@ -3,16 +3,18 @@ import { FormEvent, use, useState } from 'react';
 import {auth} from '../../firebaseConfig';
 import {signInWithEmailAndPassword} from "firebase/auth";
 import { useRouter } from 'next/navigation';
-import { useDispatch } from 'react-redux';
-import { setUserSession } from '@/state/userSessionSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../../state/store';
 import GreenRoundedButton from '@/components/greenRoundedButton';
 import BlueRoundedButton from '@/components/blueRoundedButton';
+import { loginUser } from '../../../api/apiService';
+import { useUser } from '../../../state/userProvider';
 
 // /login/{cooperativa/generador}
 
 const Login = ({ params }: { params: { userType: string } }) => {
   const userType = params.userType;
-  const dispatch = useDispatch();
+  const { setUser } = useUser();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,15 +24,22 @@ const Login = ({ params }: { params: { userType: string } }) => {
     e.preventDefault();
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      dispatch(setUserSession({
-        email: email,
-        userType: userType,
-        firebaseToken: await userCredential.user.getIdToken()}));
+      const userData = {
+        "email": userCredential.user.email,
+        "firebase_id": userCredential.user.uid
+      }
+      const response = await loginUser(userData)
+      setUser({
+        name: response.username,
+        email: response.email,
+        userId: response.id
+      })
       router.replace('/home/' + userType);
-    } catch (error) {
-      console.log(error);
     }
-  };
+    catch (error) {
+        console.log("Error al loguear usuario", error);
+    }
+  }
 
   const handleRegister = () => {
     // Redirigir a la página de registro

@@ -1,7 +1,8 @@
 'use client'
 import React from 'react';
 import { usePathname } from 'next/navigation';
-import { Navbar, NavbarContent, NavbarItem, Link, Button, NavbarMenuToggle, NavbarMenuItem, NavbarMenu } from '@nextui-org/react';
+import { Navbar, NavbarContent, NavbarItem, Button, NavbarMenuToggle, NavbarMenuItem, NavbarMenu } from '@nextui-org/react';
+import Link from 'next/link';
 import HomeIcon from '@mui/icons-material/Home';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
@@ -57,6 +58,7 @@ const NavBarMobile = () => {
             </NavbarItem>
 
             <NavbarMenuToggle className="text-lg w-10 h-10" aria-label={isMenuOpen ? "Close menu" : "Open menu"}>
+              <MenuRoundedIcon className='color-black'/>
             </NavbarMenuToggle>
         </NavbarContent>
 

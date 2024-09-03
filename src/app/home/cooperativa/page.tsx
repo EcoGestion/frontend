@@ -5,14 +5,18 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useDispatch } from 'react-redux';
 import { clearUserSession } from '@/state/userSessionSlice';
 import { useRouter } from 'next/navigation';
+import { useUser } from '../../../state/userProvider';
 import 'dotenv/config'
 
 const HomeCooperativa = () => {
+  const { user } = useUser();
   const dispatch = useDispatch();
   const router = useRouter();
+  console.log(user)
 
-  const [user, setUser] = useState({});
-  const [accessToken, setAccessToken] = useState("");
+  useEffect(() => {
+    console.log("Estado del usuario en home:", user);
+  }, [user]);
 
   const logOut = (() => {
     signOut(auth)
@@ -21,20 +25,6 @@ const HomeCooperativa = () => {
       router.replace("/")
     })
   })
-
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) =>{
-      if (user) {
-        user.getIdToken().then( async (accessToken) => {
-          setUser(user)
-          setAccessToken(accessToken)
-        })
-      }
-      else {
-        router.replace("/")
-      }
-    });
-  }, [])
 
   if(Object.keys(user).length == 0)
     return (
