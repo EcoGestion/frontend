@@ -120,7 +120,7 @@ const Perfil = () => {
                 <h2 className="font-semibold">Dirección</h2>
                 <p>{userInfo?.address.street} {userInfo?.address.number}</p>
                 <p>{userInfo?.address.city}, {userInfo?.address.province}</p>
-                <p>{userInfo?.phone}</p>
+                <p>Teléfono: {userInfo?.phone}</p>
               </CardBody>
             </Card>
   

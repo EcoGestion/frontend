@@ -15,9 +15,13 @@ export interface Day {
   }
   
   export interface UserInfo {
+    id: number;
     username: string;
     email: string;
+    firebase_id: string;
+    type: string;
     address: {
+      id: number;
       street: string;
       number: string;
       city: string;

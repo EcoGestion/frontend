@@ -30,7 +30,7 @@ const NavBarGenerador = () => {
     };
 
     return (
-      <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='flex justify-center w-full'>
+      <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='hidden justify-center w-full sm:flex'>
         <NavbarBrand>
             <Link color="foreground" href="/home/generador">
               <p className="font-bold text-green-dark text-lg">EcoGestion</p>
