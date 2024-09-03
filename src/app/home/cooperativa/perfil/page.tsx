@@ -1,24 +1,149 @@
 'use client'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { RootState } from '@/state/store';
 import { useSelector } from 'react-redux';
 import { getUserById } from "@/api/apiService";
+import ReciclablesSelector from '@/components/ReciclablesSelector';
+import TimeSelector from '@/components/TimeSelector';
+import Spinner from '@/components/Spinner';
+import { Card, CardHeader, CardBody, Divider } from '@nextui-org/react';
+import { Day, Item, UserInfo } from '@/types';
+
+const nameSpanishMap: Record<string, string> = {
+  MONDAY: 'Lunes',
+  TUESDAY: 'Martes',
+  WEDNESDAY: 'Miercoles',
+  THURSDAY: 'Jueves',
+  FRIDAY: 'Viernes',
+  SATURDAY: 'Sábado',
+  SUNDAY: 'Domingo'
+};
+
+const transformDays = (backendDays: Day[]): Day[] => {
+  return backendDays.map(day => ({
+    id: day.id,
+    name: day.name,
+    name_spanish: nameSpanishMap[day.name],
+    active: day.active,
+    begin_at: day.begin_at,
+    end_at: day.end_at
+  }));
+};
 
 const Perfil = () => {
     const userSession = useSelector((state: RootState) => state.userSession);
-    const [userInfo, setUserInfo] = useState(null);
+    const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+    const [days, setDays] = useState<Day[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const handleClick = async () => {
-        const response = await getUserById(userSession.userId);
-        setUserInfo(response);
-        console.log(response);
+    const [items, setItems] = useState([
+        { id: 1, label: 'Papel', name:'PAPER', checked: false },
+        { id: 2, label: 'Metal', name:'METAL', checked: false },
+        { id: 3, label: 'Vidrio', name:'GLASS', checked: false },
+        { id: 4, label: 'Plástico', name:'PLASTIC', checked: false },
+        { id: 5, label: 'Cartón', name:'CARDBOARD', checked: false },
+        { id: 6, label: 'Tetra Brik', name:'TETRA_BRIK', checked: false },
+        { id: 7, label: 'Telgopor', name:'STYROFOAM', checked: false },
+        { id: 8, label: 'Pilas', name:'BATTERIES', checked: false },
+        { id: 9, label: 'Aceite', name:'OIL', checked: false },
+        { id: 10, label: 'Electrónicos', name:'ELECTRONICS', checked: false },
+      ]);
+
+    const nameSpanishMap = {
+    MONDAY: 'Lunes',
+    TUESDAY: 'Martes',
+    WEDNESDAY: 'Miercoles',
+    THURSDAY: 'Jueves',
+    FRIDAY: 'Viernes',
+    SATURDAY: 'Sábado',
+    SUNDAY: 'Domingo'
     };
-    return (
-        <div className="flex flex-col items-center justify-center h-screen">
-            <h1 className="text-4xl font-bold">Perfil</h1>
-            <button onClick={handleClick} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Get User Info</button>
+      
+
+    useEffect(() => {
+    if (userInfo) {
+      const wasteTypeMap = new Map(userInfo.waste_type_config.map(item => [item.name, true]));
+      const updatedItems = items.map(item => ({
+        ...item,
+        checked: wasteTypeMap.has(item.name),
+      }));
+      setItems(updatedItems);
+    }
+  }, [userInfo]);
+
+    useEffect(() => {
+        if (userInfo) {
+        const transformedDays = transformDays(userInfo.days);
+        console.log("transformedDays", transformedDays);
+        setDays(transformedDays);
+        }
+    }, [userInfo]);
+
+    useEffect(() => {
+        retrieveData();
+    }, []);
+
+    const retrieveData = async () => {
+      try {
+          const response = await getUserById(userSession.userId);
+          console.log(response);
+          setUserInfo(response);
+      } catch (error) {
+          console.error('Error retrieving user data:', error);
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  return (
+    <div className="flex items-center justify-center bg-white">
+      {loading ? (
+        <Spinner />
+      ) : (
+        <div className="flex flex-col items-center justify-center p-4 pt-8">
+          <h1 className="text-4xl font-bold mb-6">Perfil de usuario</h1>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+            <Card className="md:col-span-1">
+              <CardHeader>
+                <div className="flex flex-col items-start">
+                  <p className="text-md">{userInfo?.username}</p>
+                  <p className="text-small">{userInfo?.email}</p>
+                </div>
+                <div className="flex justify-between items-center mt-4 ml-auto">
+                  <button className="bg-blue-500 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded">
+                    Editar
+                  </button>
+                </div>
+              </CardHeader>
+              <Divider />
+              <CardBody>
+                <h2 className="font-semibold">Dirección</h2>
+                <p>{userInfo?.address.street} {userInfo?.address.number}</p>
+                <p>{userInfo?.address.city}, {userInfo?.address.province}</p>
+                <p>{userInfo?.phone}</p>
+              </CardBody>
+            </Card>
+  
+            <div className="md:col-span-1">
+              <ReciclablesSelector
+                items={items}
+                editable={false}
+                showEditButton={true}
+              />
+            </div>
+  
+            <div className="md:col-span-1">
+              <TimeSelector
+                days={days}
+                editable={false}
+                showEditButton={true}
+              />
+            </div>
+          </div>
         </div>
-    );
+      )}
+    </div>
+  );  
 }
 
 export default Perfil;

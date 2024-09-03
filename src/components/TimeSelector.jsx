@@ -1,7 +1,17 @@
 import React from 'react';
-import { Card } from '@nextui-org/react';
+import { useState } from 'react';
+import { Card, CardHeader, Divider } from '@nextui-org/react';
 
-const TimeSelector = ({ days, handleTimeChange, editable, toggleDay }) => {
+const TimeSelector = ({
+  title='Horarios disponibles',
+  days,
+  handleTimeChange = () => {},
+  editable = false,
+  toggleDay= () => {},
+  showEditButton=false
+}) => {
+  const [showEdit, setEditable] = useState(showEditButton);
+
   const timeOptions = [
     '00:00', '00:30', '01:00', '01:30', '02:00', '02:30', '03:00', '03:30', '04:00', '04:30', '05:00', '05:30', '06:00', '06:30',
     '07:00', '07:30', '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
@@ -10,8 +20,18 @@ const TimeSelector = ({ days, handleTimeChange, editable, toggleDay }) => {
   ];
 
   return (
-    <Card>
+    <Card className="w-full">
     <div className="max-h-96 overflow-y-auto">
+      <CardHeader className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold">{title}</h3>
+        {showEdit && (
+          <button className="bg-blue-500 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded">
+            Editar
+          </button>
+        )}
+      </CardHeader>
+      
+      <Divider />
       <ul className="space-y-4">
         {days.map(day => (
           <li key={day.id} className="flex flex-wrap items-center justify-between p-4 bg-gray-100 rounded-lg shadow-md w-full max-w-2xl mx-auto">
@@ -28,8 +48,8 @@ const TimeSelector = ({ days, handleTimeChange, editable, toggleDay }) => {
             </span>
             <div className="flex space-x-2">
               <select
-                value={day.from}
-                onChange={(e) => handleTimeChange(day.id, 'from', e.target.value)}
+                value={day.begin_at}
+                onChange={(e) => handleTimeChange(day.id, 'begin_at', e.target.value)}
                 disabled={!day.active || !editable}
                 className={`text-sm bg-white border border-gray-300 rounded-md shadow-sm focus:ring-2 ${day.active ? 'focus:ring-cyan-800' : 'focus:ring-gray-600'} ${!day.active || !editable ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
@@ -39,8 +59,8 @@ const TimeSelector = ({ days, handleTimeChange, editable, toggleDay }) => {
                 ))}
               </select>
               <select
-                value={day.to}
-                onChange={(e) => handleTimeChange(day.id, 'to', e.target.value)}
+                value={day.end_at}
+                onChange={(e) => handleTimeChange(day.id, 'end_at', e.target.value)}
                 disabled={!day.active || !editable}
                 className={`text-sm bg-white border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-gray-600 ${!day.active || !editable ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
