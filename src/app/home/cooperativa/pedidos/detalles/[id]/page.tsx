@@ -11,6 +11,19 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 
+interface Address {
+    street: string;
+    city: string;
+    number: string;
+    province: string;
+  }
+interface Generator {
+    username: string;
+    email: string;
+    phone: string;
+    address: Address;
+  }
+
 const monthNames = {
     1: 'Enero',    // Enero
     2: 'Febrero',  // Febrero
@@ -41,7 +54,7 @@ const OrderDetails = (props: unknown) => {
     
     const {user} = useUser(); 
     const [loading, setLoading] = useState(true);
-    const [generator, setGenerator] = useState(null);
+    const [generator, setGenerator] = useState<Generator | null>(null);
     const [isCollapsedItems, setIsCollapsedItems] = useState(false);
     const [isCollapsedObservations, setIsCollapsedObservations] = useState(false);
 
@@ -86,7 +99,7 @@ const OrderDetails = (props: unknown) => {
                         <div className="row g-0 w-full">
                         <div className="col-md-20">
                         <div className="card-body flex flex-col gap-1">
-                                <h5 className="card-title font-medium text-5xl"> {generator.username}</h5>
+                                {generator && <h5 className="card-title font-medium text-5xl"> {generator.username}</h5>}
                                 {order.status == "Cancelado" ?
                                 (<h3 className="card-title font-semibold text-[#ec1a09] text-xl">{order.status.toUpperCase()} </h3>) :
                                 (<h3 className="card-title font-semibold text-black text-xl">{order.status.toUpperCase()} </h3>)}
@@ -134,15 +147,15 @@ const OrderDetails = (props: unknown) => {
                                 <div className="card-text flex gap-3 flex-col justify-start">
                                     <div className="flex flex-row gap-3 text-xl items-center">
                                         <LocationOnIcon className="ml-1"/>
-                                        <p className="card-text"><small className="text-body-secondary text-md">{generator.address.street} {generator.address.number}, {generator.address.city}, {generator.address.province}</small></p>
+                                        {generator && <p className="card-text"><small className="text-body-secondary text-md">{generator.address.street} {generator.address.number}, {generator.address.city}, {generator.address.province}</small></p>}
                                     </div>
                                     <div className="flex flex-row gap-3 text-xl items-center">
                                         <AlternateEmailIcon className="ml-1"/>
-                                        <p className="card-text"><small className="text-body-secondary text-md">{generator.email} </small></p>
+                                        {generator && <p className="card-text"><small className="text-body-secondary text-md">{generator.email} </small></p>}
                                     </div>
                                     <div className="flex flex-row gap-3 text-xl items-center">
                                         <LocalPhoneIcon className="ml-1"/>
-                                        <p className="card-text"><small className="text-body-secondary text-md">{generator.phone} </small></p>
+                                        {generator && <p className="card-text"><small className="text-body-secondary text-md">{generator.phone} </small></p>}
                                     </div>
                                     <div className="flex flex-col gap-0 text-lg justify-normal">
                                         <span className="ml-1 font-semibold">Observaciones</span>

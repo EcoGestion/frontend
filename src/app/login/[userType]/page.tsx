@@ -10,18 +10,19 @@ import BlueRoundedButton from '@/components/blueRoundedButton';
 import { loginUser } from '../../../api/apiService';
 import { useUser } from '../../../state/userProvider';
 import Spinner  from '@/components/Spinner';
+import { setUserSession } from '../../../state/userSessionSlice';
 
 // /login/{cooperativa/generador}
 
 const Login = ({ params }: { params: { userType: string } }) => {
   const userType = params.userType;
   const { setUser } = useUser();
+  const dispatch = useDispatch();
+  const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const router = useRouter();
 
   const handleLogin = async (e: FormEvent) => {
     setLoading(true);
@@ -33,14 +34,14 @@ const Login = ({ params }: { params: { userType: string } }) => {
         "email": userCredential.user.email,
         "firebase_id": firebaseToken
       }
-      const response = await loginUser(userData)
+      const userInfo = await loginUser(userData)
       setUser({
-        name: response.username,
-        email: response.email,
-        userId: response.id
+        name: userInfo.username,
+        email: userInfo.email,
+        userId: userInfo.id
       })
       dispatch(setUserSession({
-        email: email,
+        email: userInfo.email,
         userId: userInfo.id,
         name: userInfo.username,
       }));
@@ -107,3 +108,7 @@ const Login = ({ params }: { params: { userType: string } }) => {
 };
 
 export default Login;
+function dispatch(arg0: any) {
+  throw new Error('Function not implemented.');
+}
+
