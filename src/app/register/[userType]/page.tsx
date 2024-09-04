@@ -1,8 +1,7 @@
 'use client'
 import { FormEvent, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { setUserSession } from '@/state/userSessionSlice';
-import { RootState } from '@/state/store';
 import {auth} from '../../firebaseConfig';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
@@ -12,12 +11,10 @@ import GreenRoundedButton from '@/components/greenRoundedButton';
 
 const SignUp = ({ params }: { params: { userType: string } }) => {
   const userType = params.userType;
-  
-  const userSession = useSelector((state: RootState) => state.userSession);
   const dispatch = useDispatch();
 
-  const [name, setName] = useState(userSession.name);
-  const [email, setEmail] = useState(userSession.email);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const router = useRouter();
@@ -31,7 +28,7 @@ const SignUp = ({ params }: { params: { userType: string } }) => {
       dispatch(setUserSession({
         name: name,
         email: email,
-        userId: userCredential.user.uid,
+        userId: '',
       }))
       router.replace("/register/" + userType + "/onboarding")
     })
@@ -79,7 +76,7 @@ const SignUp = ({ params }: { params: { userType: string } }) => {
             <GreenRoundedButton buttonTitle="Crear Cuenta" type='submit' />
           <button
             type='button'
-            className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 " 
+            className="bg-gray-dark hover:bg-gray-light text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 " 
             onClick={handle_back}
           >
             Volver atrás

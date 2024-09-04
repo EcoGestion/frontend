@@ -5,16 +5,16 @@ import GreenRoundedButton from '@/components/greenRoundedButton';
 const OnboardingCooperativaFormStep2 = ({prevStep, nextStep, setRecyclableObjects, recyclableObjects}) => {
 
   const [items, setItems] = useState(recyclableObjects || [
-    { id: 1, label: 'Papel', checked: false },
-    { id: 2, label: 'Metal', checked: false },
-    { id: 3, label: 'Vidrio', checked: false},
-    { id: 4, label: 'Plástico', checked: false },
-    { id: 5, label: 'Cartón', checked: false },
-    { id: 6, label: 'Tetra Brik', checked: false },
-    { id: 7, label: 'Telgopor', checked: false },
-    { id: 8, label: 'Pilas', checked: false },
-    { id: 9, label: 'Aceite', checked: false },
-    { id: 10, label: 'Electrónicos', checked: false },
+    { id: 1, label: 'Papel', name:'PAPER', checked: false },
+    { id: 2, label: 'Metal', name:'METAL', checked: false },
+    { id: 3, label: 'Vidrio', name:'GLASS', checked: false },
+    { id: 4, label: 'Plástico', name:'PLASTIC', checked: false },
+    { id: 5, label: 'Cartón', name:'CARDBOARD', checked: false },
+    { id: 6, label: 'Tetra Brik', name:'TETRA_BRIK', checked: false },
+    { id: 7, label: 'Telgopor', name:'STYROFOAM', checked: false },
+    { id: 8, label: 'Pilas', name:'BATTERIES', checked: false },
+    { id: 9, label: 'Aceite', name:'OIL', checked: false },
+    { id: 10, label: 'Electrónicos', name:'ELECTRONICS', checked: false },
   ]);
 
   const handleCheckboxChange = (id) => {
@@ -28,7 +28,12 @@ const OnboardingCooperativaFormStep2 = ({prevStep, nextStep, setRecyclableObject
   const nextForm = () => {
     setRecyclableObjects(items)
     nextStep();
-  }
+  };
+
+  const prevForm = () => {
+    setRecyclableObjects(items)
+    prevStep();
+  };
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-white">
@@ -56,8 +61,8 @@ const OnboardingCooperativaFormStep2 = ({prevStep, nextStep, setRecyclableObject
       <div className="flex gap-4 mt-4">
           <button
             type="button"
-            className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 "
-            onClick={prevStep}
+            className="bg-gray-dark hover:bg-gray-light text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 "
+            onClick={prevForm}
           >
             Volver
           </button>
