@@ -1,16 +1,22 @@
 'use client'
 import React from 'react';
-import { usePathname } from 'next/navigation';
-import { Navbar, NavbarContent, NavbarItem, Link, Button, NavbarMenuToggle, NavbarMenuItem, NavbarMenu } from '@nextui-org/react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Navbar, NavbarContent, NavbarItem, Button, NavbarMenuToggle, NavbarMenuItem, NavbarMenu } from '@nextui-org/react';
+import Link from 'next/link';
 import HomeIcon from '@mui/icons-material/Home';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import AddIcon from '@mui/icons-material/Add';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
+import { useUser } from '../state/userProvider';
+import { signOut } from 'firebase/auth';
+import { auth } from '../app/firebaseConfig';
 
 const NavBarMobile = () => {
     const currentPath = usePathname();
+    const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+    const { setUser } = useUser();
 
     const menuItems = [
         "Configuración",
@@ -21,11 +27,22 @@ const NavBarMobile = () => {
         "Deployments",
         "My Settings",
         "Team Settings",
-        "Help & Feedback",
-        "Cerrar Sesión",
+        "Help & Feedback"
       ];
 
-    const isActiveRoute = (route: string) => {
+      const logOut = (() => {
+        signOut(auth)
+        .then(() => {
+          setUser({
+            name: "",
+            email: "",
+            userId: null
+          });
+          router.replace("/")
+        })
+      })
+
+    const isActiveRoute = (route) => {
         return currentPath === route;
     };
 
@@ -56,18 +73,17 @@ const NavBarMobile = () => {
             </Link>
             </NavbarItem>
 
-            <NavbarMenuToggle className="text-lg w-10 h-10" aria-label={isMenuOpen ? "Close menu" : "Open menu"}>
-            </NavbarMenuToggle>
+            <NavbarItem onClick={() => setIsMenuOpen(!isMenuOpen)} className="w-10 h-10 items-center cursor-pointer">
+              <MenuRoundedIcon fontSize='large'/>
+            </NavbarItem>
         </NavbarContent>
 
-        <NavbarMenu className='text-black'>
+      <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
         {menuItems.map((item, index) => (
           <NavbarMenuItem key={`${item}-${index}`}>
             <Link
               className="w-full"
-              color={
-                index === menuItems.length - 1 ? "danger" : "foreground"
-              }
+              color={"foreground"}
               href="#"
               size="lg"
             >
@@ -75,6 +91,16 @@ const NavBarMobile = () => {
             </Link>
           </NavbarMenuItem>
         ))}
+          <NavbarMenuItem key={`Cerrar Sesión-9`}>
+            <a
+              className="w-full text-lg justify-start"
+              color={"danger"}
+              href="#"
+              onClick={logOut}
+            >
+              Cerrar Sesión
+            </a>
+          </NavbarMenuItem>
       </NavbarMenu>
 
         </Navbar>

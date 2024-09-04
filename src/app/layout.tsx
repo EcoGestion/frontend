@@ -6,15 +6,17 @@ import { Provider } from 'react-redux';
 import { store, persistor } from '../state/store';
 import { PersistGate } from 'redux-persist/integration/react';
 import {NextUIProvider} from '@nextui-org/react'
+import { UserProvider } from '../state/userProvider'
+import React from 'react';
 
 const inter = Inter({ subsets: ["latin"] });
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
+    <UserProvider>
     <html lang="en">
       <body className={inter.className}>
         <Provider store={store}>
@@ -26,5 +28,7 @@ export default function RootLayout({
         </Provider>
       </body>
     </html>
+    </UserProvider>
+
   );
 }
