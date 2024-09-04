@@ -1,7 +1,7 @@
 import { NextUIProvider, Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button } from '@nextui-org/react';
-import NavBarCooperativa  from "./components/NavBarCooperativa";
+import NavBarGenerador  from "./components/NavBarGenerador";
 import React from 'react';
-import NavBarMobileCooperativa from './components/NavBarMobileCooperativa';
+import NavBarMobileGenerador from './components/NavBarMobileGenerador';
 
 export default function HomeLayout({
   children,
@@ -10,11 +10,11 @@ export default function HomeLayout({
 }) {
   return (
     <NextUIProvider>
-        <NavBarCooperativa />
+        <NavBarGenerador />
       <div className='bg-background-color'>
         {children}
       </div>
-        <NavBarMobileCooperativa />
+        <NavBarMobileGenerador />
     </NextUIProvider>
   );
 }

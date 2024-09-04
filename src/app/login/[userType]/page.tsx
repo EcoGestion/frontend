@@ -31,6 +31,7 @@ const Login = ({ params }: { params: { userType: string } }) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const firebaseToken = await userCredential.user.uid;
+      
       const userData = {
         "email": userCredential.user.email,
         "firebase_id": firebaseToken

@@ -20,7 +20,7 @@ const monthNames = {
 
 const Order = ({order}) => {
     console.log(order)
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         const fetchUser = async () => {

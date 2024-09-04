@@ -13,8 +13,6 @@ const HomeGenerador = () => {
 
   const [user, setUser] = useState({});
   const [accessToken, setAccessToken] = useState("");
-  const [response, setResponse] = useState("");
-  const backendUrl = process.env.BACKEND_URL || "https://ecogestion-backend.onrender.com"
 
   const logOut = (() => {
     signOut(auth)
@@ -23,23 +21,6 @@ const HomeGenerador = () => {
       router.replace("/")
     })
   })
-
-  const testBackend = () => {
-    const params = {
-      headers: {
-        "Authorization": accessToken,
-      },
-      method: "GET"
-    }
-
-    fetch(backendUrl+"/test", params)
-    .then(res => res.json()) 
-    .then(data => 
-      console.log(data))
-    .catch(error => 
-      console.log(error))
-
-  }
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) =>{
@@ -50,7 +31,7 @@ const HomeGenerador = () => {
         })
       }
       else {
-        router.push("/login")
+        router.replace("/")
       }
     });
   }, [])
@@ -64,9 +45,7 @@ const HomeGenerador = () => {
   else {
     return (
       <div className='flex flex-col items-center justify-center gap-5 h-screen'>
-      Home
-      <button className="bg-white px-5 text-black" onClick= {testBackend}>Test backend</button>
-      {response}
+      Home Generador
       <button className="bg-white px-5 text-black" onClick={logOut}>Salir</button>
       </div>
     );
