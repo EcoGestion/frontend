@@ -7,6 +7,7 @@ import { store, persistor } from '../state/store';
 import { PersistGate } from 'redux-persist/integration/react';
 import {NextUIProvider} from '@nextui-org/react'
 import { UserProvider } from '../state/userProvider'
+import React from 'react';
 
 const inter = Inter({ subsets: ["latin"] });
 export default function RootLayout({

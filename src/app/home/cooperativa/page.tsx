@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import {auth} from '../../firebaseConfig'
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useDispatch } from 'react-redux';
-import { clearUserSession } from '@/state/userSessionSlice';
+import { clearUserSession } from '../../../state/userSessionSlice';
 import { useRouter } from 'next/navigation';
 import { useUser } from '../../../state/userProvider';
 import 'dotenv/config'
