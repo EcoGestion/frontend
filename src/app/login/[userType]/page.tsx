@@ -7,6 +7,8 @@ import { useDispatch } from 'react-redux';
 import { setUserSession } from '@/state/userSessionSlice';
 import GreenRoundedButton from '@/components/greenRoundedButton';
 import BlueRoundedButton from '@/components/blueRoundedButton';
+import { login } from '@/api/apiService';
+import Spinner  from '@/components/Spinner';
 
 // /login/{cooperativa/generador}
 
@@ -14,21 +16,36 @@ const Login = ({ params }: { params: { userType: string } }) => {
   const userType = params.userType;
   const dispatch = useDispatch();
 
+  const [loading, setLoading] = useState(false);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
 
   const handleLogin = async (e: FormEvent) => {
+    setLoading(true);
     e.preventDefault();
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const firebaseToken = await userCredential.user.uid;
+
+      const body = {
+        email: email,
+        firebase_id: firebaseToken,
+      };
+      console.log (body);
+      const userInfo = await login(body);
+
       dispatch(setUserSession({
         email: email,
-        userType: userType,
-        firebaseToken: await userCredential.user.getIdToken()}));
+        userId: userInfo.id,
+        name: userInfo.username,
+      }));
       router.replace('/home/' + userType);
     } catch (error) {
       console.log(error);
+      alert('Error al iniciar sesión');
+      setLoading(false);
     }
   };
 
@@ -44,6 +61,9 @@ const Login = ({ params }: { params: { userType: string } }) => {
 
   return (
     <div className="flex items-center justify-center h-screen bg-white">
+      {loading ? (
+        <Spinner />
+      ) : (
       <div className="bg-[rgb(146,164,190)] p-10 rounded-lg shadow-lg">
         <h1 className="text-4xl font-bold text-gray-800 mb-4 text-center">Eco Gestion</h1>
         <h2 className="text-2xl mb-6 text-center">Inicio de sesión - {userType.charAt(0).toUpperCase() + userType.slice(1)}</h2>
@@ -70,13 +90,14 @@ const Login = ({ params }: { params: { userType: string } }) => {
           </div>
           <button 
             type='button'
-            className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 mt-4" 
+            className="bg-gray-dark hover:bg-gray-light text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 mt-4" 
             onClick={handleBack}
           >
             Volver
           </button>
         </form>
       </div>
+      )}
     </div>
   );
 };

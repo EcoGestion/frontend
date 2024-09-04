@@ -2,15 +2,15 @@
 import { useState } from 'react';
 import GreenRoundedButton from '@/components/greenRoundedButton';
 
-const OnboardingCooperativaFormStep3 = ({prevStep, nextStep, setAvailableSchedule}) => {
-  const [days, setDays] = useState([
-    { id: 1, name: 'MONDAY', active: false, begin_at: 0, end_at: 0 },
-    { id: 2, name: 'TUESDAY', active: false, begin_at: 0, end_at: 0 },
-    { id: 3, name: 'WEDNESDAY', active: false, begin_at: 0, end_at: 0 },
-    { id: 4, name: 'THURSDAY', active: false, begin_at: 0, end_at: 0},
-    { id: 5, name: 'FRIDAY', active: false, begin_at: 0, end_at: 0 },
-    { id: 6, name: 'SATURDAY', active: false, begin_at: 0, end_at: 0 },
-    { id: 7, name: 'SUNDAY', active: false, begin_at: 0, end_at: 0 },
+const OnboardingCooperativaFormStep3 = ({prevStep, nextStep, setAvailableSchedule, availableSchedule}) => {
+  const [days, setDays] = useState(availableSchedule || [
+    { id: 1, name: 'MONDAY', name_spanish: 'Lunes', active: false, begin_at: "00:00", end_at: "00:00" },
+    { id: 2, name: 'TUESDAY', name_spanish: 'Martes', active: false, begin_at: "00:00", end_at: "00:00" },
+    { id: 3, name: 'WEDNESDAY', name_spanish: 'Miercoles', active: false, begin_at: "00:00", end_at: "00:00" },
+    { id: 4, name: 'THURSDAY', name_spanish: 'Jueves', active: false, begin_at: "00:00", end_at: "00:00" },
+    { id: 5, name: 'FRIDAY', name_spanish: 'Viernes', active: false, begin_at: "00:00", end_at: "00:00" },
+    { id: 6, name: 'SATURDAY', name_spanish: 'Sábado', active: false, begin_at: "00:00", end_at: "00:00" },
+    { id: 7, name: 'SUNDAY', name_spanish: 'Domingo', active: false, begin_at: "00:00", end_at: "00:00" }
   ]);
 
   const daysToSpanish = {
@@ -30,10 +30,8 @@ const OnboardingCooperativaFormStep3 = ({prevStep, nextStep, setAvailableSchedul
   };
 
   const handleTimeChange = (id, field, value) => {
-    const date = new Date();
-    // Hay que reemplazar el Date.now() con el value cuando se cambie el backend
     setDays(days.map(day =>
-      day.id === id ? { ...day, [field]: date.toISOString() } : day
+      day.id === id ? { ...day, [field]: value } : day
     ));
   };
 
@@ -46,9 +44,14 @@ const OnboardingCooperativaFormStep3 = ({prevStep, nextStep, setAvailableSchedul
 
 
   const nextForm = () => {
-    setAvailableSchedule(days)
+    setAvailableSchedule(days);
     nextStep();
-  }
+  };
+
+  const prevForm = () => {
+    setAvailableSchedule(days);
+    prevStep();
+  };
 
 
   return (
@@ -70,12 +73,12 @@ const OnboardingCooperativaFormStep3 = ({prevStep, nextStep, setAvailableSchedul
               ></div>
             </button>
             <span className={`text-lg mx-2 ${day.active ? 'text-cyan-800' : 'text-gray-600'}`}>
-              {daysToSpanish[day.name]}
+              {day.name_spanish}
             </span>
             <div className="flex space-x-2">
               <select
-                value={day.begin_at}
-                onChange={(e) => handleTimeChange(day.id, 'begin_at', e.target.value)}
+                value={day.from}
+                onChange={(e) => handleTimeChange(day.id, 'from', e.target.value)}
                 disabled={!day.active}
                 className={`text-sm bg-white border border-gray-300 rounded-md shadow-sm focus:ring-2 ${day.active ? 'focus:ring-cyan-800' : 'focus:ring-gray-600'} ${!day.active ? 'opacity-50 cursor-not-allowed' : ''}`}
 
@@ -86,8 +89,8 @@ const OnboardingCooperativaFormStep3 = ({prevStep, nextStep, setAvailableSchedul
                 ))}
               </select>
               <select
-                value={day.end_at}
-                onChange={(e) => handleTimeChange(day.id, 'end_at', e.target.value)}
+                value={day.to}
+                onChange={(e) => handleTimeChange(day.id, 'to', e.target.value)}
                 disabled={!day.active}
                 className={`text-sm bg-white border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-gray-600 ${!day.active ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
@@ -104,8 +107,8 @@ const OnboardingCooperativaFormStep3 = ({prevStep, nextStep, setAvailableSchedul
       <div className="flex gap-4 mt-4">
           <button
             type="button"
-            className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 "
-            onClick={prevStep}
+            className="bg-gray-dark hover:bg-gray-light text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 "
+            onClick={prevForm}
           >
             Volver
           </button>

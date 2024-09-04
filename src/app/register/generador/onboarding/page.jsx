@@ -1,6 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { setUserId } from '@/state/userSessionSlice';
 import OnboardingGeneradorFormStep1 from './components/FormStep1.jsx';
 import OnboardingGeneradorFormStep2 from './components/FormStep2.jsx';
 import { useRouter } from 'next/navigation';
@@ -9,6 +11,7 @@ import Spinner from '../../../../components/Spinner.tsx';
 
 export default function onboarding() {
   const user = useSelector((state) => state.userSession);
+  const dispatch = useDispatch();
   
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -27,27 +30,32 @@ export default function onboarding() {
     }
   }, [step]);
 
+  // ToDO: Agregar phone
   const sendForm = async () => {
     const body = {
       username: user.name,
       email: user.email,
-      type: "GEN",
+      type: organizationType,
       firebase_id: user.userId,
       address: address,
-      organization_type: organizationType
+      phone: "123456789"
     }
     console.log(body);
     try {
       const response = await createUser(body)
       console.log("Usuario creado: ", response);
-      router.replace("/home/cooperativa");
+      dispatch(setUserId(response.id));
+      router.replace("/home/generador");
     }
     catch (error) {
       console.log("Error al crear usuario", error);
+      alert("Error al crear usuario. \nPor favor, intente nuevamente.");
+      setLoading(false);
+      setStep(2);
     }
     finally{
       setLoading(false)
-    }   
+    }
   }
   
   return (

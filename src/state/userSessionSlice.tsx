@@ -28,6 +28,9 @@ const userSessionSlice = createSlice({
         setUserEmail: (state, action) => {
             state.email = action.payload;
         },
+        setUserId: (state, action) => {
+            state.userId = action.payload;
+        },
         clearUserSession: (state) => {
             state.name = "";
             state.userId = null;
@@ -36,5 +39,5 @@ const userSessionSlice = createSlice({
     },
 });
 
-export const { setUserSession, setUserName, setUserEmail, clearUserSession } = userSessionSlice.actions;
+export const { setUserSession, setUserName, setUserEmail, setUserId, clearUserSession } = userSessionSlice.actions;
 export default userSessionSlice.reducer;

@@ -16,6 +16,14 @@ const config: Config = {
         'dark': '#3f833e',
         'light': '#4ec55d',
       },
+      'blue': {
+        'light': '#00a6fb',
+        'dark': '#0077cc',
+      },
+      'gray': {
+        'light': '#919090',
+        'dark': '#333333',
+      },
     },
     extend: {
       backgroundImage: {
@@ -46,7 +54,6 @@ const config: Config = {
   plugins: [
     require('@tailwindcss/forms'),
     nextui()
-  ],
-  darkMode: 'class',
+  ]
 };
 export default config;
