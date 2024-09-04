@@ -26,7 +26,7 @@ const monthNames = {
     12: 'Diciembre'  // Diciembre
 };
 
-const OrderDetails = (props) => {
+const OrderDetails = (props: unknown) => {
     const order = {
         request_date: "2024-08-20T12:53:27",
         generator_id: 49,
