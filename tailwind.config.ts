@@ -24,6 +24,10 @@ const config: Config = {
         'light': '#919090',
         'dark': '#333333',
       },
+      'cyan': {
+        '300': '#67e8f9',
+        '800': '#155e75',
+      },
     },
     extend: {
       backgroundImage: {

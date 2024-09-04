@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react';
 import GreenRoundedButton from '@/components/greenRoundedButton';
+import ReciclablesSelector from '@/components/ReciclablesSelector';
 
 const OnboardingCooperativaFormStep2 = ({prevStep, nextStep, setRecyclableObjects, recyclableObjects}) => {
 
@@ -41,22 +42,11 @@ const OnboardingCooperativaFormStep2 = ({prevStep, nextStep, setRecyclableObject
 
         <p className="text-sm leading-6 font-bold text-gray-800">Reciclables que reciben</p>
 
-        <ul className="space-y-3">
-        {items.map(item => (
-          <li key={item.id} className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id={`checkbox-${item.id}`}
-              checked={item.checked}
-              onChange={() => handleCheckboxChange(item.id)}
-              className="form-checkbox rounded-md h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500"
-            />
-            <label htmlFor={`checkbox-${item.id}`} className="text-gray-900">
-              {item.label}
-            </label>
-          </li>
-        ))}
-      </ul>
+        <ReciclablesSelector
+          items={items}
+          handleCheckboxChange={handleCheckboxChange}
+          editable={true}
+        />
 
       <div className="flex gap-4 mt-4">
           <button

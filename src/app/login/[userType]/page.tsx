@@ -3,7 +3,7 @@ import { FormEvent, use, useState } from 'react';
 import {auth} from '../../firebaseConfig';
 import {signInWithEmailAndPassword} from "firebase/auth";
 import { useRouter } from 'next/navigation';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { RootState } from '../../../state/store';
 import GreenRoundedButton from '../../../components/greenRoundedButton';
 import BlueRoundedButton from '../../../components/blueRoundedButton';
