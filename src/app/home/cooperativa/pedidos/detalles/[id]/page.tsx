@@ -82,12 +82,12 @@ const OrderDetails = (props: unknown) => {
     console.log(generator)
     const date = new Date(order.pickup_date);
     console.log(date)
-    const month : number= date.getMonth() + 1;
+    const month : number = date.getMonth() + 1;
     const hour = date.getHours();
     const minutes = date.getMinutes();
 
     const inserted_date = new Date(order.request_date);
-    const month_inserted : number= inserted_date.getMonth() + 1;
+    const month_inserted : number = inserted_date.getMonth() + 1;
     const hour_inserted = inserted_date.getHours();
     const minutes_inserted = inserted_date.getMinutes();
 

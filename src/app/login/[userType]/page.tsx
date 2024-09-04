@@ -5,12 +5,13 @@ import {signInWithEmailAndPassword} from "firebase/auth";
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../state/store';
-import GreenRoundedButton from '@/components/greenRoundedButton';
-import BlueRoundedButton from '@/components/blueRoundedButton';
+import GreenRoundedButton from '../../../components/greenRoundedButton';
+import BlueRoundedButton from '../../../components/blueRoundedButton';
 import { loginUser } from '../../../api/apiService';
 import { useUser } from '../../../state/userProvider';
-import Spinner  from '@/components/Spinner';
+import Spinner  from '../../../components/Spinner';
 import { setUserSession } from '../../../state/userSessionSlice';
+import React from 'react';
 
 // /login/{cooperativa/generador}
 

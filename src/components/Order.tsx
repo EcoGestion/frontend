@@ -3,7 +3,7 @@ import { getUserById } from "../api/apiService";
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import Link from "next/link";
 
-const monthNames = {
+const monthNames: { [key: number]: string } = {
     1: 'Enero',    // Enero
     2: 'Febrero',  // Febrero
     3: 'Marzo',    // Marzo
@@ -18,9 +18,20 @@ const monthNames = {
     12: 'Diciembre'  // Diciembre
 };
 
+interface Order {
+    generator_id: string;
+    pickup_date: string;
+    quantity: string;
+    status: string;
+  }
+
+  interface User {
+    username: string;
+  }
+
 const Order = ({order}) => {
     console.log(order)
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -41,7 +52,7 @@ const Order = ({order}) => {
     }, [order.generator_id]);
 
     const date = new Date(order.pickup_date);
-    const month = date.getMonth();
+    const month :number = date.getMonth() + 1;
     const hour = date.getHours();
     const minutes = date.getMinutes();
 
