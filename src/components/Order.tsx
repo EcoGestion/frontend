@@ -29,7 +29,7 @@ interface Order {
     username: string;
   }
 
-const Order = ({order}) => {
+const Order = ({Order : order}) => {
     console.log(order)
     const [user, setUser] = useState<User | null>(null);
 
