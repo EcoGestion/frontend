@@ -24,7 +24,7 @@ interface Generator {
     address: Address;
   }
 
-const monthNames = {
+const monthNames: { [key: number]: string } = {
     1: 'Enero',    // Enero
     2: 'Febrero',  // Febrero
     3: 'Marzo',    // Marzo
@@ -81,7 +81,7 @@ const OrderDetails = (props: unknown) => {
 
     console.log(generator)
     const date = new Date(order.pickup_date);
-    const month = date.getMonth();
+    const month : number= date.getMonth() + 1;
     const hour = date.getHours();
     const minutes = date.getMinutes();
 
