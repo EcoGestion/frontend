@@ -50,6 +50,7 @@ const OnboardingCooperativaFormStep3 = ({prevStep, nextStep, setAvailableSchedul
     <div className="flex flex-col items-center justify-center h-screen bg-white w-full">
       <div className="border border-gray-900/10 rounded-lg p-6 shadow-md w-full max-w-2xl ">
         <p className="text-sm leading-6 font-bold text-gray-800">Disponibilidad horaria</p>
+
         <TimeSelector
           days={days}
           handleTimeChange={handleTimeChange}

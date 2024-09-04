@@ -4,23 +4,26 @@ import {auth} from '../../firebaseConfig';
 import {signInWithEmailAndPassword} from "firebase/auth";
 import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
-import { setUserSession } from '@/state/userSessionSlice';
-import GreenRoundedButton from '@/components/greenRoundedButton';
-import BlueRoundedButton from '@/components/blueRoundedButton';
-import { login } from '@/api/apiService';
-import Spinner  from '@/components/Spinner';
+import { RootState } from '../../../state/store';
+import GreenRoundedButton from '../../../components/greenRoundedButton';
+import BlueRoundedButton from '../../../components/blueRoundedButton';
+import { loginUser } from '../../../api/apiService';
+import { useUser } from '../../../state/userProvider';
+import Spinner  from '../../../components/Spinner';
+import { setUserSession } from '../../../state/userSessionSlice';
+import React from 'react';
 
 // /login/{cooperativa/generador}
 
 const Login = ({ params }: { params: { userType: string } }) => {
   const userType = params.userType;
+  const { setUser } = useUser();
   const dispatch = useDispatch();
+  const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const router = useRouter();
 
   const handleLogin = async (e: FormEvent) => {
     setLoading(true);
@@ -28,26 +31,30 @@ const Login = ({ params }: { params: { userType: string } }) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const firebaseToken = await userCredential.user.uid;
-
-      const body = {
-        email: email,
-        firebase_id: firebaseToken,
-      };
-      console.log (body);
-      const userInfo = await login(body);
-
+      
+      const userData = {
+        "email": userCredential.user.email,
+        "firebase_id": firebaseToken
+      }
+      const userInfo = await loginUser(userData)
+      setUser({
+        name: userInfo.username,
+        email: userInfo.email,
+        userId: userInfo.id
+      })
       dispatch(setUserSession({
-        email: email,
+        email: userInfo.email,
         userId: userInfo.id,
         name: userInfo.username,
       }));
       router.replace('/home/' + userType);
-    } catch (error) {
-      console.log(error);
-      alert('Error al iniciar sesión');
-      setLoading(false);
     }
-  };
+    catch (error) {
+        console.log("Error al loguear usuario", error);
+        alert('Error al iniciar sesión');
+        setLoading(false);
+    }
+  }
 
   const handleRegister = () => {
     // Redirigir a la página de registro
@@ -103,3 +110,7 @@ const Login = ({ params }: { params: { userType: string } }) => {
 };
 
 export default Login;
+function dispatch(arg0: any) {
+  throw new Error('Function not implemented.');
+}
+
