@@ -2,9 +2,11 @@
 import React, { useState } from "react";
 import {
   Card, CardHeader, CardBody, Divider, Input, Button, Textarea,
-  DatePicker, Select, SelectItem, TimeInput, Checkbox, CheckboxGroup, Accordion, AccordionItem
+  DatePicker, Select, SelectItem, TimeInput, Checkbox, CheckboxGroup, Accordion, AccordionItem,
+  CardFooter
 } from "@nextui-org/react";
 import {now, getLocalTimeZone, ZonedDateTime, Time} from "@internationalized/date";
+import MapView from "@/components/MapView";
 
 
 const CreacionPedido = () => {
@@ -32,6 +34,7 @@ const CreacionPedido = () => {
   };
 
   return (
+    <div className="min-h-screen flex flex-col items-center p-4 pt-8">
     <Card className="max-w-lg w-full mx-auto p-4">
       <Accordion variant="bordered" className="">
         <AccordionItem title="Fecha de recolección">
@@ -83,9 +86,21 @@ const CreacionPedido = () => {
           </Card>
         </AccordionItem>
 
+        <AccordionItem title="Ubicación">
+          <Card className="md:col-span-1">
+            <CardHeader>
+              <h2 className="text-lg font-semibold">Por favor confirma si esta es tu dirección</h2>
+            </CardHeader>
+            <Divider />
+            <CardBody>
+              <MapView />
+            </CardBody>
+          </Card>
+        </AccordionItem>
         
       </Accordion>
     </Card>
+  </div>
   );
 };
 

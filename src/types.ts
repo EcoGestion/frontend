@@ -13,6 +13,15 @@ export interface Day {
     name: string;
     checked: boolean;
   }
+
+  export interface Address {
+    id: number;
+    street: string;
+    number: string;
+    city: string;
+    province: string;
+    postal_code: string;
+  }
   
   export interface UserInfo {
     id: number;
