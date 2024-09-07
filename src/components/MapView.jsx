@@ -1,11 +1,30 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { Icon } from "leaflet";
+import geocodeAddress from "@utils/geocodeAddress";
 import "leaflet/dist/leaflet.css";
 
 const MapView = () => {
+  const [mockCoordinates, setMockCoordinates] = useState([-34.5950078, -58.3732943]);
 
-    const defaultPosition = [48.8566, 2.3522]; 
+  const mockAddress = {
+      street: "Santa Fe",
+      number: "2433",
+      city: "Ciudad Autonoma de Buenos Aires",
+      state: "Ciudad Autonoma de Buenos Aires",
+      zip: "C1123AAG",
+      country: "Argentina"
+  };
+
+    useEffect(() => {
+      geocodeAddress(mockAddress).then((coordinates) => {
+        console.log(coordinates);
+        setMockCoordinates([coordinates.longitude, coordinates.latitude]);
+    });
+    }, []);
+
+
+    const defaultPosition = [-34.5950078, -58.3732943]; 
     const defaultZoom = 13;
 
     const markers = [
@@ -33,7 +52,7 @@ const MapView = () => {
 
     return (
         <MapContainer
-        center={defaultPosition}
+        center={mockCoordinates}
         zoom={defaultZoom}
         style={{ height: "300px", width: "100%" }}
         >
