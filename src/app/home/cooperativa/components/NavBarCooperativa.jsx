@@ -6,9 +6,10 @@ import { useRouter, usePathname } from 'next/navigation';
 import HomeIcon from '@mui/icons-material/Home';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import AddIcon from '@mui/icons-material/Add';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import MenuRoundedIcon from '@mui/icons-material/Menu';
+import MapIcon from '@mui/icons-material/Map';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import { useUser } from '../../../../state/userProvider';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../../../app/firebaseConfig';
@@ -61,22 +62,49 @@ const NavBar = () => {
         </button>
 
         <NavbarContent className={`ml-14 hidden sm:block sticky-bottom w-full items-center text-center h-1/2 justify-self-center ${currentPath == "/home/cooperativa" ? "translate-x-7" : ""}`} justify="center">
-          <div className='flex flex-row items-center space-between justify-center gap-12'>
+          <div className='flex flex-row items-center space-between justify-center gap-20'>
             <NavbarItem isActive={isActiveRoute('/home/cooperativa')} className='w-8'>
             <Link color="foreground" href="/home/cooperativa">
-              <HomeIcon fontSize='large'/>
+              <div className="flex flex-col items-center">
+                <HomeIcon fontSize='medium'/>
+                <span className="text-sm text-black">Inicio</span>
+              </div>
             </Link>
             </NavbarItem>
 
             <NavbarItem isActive={isActiveRoute('/home/cooperativa/pedidos')} className='w-10'>
             <Link color="foreground" href="/home/cooperativa/pedidos" >
-                <ReceiptIcon fontSize='large'/>
+             <div className="flex flex-col items-center">
+                <ReceiptIcon fontSize='medium'/>
+                <span className="text-sm text-black">Solicitudes</span>
+              </div>
+            </Link>
+            </NavbarItem>
+
+            <NavbarItem isActive={isActiveRoute('/home/cooperativa/rutas')} className='w-10'>
+            <Link color="foreground" href="/home/cooperativa/rutas" >
+             <div className="flex flex-col items-center">
+                <MapIcon fontSize='medium'/>
+                <span className="text-sm text-black">Rutas</span>
+              </div>
+            </Link>
+            </NavbarItem>
+
+            <NavbarItem isActive={isActiveRoute('/home/cooperativa/reportes')} className='w-10'>
+            <Link color="foreground" href="/home/cooperativa/reportes">
+              <div className="flex flex-col items-center">
+                <AssessmentIcon fontSize='medium'/>
+                <span className="text-sm text-black">Reportes</span>
+              </div>
             </Link>
             </NavbarItem>
 
             <NavbarItem isActive={isActiveRoute('/home/cooperativa/perfil')} className='w-10'>
             <Link color="foreground" href="/home/cooperativa/perfil">
-                <AccountBoxIcon fontSize='large'/>
+              <div className="flex flex-col items-center">
+                <AccountBoxIcon fontSize='medium'/>
+                <span className="text-sm text-black">Perfil</span>
+              </div>
             </Link>
             </NavbarItem>
 

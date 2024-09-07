@@ -7,6 +7,8 @@ import HomeIcon from '@mui/icons-material/Home';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import AddIcon from '@mui/icons-material/Add';
+import MapIcon from '@mui/icons-material/Map';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import { useUser } from '../../../../state/userProvider';
 import { signOut } from 'firebase/auth';
@@ -55,13 +57,25 @@ const NavBarMobile = () => {
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa/pagina1')}>
+            <NavbarItem isActive={isActiveRoute('/home/cooperativa/pedidos')}>
             <Link color="foreground" href="/home/cooperativa/pedidos">
                 <ReceiptIcon fontSize='large'/>
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa/pagina2')}>
+            <NavbarItem isActive={isActiveRoute('/home/cooperativa/rutas')}>
+            <Link color="foreground" href="/home/cooperativa/rutas">
+                <MapIcon fontSize='large'/>
+            </Link>
+            </NavbarItem>
+
+            <NavbarItem isActive={isActiveRoute('/home/cooperativa/reportes')}>
+            <Link color="foreground" href="/home/cooperativa/reportes">
+                <AssessmentIcon fontSize='large'/>
+            </Link>
+            </NavbarItem>
+
+            <NavbarItem isActive={isActiveRoute('/home/cooperativa/perfil')}>
             <Link color="foreground" href="/home/cooperativa/perfil">
                 <AccountBoxIcon fontSize='large'/>
             </Link>
