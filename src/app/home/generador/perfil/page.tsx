@@ -51,13 +51,13 @@ const PerfilGenerador = () => {
     };
 
     return (
-      <div className="flex items-center justify-center bg-white">
+      <div className="flex items-center justify-center bg-white min-h-screen">
         {loading ? (
           <Spinner />
         ) : (
-          <div className="flex flex-col items-center justify-center p-4 pt-8">
-            <h1 className="text-4xl font-bold mb-6">Perfil de usuario</h1>
-              <Card className="md:col-span-1">
+          <div className="flex flex-col items-center justify-start p-4 pt-8 w-full h-full">
+            <h1 className="text-4xl font-bold mb-6 pt-4">Perfil de usuario</h1>
+              <Card className="md:col-span-1 max-w-lg">
                 <CardHeader>
                   <div className="flex flex-col items-start">
                     <p className="text-md">{userInfo?.username}</p>
