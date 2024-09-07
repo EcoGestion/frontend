@@ -21,3 +21,8 @@ export const getOrdersById = async (userId) => {
   const response = await axios.get(`${API_BASE_URL}/users/${userId}/coop_requests`);
   return response.data;
 };
+
+export const createRequest = async (requestData) => {
+  const response = await axios.post(`${API_BASE_URL}/waste_collection_requests`, requestData);
+  return response.data;
+}
