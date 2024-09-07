@@ -3,8 +3,7 @@ import React, { useState, useEffect } from "react";
 import {
   Card, CardHeader, CardBody, Divider, Button, Textarea,
   DatePicker, TimeInput, Checkbox, CheckboxGroup, Accordion, AccordionItem,
-  CardFooter,
-  DateValue
+  CardFooter, DateValue
 } from "@nextui-org/react";
 import { useSelector } from "react-redux";
 import { RootState } from '@/state/store';
@@ -191,7 +190,8 @@ const CreacionPedido = () => {
             </CardHeader>
             <Divider />
             <CardBody>
-              <MapView />
+              {/* TODO: Cambiar a la direccion del usuario */}
+              <MapView centerCoordinates={[-34.5814551, -58.4211107]}/>
             </CardBody>
           </Card>
         </AccordionItem>
