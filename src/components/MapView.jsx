@@ -77,7 +77,7 @@ const MapView = ({
           </Marker>
           ))}
       </MapContainer>
-    )};
+    )}
     </div>
   );
 };
