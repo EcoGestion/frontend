@@ -111,7 +111,8 @@ const CreacionPedido = () => {
 
 
   return (
-    <div className="flex items-center justify-center bg-white">
+    <div className="flex flex-col items-center justify-center bg-white p-6">
+      <h1 className="text-2xl font-semibold pb-3">Solicita la recolección de tus reciclables</h1>
       {loading ? (
         <Spinner />
       ) : (
