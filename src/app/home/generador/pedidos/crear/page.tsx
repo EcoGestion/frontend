@@ -7,7 +7,7 @@ import {
 } from "@nextui-org/react";
 import { useSelector } from "react-redux";
 import { RootState } from '@/state/store';
-import {now, getLocalTimeZone, ZonedDateTime, Time} from "@internationalized/date";
+import {now, getLocalTimeZone, parseDate, Time} from "@internationalized/date";
 import dynamic from 'next/dynamic'
 import GreenRoundedButton from "@/components/greenRoundedButton";
 import { getUserById, createRequest } from "@/api/apiService";
@@ -83,6 +83,15 @@ const CreacionPedido = () => {
       ...prevQuantities,
       [name]: quantity
     }));
+    setItems(prevItems => prevItems.map(item => {
+      if (item.name === name) {
+        return {
+          ...item,
+          quantity
+        };
+      }
+      return item;
+    }));
   };
 
   // TODO: Cambiar fecha a request_from, reqeuqest_to, y la de hoy
@@ -128,6 +137,7 @@ const CreacionPedido = () => {
                 label="Fecha de recolección"
                 variant="bordered"
                 description="Seleccione la fecha de solicitud de recolección"
+                value={parseDate(request_from.toString().substring(0, 10))}
                 showMonthAndYearPickers
                 onChange={(date) => handleRequestDateChange(date)}
               />
@@ -139,12 +149,14 @@ const CreacionPedido = () => {
                 label="Desde"
                 variant="bordered"
                 placeholderValue={new Time(10,0)}
+                value={(new Time(request_from.hour, request_from.minute))}
                 onChange={(time) => handleRequestTimeChangeFrom(time)}
               />
               <TimeInput
                 label="Hasta"
                 variant="bordered"
                 placeholderValue={new Time(12,0)}
+                value={new Time(request_to.hour, request_to.minute)}
                 onChange={(time) => handleRequestTimeChangeTo(time)}
               />
               </div>
