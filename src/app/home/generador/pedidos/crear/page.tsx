@@ -8,12 +8,15 @@ import {
 import { useSelector } from "react-redux";
 import { RootState } from '@/state/store';
 import {now, getLocalTimeZone, ZonedDateTime, Time} from "@internationalized/date";
-import MapView from "@/components/MapView";
+import dynamic from 'next/dynamic'
 import GreenRoundedButton from "@/components/greenRoundedButton";
 import { getUserById, createRequest } from "@/api/apiService";
 import { UserInfo } from '@/types';
 import { useRouter } from "next/navigation";
 import Spinner from "@/components/Spinner";
+
+// Dynamic import to avoid Window not defined error
+const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
 const CreacionPedido = () => {
   const router = useRouter();
@@ -84,7 +87,7 @@ const CreacionPedido = () => {
 
   // TODO: Cambiar fecha a request_from, reqeuqest_to, y la de hoy
   // TODO: Cambiar a multiples materiales
-  // TODO: No se debe mandar
+  // TODO: No se debe mandar id de cooperativa
   const handleConfirm = () => {
     const body = {
       request_date: request_from.toDate(),
