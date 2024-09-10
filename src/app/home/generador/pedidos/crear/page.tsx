@@ -18,6 +18,12 @@ import Spinner from "@/components/Spinner";
 // Dynamic import to avoid Window not defined error
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
+interface Marker {
+  position: number[];
+  content: string;
+  popUp: string;
+}
+
 const CreacionPedido = () => {
   const router = useRouter();
   const current_date = new Date();
@@ -27,12 +33,11 @@ const CreacionPedido = () => {
   const [request_from, setRequestFrom] = useState(now("America/Argentina/Buenos_Aires"));
   const [request_to, setRequestTo] = useState(now("America/Argentina/Buenos_Aires"));
   const [selectedRecyclables, setSelectedRecyclables] = useState<string[]>([]);
-  const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
+  const [quantities, setQuantities] = useState<{ waste_type: string, quantity: number }[]>([]);
   const [comments, setComments] = useState("");
 
-  useEffect(() => {
-    retrieveData();
-  }, []);
+  const [coordinates, setCoordinates] = useState<[number, number] | undefined>(undefined);
+  const [markers, setMarkers] = useState<Marker[]>([]);
 
   const retrieveData = async () => {
     try {
@@ -44,6 +49,26 @@ const CreacionPedido = () => {
         setLoading(false);
     }
   };
+
+  useEffect(() => {
+    retrieveData();
+  }, []);
+
+  useEffect(() => {
+    if (userInfo) {
+      const { lat, lng } = userInfo.address;
+      setCoordinates([parseFloat(lat), parseFloat(lng)]);
+      
+      setMarkers([
+        {
+          position: [parseFloat(lat), parseFloat(lng)],
+          content: 'Tu ubicación',
+          popUp: 'Aquí se realizará la recolección de tus reciclables'
+        }
+      ]);
+
+    }
+  }, [userInfo]);
 
   const [items, setItems] = useState([
     { id: 1, label: 'Papel', name:'PAPER', checked: false, quantity: 0 },
@@ -78,36 +103,30 @@ const CreacionPedido = () => {
     setRequestTo(updated_to);
   }
 
-  const handleQuantityChange = (name: string, quantity: number) => {
-    setQuantities(prevQuantities => ({
-      ...prevQuantities,
-      [name]: quantity
-    }));
-    setItems(prevItems => prevItems.map(item => {
-      if (item.name === name) {
-        return {
-          ...item,
-          quantity
-        };
+  const handleQuantityChange = (waste_type: string, quantity: number) => {
+    setQuantities((prevQuantities) => {
+      const existingIndex = prevQuantities.findIndex(item => item.waste_type === waste_type);
+  
+      if (existingIndex !== -1) {
+        const updatedQuantities = [...prevQuantities];
+        updatedQuantities[existingIndex].quantity = quantity;
+        return updatedQuantities;
+      } else {
+        return [...prevQuantities, { waste_type, quantity }];
       }
-      return item;
-    }));
+    });
   };
 
-  // TODO: Cambiar fecha a request_from, reqeuqest_to, y la de hoy
-  // TODO: Cambiar a multiples materiales
-  // TODO: No se debe mandar id de cooperativa
   const handleConfirm = () => {
     const body = {
-      request_date: request_from.toDate(),
+      request_date: now(getLocalTimeZone()).toDate(),
       generator_id: userSession.userId,
-      waste_type: selectedRecyclables[0],
       details: comments,
-      quantity: quantities[selectedRecyclables[0]],
-      pickup_date: request_to.toDate(),
+      waste_quantities:quantities,
+      pickup_date_from: request_from.toDate(),
+      pickup_date_to: request_to.toDate(),
       zone: "",
       status: "OPEN",
-      coop_id: 41
     };
     console.log(body);
     setLoading(true);
@@ -116,11 +135,11 @@ const CreacionPedido = () => {
       router.push('/home/generador/pedidos');
     } catch (error) {
       console.error('Error creating request', error);
+      alert('Error al crear el pedido. Por favor intente nuevamente.');
     } finally {
       setLoading(false);
     }
   };
-
 
   return (
     <div className="flex flex-col items-center justify-center bg-white p-6">
@@ -207,7 +226,7 @@ const CreacionPedido = () => {
             <Divider />
             <CardBody>
               {/* TODO: Cambiar a la direccion del usuario */}
-              <MapView centerCoordinates={[-34.5814551, -58.4211107]}/>
+              <MapView centerCoordinates={coordinates} zoom={15} markers={markers} />
             </CardBody>
           </Card>
         </AccordionItem>

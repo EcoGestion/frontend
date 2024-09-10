@@ -20,7 +20,9 @@ export interface Day {
     number: string;
     city: string;
     province: string;
-    postal_code: string;
+    lat: string;
+    lng: string;
+    zip_code: number;
   }
   
   export interface UserInfo {
@@ -35,6 +37,9 @@ export interface Day {
       number: string;
       city: string;
       province: string;
+      lat: string;
+      lng: string;
+      zip_code: number;
     };
     phone: string;
     waste_type_config: { name: string }[];

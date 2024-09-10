@@ -8,7 +8,7 @@ const defaultZoom = 13;
 const defaultCoordinates = [-34.5814551, -58.4211107];
 
 const MapView = ({
-  centerCoordinates = null,
+  centerCoordinates = defaultCoordinates,
   markers = [],
   zoom = defaultZoom,
 }) => {
@@ -39,7 +39,7 @@ const MapView = ({
       <Spinner />
     ) : (
       <MapContainer
-      center={centerCoordinates ? centerCoordinates : defaultCoordinates}
+      center={centerCoordinates}
       zoom={zoom}
       style={{ height: "250px", width: "100%" }}
       >
