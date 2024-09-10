@@ -10,6 +10,7 @@ import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import MenuRoundedIcon from '@mui/icons-material/Menu';
 import MapIcon from '@mui/icons-material/Map';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { useUser } from '../../../../state/userProvider';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../../../app/firebaseConfig';
@@ -95,6 +96,15 @@ const NavBar = () => {
               <div className="flex flex-col items-center">
                 <AssessmentIcon fontSize='medium'/>
                 <span className="text-sm text-black">Reportes</span>
+              </div>
+            </Link>
+            </NavbarItem>
+
+            <NavbarItem isActive={isActiveRoute('/home/cooperativa/recursos')} className='w-10'>
+            <Link color="foreground" href="/home/cooperativa/recursos">
+              <div className="flex flex-col items-center">
+                <LocalShippingIcon fontSize='medium'/>
+                <span className="text-sm text-black">Recursos</span>
               </div>
             </Link>
             </NavbarItem>

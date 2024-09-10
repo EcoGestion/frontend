@@ -6,10 +6,10 @@ import Link from 'next/link';
 import HomeIcon from '@mui/icons-material/Home';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import AddIcon from '@mui/icons-material/Add';
 import MapIcon from '@mui/icons-material/Map';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { useUser } from '../../../../state/userProvider';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../../../app/firebaseConfig';
@@ -75,17 +75,31 @@ const NavBarMobile = () => {
             </Link>
             </NavbarItem>
 
+            <NavbarItem isActive={isActiveRoute('/home/cooperativa/recursos')}>
+            <Link color="foreground" href="/home/cooperativa/recursos">
+                <LocalShippingIcon fontSize='large'/>
+            </Link>
+            </NavbarItem>
+
             <NavbarItem isActive={isActiveRoute('/home/cooperativa/perfil')}>
             <Link color="foreground" href="/home/cooperativa/perfil">
                 <AccountBoxIcon fontSize='large'/>
             </Link>
             </NavbarItem>
+        </NavbarContent>
+
+        </Navbar>
+    )
+};
+
+export default NavBarMobile;
+
+/*
 
             <NavbarItem onClick={() => setIsMenuOpen(!isMenuOpen)} className="w-10 h-10 items-center cursor-pointer">
               <MenuRoundedIcon fontSize='large'/>
             </NavbarItem>
-        </NavbarContent>
-
+      
       <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
         {menuItems.map((item, index) => (
           <NavbarMenuItem key={`${item}-${index}`}>
@@ -110,9 +124,4 @@ const NavBarMobile = () => {
             </a>
           </NavbarMenuItem>
       </NavbarMenu>
-
-        </Navbar>
-    )
-};
-
-export default NavBarMobile;
+*/
