@@ -190,7 +190,7 @@ const rutasCooperativa = () => {
           Generar ruta
         </button>
       </div>
-      <div>
+      <div className='p-2'>
         <MapView />
       </div>
     </div>

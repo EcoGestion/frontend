@@ -116,7 +116,7 @@ const NavBar = () => {
             </div>
         </NavbarContent>
 
-        <NavbarBrand className='justify-end '>
+        <NavbarBrand className='justify-end'>
             <Link color="foreground" href="/home/generador">
               <p className="font-bold text-green-dark text-lg">EcoGestion</p>
             </Link>
