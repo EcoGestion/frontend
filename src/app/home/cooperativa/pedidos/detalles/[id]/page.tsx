@@ -3,7 +3,7 @@ import Order from "../../../../../../components/Order";
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../../../../../../state/userProvider';
 import Spinner from "../../../../../../components/Spinner";
-import { getUserById } from "../../../../../../api/apiService";
+import { getOrderById, getUserById } from "../../../../../../api/apiService";
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -22,7 +22,22 @@ interface Generator {
     email: string;
     phone: string;
     address: Address;
+    zone: string;
   }
+
+interface Order {
+    request_date: string;
+    generator_id: string;
+    status: string;
+    pickup_date_from: string;
+    zone: string;
+    id: number;
+    coop_id: number;
+    details: string;
+    pickup_date_to: string;
+    generator: Generator;
+    coop: Generator;
+  } 
 
 const monthNames: { [key: number]: string } = {
     1: 'Enero',    // Enero
@@ -39,8 +54,8 @@ const monthNames: { [key: number]: string } = {
     12: 'Diciembre'  // Diciembre
 };
 
-const OrderDetails = (props: unknown) => {
-    const order = {
+const OrderDetails = (props: {params?: { id?: string } }) => {
+    const order2 = {
         request_date: "2024-08-20T12:53:27",
         generator_id: 49,
         coop_id: 50,
@@ -51,10 +66,15 @@ const OrderDetails = (props: unknown) => {
         pickup_date: "2024-09-05T12:53:27",
         zone: "Devoto"
       }
+
+    console.log(props)
     
-    const {user} = useUser(); 
+    const {user} = useUser();
+    const orderId = props.params?.id
+    
     const [loading, setLoading] = useState(true);
     const [generator, setGenerator] = useState<Generator | null>(null);
+    const [order, setOrder] = useState<Order | null>(null);
     const [isCollapsedItems, setIsCollapsedItems] = useState(false);
     const [isCollapsedObservations, setIsCollapsedObservations] = useState(false);
 
@@ -69,8 +89,10 @@ const OrderDetails = (props: unknown) => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await getUserById(order.generator_id);
-                setGenerator(response);
+                const responseOrder = await getOrderById(orderId);
+                const responseGenerator = await getUserById(responseOrder.generator_id);
+                setOrder(responseOrder);
+                setGenerator(responseGenerator);
                 setLoading(false);
             } catch (error) {
                 console.log("Error al obtener usuario", error);
@@ -80,21 +102,25 @@ const OrderDetails = (props: unknown) => {
     }, [props]);
 
     console.log(generator)
-    const date = new Date(order.pickup_date);
-    console.log(date)
-    const month : number = date.getMonth() + 1;
-    const hour = date.getHours();
-    const minutes = date.getMinutes();
+    const date_from =  order? new Date(order.pickup_date_from): null;
+    const month_from : number = date_from? date_from.getMonth() + 1 : 0;
+    const hour_from = date_from? date_from.getHours() : null;
+    const minutes_from = date_from? date_from.getMinutes(): null;
 
-    const inserted_date = new Date(order.request_date);
-    const month_inserted : number = inserted_date.getMonth() + 1;
-    const hour_inserted = inserted_date.getHours();
-    const minutes_inserted = inserted_date.getMinutes();
+    const date_to =  order? new Date(order.pickup_date_to): null;
+    const month_to : number = date_to? date_to.getMonth() + 1 : 0;
+    const hour_to = date_to? date_to.getHours() : null;
+    const minutes_to = date_to? date_to.getMinutes(): null;
+
+    const inserted_date =  order? new Date(order.request_date): null;
+    const month_inserted : number = inserted_date? inserted_date.getMonth() + 1 : 0;
+    const hour_inserted = inserted_date? inserted_date.getHours() : null;
+    const minutes_inserted = inserted_date? inserted_date.getMinutes(): null;
 
 
     return (
         <div className="items-center flex justify-center">
-            {!loading && (
+            {!loading && order && date_from && date_to && inserted_date && (
                         // INICIO CARD
                         <div className="card mx-3 my-4 md:m-3 w-100 px-1 md:px-3 py-1 md:py-3 md:m-5">
                         <div className="row g-0 w-full">
@@ -106,7 +132,10 @@ const OrderDetails = (props: unknown) => {
                                 (<h3 className="card-title font-semibold text-black text-xl">{order.status.toUpperCase()} </h3>)}
                                 <div className="flex flex-row gap-3 text-xl items-center">
                                     <LocalShippingIcon className="ml-1"/>
-                                    <p className="card-text"><small className="text-body-secondary">{date.getDate()} de {monthNames[month]} - {hour}:{minutes}</small></p>
+                                    <div className="flex flex-col">
+                                    <p className="card-text"><small className="text-body-secondary">{date_from.getDate()} de {monthNames[month_from]} - {hour_from}:{minutes_from}</small></p> a
+                                    <p className="card-text"><small className="text-body-secondary">{date_to.getDate()} de {monthNames[month_to]} - {hour_to}:{minutes_to}</small></p>
+                                    </div>
                                 </div>
 
                         {/* INICIO PRODUCTOS */}
@@ -123,8 +152,8 @@ const OrderDetails = (props: unknown) => {
                                 <div className="flex flex-row gap-3 justify-start mx-2 md:mx-5">
                                     <img src="/box.svg" alt="box" className="w-7" />
                                     <p className="card-text flex gap-3 items-center">
-                                        <span className="text-body-secondary font-semibold text-md">{order.waste_type}</span>
-                                        <small className="text-body-secondary text-md">{order.quantity} unidades</small>
+                                        <span className="text-body-secondary font-semibold text-md">{order.details}</span>
+                                        <small className="text-body-secondary text-md">{order.details} unidades</small>
                                     </p>
                                 </div>
                             </div>
@@ -148,7 +177,7 @@ const OrderDetails = (props: unknown) => {
                                 <div className="card-text flex gap-3 flex-col justify-start">
                                     <div className="flex flex-row gap-3 text-xl items-center">
                                         <LocationOnIcon className="ml-1"/>
-                                        {generator && <p className="card-text"><small className="text-body-secondary text-md">{generator.address.street} {generator.address.number}, {generator.address.city}, {generator.address.province}</small></p>}
+                                        {generator && <p className="card-text"><small className="text-body-secondary text-md">{generator.address.street} {generator.address.number}, {generator.zone}, {generator.address.city}, {generator.address.province}</small></p>}
                                     </div>
                                     <div className="flex flex-row gap-3 text-xl items-center">
                                         <AlternateEmailIcon className="ml-1"/>
