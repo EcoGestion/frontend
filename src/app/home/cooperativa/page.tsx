@@ -19,7 +19,9 @@ const openRequestsMocked = [
     pickup_date_from: '2024-09-01T08:00:00',
     pickup_date_to: '2024-09-01T10:00:00',
     zone: 'Belgrano',
-    status: 'OPEN',
+    elements: "Papel - Cartón - Plástico",
+    status: 'DISPONIBLE',
+    gen_type: 'Edificio',
   },
   {
     id: 2,
@@ -27,7 +29,9 @@ const openRequestsMocked = [
     pickup_date_from: '2024-09-01T08:00:00',
     pickup_date_to: '2024-09-01T10:00:00',
     zone: 'Palermo',
-    status: 'OPEN',
+    elements: "Vidrio",
+    status: 'DISPONIBLE',
+    gen_type: 'Hotel',
   },
   {
     id: 3,
@@ -35,7 +39,9 @@ const openRequestsMocked = [
     pickup_date_from: '2024-09-01T08:00:00',
     pickup_date_to: '2024-09-01T10:00:00',
     zone: 'Recoleta',
-    status: 'OPEN',
+    elements: "Carton - Aceite",
+    status: 'DISPONIBLE',
+    gen_type: 'Restaurante',
   }
 ];
 
@@ -46,7 +52,9 @@ const pendingRequestsMocked = [
     pickup_date_from: '2024-09-01T08:00:00',
     pickup_date_to: '2024-09-01T10:00:00',
     zone: 'Belgrano',
-    status: 'PENDING',
+    elements: "Papel - Cartón - Plástico",
+    gen_type: 'Building',
+    status: 'PENDIENTE',
   },
   {
     id: 5,
@@ -54,7 +62,9 @@ const pendingRequestsMocked = [
     pickup_date_from: '2024-09-01T08:00:00',
     pickup_date_to: '2024-09-01T10:00:00',
     zone: 'Palermo',
-    status: 'PENDING',
+    elements: "Vidrio",
+    gen_type: 'Hotel',
+    status: 'PENDIENTE',
   },
   {
     id: 6,
@@ -62,7 +72,9 @@ const pendingRequestsMocked = [
     pickup_date_from: '2024-09-01T08:00:00',
     pickup_date_to: '2024-09-01T10:00:00',
     zone: 'Recoleta',
-    status: 'PENDING',
+    elements: "Carton - Aceite",
+    gen_type: 'RestaurantE',
+    status: 'PENDIENTE',
   }
 ];
 
@@ -77,17 +89,17 @@ const camionesMocked = [
   },
   {
     id: 2,
-    placa: 'BBB-222',
+    placa: 'AE-913-TR',
     modelo: 2021,
-    marca: 'Volvo',
-    capacidad: '10 toneladas',
+    marca: 'Mercedes Benz',
+    capacidad: '5 toneladas',
     estado: 'En uso',
   },
   {
     id: 3,
-    placa: 'CCC-333',
+    placa: 'JQR-204',
     modelo: 2022,
-    marca: 'Volvo',
+    marca: 'Toyota',
     capacidad: '10 toneladas',
     estado: 'Disponible',
   },
@@ -122,15 +134,17 @@ const HomeCooperativa = () => {
   else {
     return (
       <div className='flex flex-col p-4 gap-5 h-screen'>
-        <div className='flex flex-row items-start gap-2'>
+        <div className='flex flex-col gap-2 w-full'>
           <Card className='flex-1'>
-            <CardHeader className='bg-green-dark text-white'>Solicitudes abiertas: 10</CardHeader>
+            <CardHeader className='bg-green-dark text-white p-2'>Solicitudes disponibles: 10</CardHeader>
             <Divider />
-            <CardBody>
+            <CardBody className='p-0'>
               <Table>
                 <TableHeader>
                   <TableColumn>Fecha de recolección</TableColumn>
                   <TableColumn>Zona</TableColumn>
+                  <TableColumn>Elementos</TableColumn>
+                  <TableColumn>Tipo de generador</TableColumn>
                   <TableColumn>Estado</TableColumn>
                   <TableColumn>Acciones</TableColumn>
                 </TableHeader>
@@ -139,6 +153,8 @@ const HomeCooperativa = () => {
                     <TableRow key={request.id}>
                       <TableCell>{formatDateRange(request.pickup_date_from, request.pickup_date_to)}</TableCell>
                       <TableCell>{request.zone}</TableCell>
+                      <TableCell>{request.elements}</TableCell>
+                      <TableCell>{request.gen_type}</TableCell>
                       <TableCell>{request.status}</TableCell>
                       <TableCell>
                         <Button >Ver</Button>
@@ -151,13 +167,15 @@ const HomeCooperativa = () => {
           </Card>
           
           <Card className='flex-1'>
-            <CardHeader className='bg-green-dark text-white'>Solicitudes aceptadas: 5</CardHeader>
+            <CardHeader className='bg-green-dark text-white p-2'>Solicitudes pendientes el dia de hoy: 5</CardHeader>
             <Divider />
-            <CardBody>
+            <CardBody className='p-0'>
               <Table>
                 <TableHeader>
                   <TableColumn>Fecha de recolección</TableColumn>
                   <TableColumn>Zona</TableColumn>
+                  <TableColumn>Elementos</TableColumn>
+                  <TableColumn>Tipo de generador</TableColumn>
                   <TableColumn>Estado</TableColumn>
                   <TableColumn>Acciones</TableColumn>
                 </TableHeader>
@@ -166,6 +184,8 @@ const HomeCooperativa = () => {
                     <TableRow key={request.id}>
                       <TableCell>{formatDateRange(request.pickup_date_from, request.pickup_date_to)}</TableCell>
                       <TableCell>{request.zone}</TableCell>
+                      <TableCell>{request.elements}</TableCell>
+                      <TableCell>{request.gen_type}</TableCell>
                       <TableCell>{request.status}</TableCell>
                       <TableCell>
                         <Button >Ver</Button>
@@ -177,11 +197,11 @@ const HomeCooperativa = () => {
             </CardBody>
           </Card>
           
-          <Card className='flex-1 p-0'>
-            <CardHeader className='bg-green-dark text-white'>Camiones activos: 2</CardHeader>
+          <Card className='flex-1'>
+            <CardHeader className='bg-green-dark text-white p-2'>Camiones activos: 2</CardHeader>
             <Divider />
-            <CardBody>
-              <Table style={{ width: '100%', tableLayout: 'fixed'}}>
+            <CardBody className='p-0'>
+              <Table>
                 <TableHeader>
                   <TableColumn>Placa</TableColumn>
                   <TableColumn>Marca</TableColumn>
