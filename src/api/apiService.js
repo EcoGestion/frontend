@@ -26,3 +26,8 @@ export const createRequest = async (requestData) => {
   const response = await axios.post(`${API_BASE_URL}/waste_collection_requests`, requestData);
   return response.data;
 }
+
+export const createTruck = async (truckData) => {
+  const response = await axios.post(`${API_BASE_URL}/truck`, truckData);
+  return response.data;
+}

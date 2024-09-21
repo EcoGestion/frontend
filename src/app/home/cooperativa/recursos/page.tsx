@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '../../../../state/userProvider';
 import { Table, TableHeader, TableBody, TableRow, TableColumn, TableCell, Divider } from '@nextui-org/react';
 import { TableFooter } from '@mui/material';
+import TruckModal from './components/truckModal';
 
 const camionesMocked = [
   {
@@ -66,9 +67,10 @@ const recursosCooperativa = () => {
   const dispatch = useDispatch();
   const router = useRouter();
 
+  const [modalTruckIsOpen, setModalTruckIsOpen] = useState(false);
+
   const handleAgregarCamion = () => {
-    // Lógica para agregar camión
-    console.log('Agregar camión');
+    setModalTruckIsOpen(true);
   };
 
   const handleAgregarConductor = () => {
@@ -78,6 +80,7 @@ const recursosCooperativa = () => {
 
   return (
     <div className='flex flex-col h-screen p-3 gap-3'>
+      <TruckModal isOpen={modalTruckIsOpen} onRequestClose={()=> setModalTruckIsOpen(false)}/>
       <h1 className='text-2xl font-bold'>Gestión de los recursos de la Cooperativa</h1>
       <div className='w-full'>
       <div className='flex justify-between items-center'>
