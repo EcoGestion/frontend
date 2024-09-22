@@ -21,7 +21,10 @@ const NavBar = () => {
     const { setUser } = useUser();
 
     const handleGoBack = () => {
-      router.back();
+      if(currentPath.includes("/pedidos/detalles"))
+        router.replace(currentPath.split('/').slice(0, -2).join('/'))
+      else
+        router.back();
     };
 
     const logOut = (() => {
@@ -57,7 +60,7 @@ const NavBar = () => {
     };
 
     return (
-      <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='flex space-between  items-center text-center gap-10 w-100 '>
+      <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='flex space-between  items-center text-center gap-10 w-100 max-w-full '>
         <button onClick={handleGoBack} className={`justify-self-start ${currentPath == "/home/cooperativa" ? "hidden" : "block"}`}>
           <KeyboardBackspaceIcon className='text-3xl'/>
         </button>
