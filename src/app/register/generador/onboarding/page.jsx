@@ -7,7 +7,7 @@ import OnboardingGeneradorFormStep1 from './components/FormStep1.jsx';
 import OnboardingGeneradorFormStep2 from './components/FormStep2.jsx';
 import { useRouter } from 'next/navigation';
 import { createUser } from '../../../../api/apiService.js';
-import Spinner from '../../../../components/Spinner.tsx';
+import Spinner from '../../../../components/Spinner.jsx';
 
 export default function onboarding() {
   const user = useSelector((state) => state.userSession);
