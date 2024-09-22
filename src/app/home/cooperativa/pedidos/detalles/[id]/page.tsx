@@ -76,7 +76,7 @@ const getStatus = (status : any) => {
     }
 }
 
-const formatDate = (value) => {
+const formatDate = (value: any) => {
     const dateOptions = {
         day: '2-digit',
         month: '2-digit',
