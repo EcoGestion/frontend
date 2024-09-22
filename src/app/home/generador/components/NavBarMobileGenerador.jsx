@@ -8,6 +8,7 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import AddIcon from '@mui/icons-material/Add';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
+import BarChartIcon from '@mui/icons-material/BarChart';
 import { useUser } from '../../../../state/userProvider';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../../firebaseConfig';
@@ -55,15 +56,21 @@ const NavBarMobile = () => {
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/generador/pagina1')}>
+            <NavbarItem isActive={isActiveRoute('/home/generador/pedidos/crear')} >
+            <Link color="foreground" href="/home/generador/pedidos/crear">
+                <AddIcon fontSize='large'/>
+            </Link>
+            </NavbarItem>
+
+            <NavbarItem isActive={isActiveRoute('/home/generador/pedidos')}>
             <Link color="foreground" href="/home/generador/pedidos">
                 <ReceiptIcon fontSize='large'/>
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/generador/pagina1')} >
-            <Link color="foreground" href="/home/generador/pedidos/crear">
-                <AddIcon fontSize='large'/>
+            <NavbarItem isActive={isActiveRoute('/home/generador/estadisticas')} >
+            <Link color="foreground" href="/home/generador/estadisticas">
+                <BarChartIcon fontSize='large'/>
             </Link>
             </NavbarItem>
 

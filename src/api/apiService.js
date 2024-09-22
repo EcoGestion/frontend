@@ -22,6 +22,11 @@ export const getCoopOrdersById = async (userId) => {
   return response.data;
 };
 
+export const createRequest = async (requestData) => {
+  const response = await axios.post(`${API_BASE_URL}/waste_collection_requests`, requestData);
+  return response.data;
+}
+
 export const getGeneratorOrdersById = async (userId) => {
   const response = await axios.get(`${API_BASE_URL}/users/${userId}/waste_collection_requests`);
   return response.data;

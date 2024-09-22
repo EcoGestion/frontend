@@ -13,6 +13,17 @@ export interface Day {
     name: string;
     checked: boolean;
   }
+
+  export interface Address {
+    id: number;
+    street: string;
+    number: string;
+    city: string;
+    province: string;
+    lat: string;
+    lng: string;
+    zip_code: number;
+  }
   
   export interface UserInfo {
     id: number;
@@ -26,6 +37,9 @@ export interface Day {
       number: string;
       city: string;
       province: string;
+      lat: string;
+      lng: string;
+      zip_code: number;
     };
     phone: string;
     waste_type_config: { name: string }[];

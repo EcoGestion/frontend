@@ -9,6 +9,7 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import MenuRoundedIcon from '@mui/icons-material/Menu';
+import BarChartIcon from '@mui/icons-material/BarChart';
 import { useUser } from '../../../../state/userProvider';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../../firebaseConfig';
@@ -55,34 +56,56 @@ const NavBar = () => {
     };
 
     return (
-      <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='flex space-between  items-center text-center gap-10 w-100 '>
+      <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='flex space-between  items-center text-center gap-10 w-100'>
         <button onClick={handleGoBack} className={`justify-self-start ${currentPath == "/home/generador" ? "hidden" : "block"}`}>
           <KeyboardBackspaceIcon className='text-3xl'/>
         </button>
 
         <NavbarContent className={`ml-14 hidden sm:block sticky-bottom w-full items-center text-center h-1/2 justify-self-center ${currentPath == "/home/generador" ? "translate-x-7" : ""}`} justify="center">
-          <div className='flex flex-row items-center space-between justify-center gap-12'>
+          <div className='flex flex-row items-center space-between justify-center gap-28'>
+            
             <NavbarItem isActive={isActiveRoute('/home/generador')} className='w-8'>
             <Link color="foreground" href="/home/generador">
-              <HomeIcon fontSize='large'/>
+                <div className="flex flex-col items-center">
+                  <HomeIcon fontSize='medium'/>
+                  <span className="text-sm text-black">Inicio</span>
+                </div>
+              </Link>
+            </NavbarItem>
+
+            <NavbarItem isActive={isActiveRoute('/home/generador/pedidos/crear')}  className='w-10'>
+            <Link color="foreground" href="/home/generador/pedidos/crear">
+                <div className="flex flex-col items-center">
+                    <AddIcon fontSize='medium'/>
+                    <span className="text-sm text-black">Nueva solicitud</span>
+                  </div>
             </Link>
             </NavbarItem>
 
             <NavbarItem isActive={isActiveRoute('/home/generador/pedidos')} className='w-10'>
             <Link color="foreground" href="/home/generador/pedidos" >
-                <ReceiptIcon fontSize='large'/>
+                <div className="flex flex-col items-center">
+                  <ReceiptIcon fontSize='medium'/>
+                  <span className="text-sm text-black">Historial de solicitudes</span>
+                </div>
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/generador/pedidos/crear')}  className='w-10'>
-            <Link color="foreground" href="/home/generador/pedidos/crear">
-                <AddIcon fontSize='large'/>
+            <NavbarItem isActive={isActiveRoute('/home/generador/estadisticas')} className='w-10'>
+            <Link color="foreground" href="/home/generador/estadisticas" >
+                <div className="flex flex-col items-center">
+                  <BarChartIcon fontSize='medium'/>
+                  <span className="text-sm text-black">Estadisticas</span>
+                </div>
             </Link>
             </NavbarItem>
 
             <NavbarItem isActive={isActiveRoute('/home/generador/perfil')} className='w-10'>
             <Link color="foreground" href="/home/generador/perfil">
-                <AccountBoxIcon fontSize='large'/>
+              <div className="flex flex-col items-center">
+                <AccountBoxIcon fontSize='medium'/>
+                <span className="text-sm text-black">Perfil</span>
+              </div>
             </Link>
             </NavbarItem>
 
@@ -93,7 +116,7 @@ const NavBar = () => {
             </div>
         </NavbarContent>
 
-        <NavbarBrand className='justify-end '>
+        <NavbarBrand className='justify-end'>
             <Link color="foreground" href="/home/generador">
               <p className="font-bold text-green-dark text-lg">EcoGestion</p>
             </Link>
