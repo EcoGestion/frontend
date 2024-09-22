@@ -8,7 +8,7 @@ import OnboardingCooperativaFormStep2 from './components/FormStep2.jsx';
 import OnboardingCooperativaFormStep3 from './components/FormStep3.jsx';
 import { useRouter } from 'next/navigation';
 import { createUser } from '../../../../api/apiService';
-import Spinner from '../../../../components/Spinner.tsx';
+import Spinner from '../../../../components/Spinner.jsx';
 
 export default function Onboarding() {
   const user = useSelector((state) => state.userSession);
