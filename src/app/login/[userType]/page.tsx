@@ -57,10 +57,16 @@ const Login = ({ params }: { params: { userType: string } }) => {
       }));
       router.replace('/home/' + userType);
     }
-    catch (error) {
-        console.log("Error al loguear usuario", error);
-        alert('Error al iniciar sesión');
-        setLoading(false);
+    catch (error: any) {
+        switch (error.code) {
+          case 'auth/invalid-credential':
+            alert('El mail o la contraseña ingresados no son correctos.');
+            break;
+          default:
+            alert('Ha ocurrido un error. Por favor, inténtelo de nuevo.');
+            console.log(error);
+        }
+      setLoading(false);
     }
   }
 
