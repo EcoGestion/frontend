@@ -56,16 +56,36 @@ const HomeGenerador = () => {
           </Card>
           
           <Card className='flex-1 p-0'>
-            <CardHeader className='bg-green-dark text-white min-h-16'>Solicitudes  activos: 2</CardHeader>
+            <CardHeader className='bg-green-dark text-white min-h-16'>Solicitudes  pendientes: 2</CardHeader>
           </Card>
         </div>
-        <div className='flex flex-col justify-center gap-5 w-full'>
+        <div className='flex flex-col justify-center gap-3 w-full'>
           <h1 className='text-2xl justify-start'>Novedades</h1>
+          <div className='flex flex-col gap-2'>
           <Card className='flex flex-col justify-between items-center flex-1'>
-            <CardBody>Contenido de la novedad 1</CardBody>
+            <CardBody>¡Su recolección se realizará el dia de hoy!</CardBody>
             <Divider/>
-            <CardFooter>Fecha de publicación: 2021-10-10</CardFooter>
+            <CardFooter>Fecha: 10-09-2024 | Hora: 08:00</CardFooter>
           </Card>
+
+          <Card className='flex flex-col justify-between items-center flex-1'>
+            <CardBody>¡Su recolección se realizó con exito!</CardBody>
+            <Divider/>
+            <CardFooter>Fecha: 20-08-2024 | Hora: 13:36</CardFooter>
+          </Card>
+
+          <Card className='flex flex-col justify-between items-center flex-1'>
+            <CardBody>¡Usted es el proximo destino de la cooperativa!</CardBody>
+            <Divider/>
+            <CardFooter>Fecha: 20-08-2024 | Hora: 13:02</CardFooter>
+          </Card>
+
+          <Card className='flex flex-col justify-between items-center flex-1'>
+          <CardBody>¡Su recolección se realizará el dia de hoy!</CardBody>
+            <Divider/>
+            <CardFooter>Fecha: 20-08-2024 | Hora: 08:00</CardFooter>
+          </Card>
+          </div>
         </div>
       </div>
     );
