@@ -60,7 +60,7 @@ const monthNames: { [key: number]: string } = {
     12: 'Diciembre'  // Diciembre
 };
 
-const getStatus = (status) => {
+const getStatus = (status : any) => {
     switch (status) {
         case 'CANCELED':
             return 'Cancelada';
