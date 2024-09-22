@@ -19,7 +19,11 @@ const NavBar = () => {
     const { setUser } = useUser();
 
     const handleGoBack = () => {
-      router.back();
+      console.log(currentPath.includes("/pedidos/detalles"))
+      if(currentPath.includes("/pedidos/detalles"))
+        router.replace(currentPath.split('/').slice(0, -2).join('/'))
+      else
+        router.back();
     };
 
     const logOut = (() => {
