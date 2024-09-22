@@ -12,7 +12,7 @@ import { useUser } from '../../../state/userProvider';
 import Spinner  from '../../../components/Spinner';
 import { setUserSession } from '../../../state/userSessionSlice';
 import React from 'react';
-import { userTypeMapping, UserType } from '@/constants/userTypes';
+import { userTypeMapping, UserType, mapUserType } from '@/constants/userTypes';
 
 // /login/{cooperativa/generador}
 
@@ -39,7 +39,8 @@ const Login = ({ params }: { params: { userType: string } }) => {
       }
       const userInfo = await loginUser(userData)
 
-      if (userTypeMapping[userType] !== userInfo.type) {
+      const front_type = mapUserType(userInfo.type);
+      if (front_type !== userType) {
         alert('Su usuario no se encuentra registrado como ' + userType + '.\nPor favor, inicie sesión con el usuario correspondiente.');
         setLoading(false);
         return;
