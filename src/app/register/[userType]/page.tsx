@@ -33,7 +33,12 @@ const SignUp = ({ params }: { params: { userType: string } }) => {
       router.replace("/register/" + userType + "/onboarding")
     })
     .catch((error) => {
-      console.log(error)
+      if (error.code === 'auth/email-already-in-use') {
+        alert('El correo electrónico ya se encuentra en uso.');
+      } else {
+        alert('Ha ocurrido un error. Por favor, inténtelo de nuevo.');
+        console.log(error);
+      }
     });
   };
 
