@@ -22,6 +22,8 @@
       "@api/hooks/*": ["./src/api/hooks/*"],
       "@utils/*": ["./src/utils/*"],
       "@state/*": ["./src/state/*"],
+      "@components/*": ["./src/components/*"],
+      "@constants/*": ["./src/constants/*"],
       "@firebaseConfig": ["./src/app/firebaseConfig.js"],
     }
   },
