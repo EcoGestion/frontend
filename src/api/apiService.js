@@ -17,7 +17,17 @@ export const getUserById = async (userId) => {
   return response.data;
 };
 
-export const getOrdersById = async (userId) => {
+export const getCoopOrdersById = async (userId) => {
   const response = await axios.get(`${API_BASE_URL}/users/${userId}/coop_requests`);
+  return response.data;
+};
+
+export const getGeneratorOrdersById = async (userId) => {
+  const response = await axios.get(`${API_BASE_URL}/users/${userId}/waste_collection_requests`);
+  return response.data;
+};
+
+export const getOrderById = async (orderId) => {
+  const response = await axios.get(`${API_BASE_URL}/waste_requests/${orderId}`);
   return response.data;
 };
