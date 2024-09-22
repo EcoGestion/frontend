@@ -12,7 +12,7 @@ import { MultiSelect } from 'primereact/multiselect';
 import { Tag } from 'primereact/tag';
 import { Calendar } from 'primereact/calendar';
 import { useUser } from '../../../../state/userProvider';
-import { getCoopOrdersById, getUserById } from "../../../../api/apiService";
+import { getCoopOrdersById, getGeneratorOrdersById, getUserById } from "../../../../api/apiService";
 import { useRouter } from 'next/navigation';
 import Spinner from "../../../../components/Spinner"
 import "./style.css"
@@ -89,6 +89,8 @@ export default function BasicFilterDemo() {
         const fetchOrders = async () => {
           if (user.userId) {
             try {
+              // Hay que cambiarlo por el Get Orders de generador.
+              // No esta funcionando
               await getCoopOrdersById(user.userId)
               .then((response) => Promise.all(response.map(order => transform_order_data(order))))
               .then((transformed_orders) => {
@@ -305,6 +307,9 @@ export default function BasicFilterDemo() {
                 <Button type="button" severity="success" rounded onClick={exportExcel} data-pr-tooltip="XLS">
                 <img src="/excel.svg" alt="box" className="w-7 md:w-10" />
                 </Button> 
+                {/*<Button type="button" severity="warning" rounded onClick={exportPdf} data-pr-tooltip="PDF">
+                <img src="/pdf.svg" alt="box" className="w-7 md:w-10" />
+            </Button>  */}
             </div>
             }
             {!loading && orders && (document.documentElement.clientWidth > 750) &&
@@ -316,7 +321,7 @@ export default function BasicFilterDemo() {
                 <Column field="request_date" header="FECHA CREACIÓN" dataType="date"   style={{ minWidth: '4rem' }} body={creationDateBodyTemplate} filterElement={dateFilterTemplate} sortable />
                 <Column field="pickup_date" header="FECHA RECOLECCIÓN" dataType="date"  style={{ minWidth: '4rem' }} body={recolectionDateBodyTemplate} filterElement={dateFilterTemplate} sortable/>
                 <Column header="TIPO" filterField="waste_quantities" showFilterMenu={false} filterMenuStyle={{ width: '4rem' }} style={{ minWidth: '4rem' }}
-                    body={wasteTypeBodyTemplate} filter filterElement={wasteTypeRowFilterTemplate} FilterMatchMode="in" />
+                    body={wasteTypeBodyTemplate} filter filterElement={wasteTypeRowFilterTemplate} />
                 <Column header="BARRIO" filterField="zone" showFilterMenu={false} filterMenuStyle={{ width: '6rem' }} style={{ minWidth: '6rem' }}
                     body={zoneBodyTemplate} filter filterElement={zoneRowFilterTemplate} />
                 <Column header="ESTADO" filterField="status" showFilterMenu={false} filterMenuStyle={{ width: '6rem' }} style={{ minWidth: '6rem' }}
@@ -339,4 +344,3 @@ export default function BasicFilterDemo() {
         </div>
     );
 }
-        

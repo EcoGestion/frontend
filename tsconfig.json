@@ -21,6 +21,7 @@
       "@/*": ["./src/*"],
       "@api/hooks/*": ["./src/api/hooks/*"],
       "@utils/*": ["./src/utils/*"],
+      "@state/*": ["./src/state/*"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/register/cooperativa/onboarding/components/FormStep1.tsx", "src/app/register/cooperativa/onboarding/components/FormStep2.jsx", "src/app/register/cooperativa/onboarding/components/FormStep3.jsx", "src/app/register/cooperativa/onboarding/page.jsx", "src/api/apiService.js", "src/components/loadingSpinner.jsx", "src/app/home/cooperativa/perfil/page.jsx"],
