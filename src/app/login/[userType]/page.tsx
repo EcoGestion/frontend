@@ -12,11 +12,12 @@ import { useUser } from '../../../state/userProvider';
 import Spinner  from '../../../components/Spinner';
 import { setUserSession } from '../../../state/userSessionSlice';
 import React from 'react';
+import { userTypeMapping, UserType } from '@/constants/userTypes';
 
 // /login/{cooperativa/generador}
 
 const Login = ({ params }: { params: { userType: string } }) => {
-  const userType = params.userType;
+  const userType = params.userType as keyof typeof userTypeMapping;
   const { setUser } = useUser();
   const dispatch = useDispatch();
   const router = useRouter();
@@ -37,6 +38,13 @@ const Login = ({ params }: { params: { userType: string } }) => {
         "firebase_id": firebaseToken
       }
       const userInfo = await loginUser(userData)
+
+      if (userTypeMapping[userType] !== userInfo.type) {
+        alert('Su usuario no se encuentra registrado como ' + userType + '.\nPor favor, inicie sesión con el usuario correspondiente.');
+        setLoading(false);
+        return;
+      }
+
       setUser({
         name: userInfo.username,
         email: userInfo.email,
