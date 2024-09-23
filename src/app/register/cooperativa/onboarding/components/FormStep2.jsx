@@ -2,21 +2,11 @@
 import { useState } from 'react';
 import GreenRoundedButton from '@/components/greenRoundedButton';
 import ReciclablesSelector from '@/components/ReciclablesSelector';
+import materialsDefault from '@/constants/recyclables';
 
 const OnboardingCooperativaFormStep2 = ({prevStep, nextStep, setRecyclableObjects, recyclableObjects}) => {
 
-  const [items, setItems] = useState(recyclableObjects || [
-    { id: 1, label: 'Papel', name:'PAPER', checked: false },
-    { id: 2, label: 'Metal', name:'METAL', checked: false },
-    { id: 3, label: 'Vidrio', name:'GLASS', checked: false },
-    { id: 4, label: 'Plástico', name:'PLASTIC', checked: false },
-    { id: 5, label: 'Cartón', name:'CARDBOARD', checked: false },
-    { id: 6, label: 'Tetra Brik', name:'TETRA_BRIK', checked: false },
-    { id: 7, label: 'Telgopor', name:'STYROFOAM', checked: false },
-    { id: 8, label: 'Pilas', name:'BATTERIES', checked: false },
-    { id: 9, label: 'Aceite', name:'OIL', checked: false },
-    { id: 10, label: 'Electrónicos', name:'ELECTRONICS', checked: false },
-  ]);
+  const [items, setItems] = useState(recyclableObjects || materialsDefault);
 
   const handleCheckboxChange = (id) => {
     setItems(
