@@ -1,75 +1,39 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { clearUserSession } from '../../../../state/userSessionSlice';
-import { useRouter } from 'next/navigation';
-import { useUser } from '../../../../state/userProvider';
-import { Table, TableHeader, TableBody, TableRow, TableColumn, TableCell, Divider } from '@nextui-org/react';
-import { TableFooter } from '@mui/material';
+import { RootState } from '@/state/store';
+import { useSelector } from 'react-redux';
+import { Table, TableHeader, TableBody, TableRow, TableColumn, TableCell } from '@nextui-org/react';
 import TruckModal from './components/truckModal';
 import DriverModal from './components/driverModal';
-
-const camionesMocked = [
-  {
-    id: 1,
-    placa: 'AAA-111',
-    modelo: 2020,
-    marca: 'Volvo',
-    capacidad: '10 toneladas',
-    estado: 'Disponible',
-  },
-  {
-    id: 2,
-    placa: 'BBB-222',
-    modelo: 2021,
-    marca: 'Volvo',
-    capacidad: '10 toneladas',
-    estado: 'En uso',
-  },
-  {
-    id: 3,
-    placa: 'CCC-333',
-    modelo: 2022,
-    marca: 'Volvo',
-    capacidad: '10 toneladas',
-    estado: 'Disponible',
-  },
-];
-
-const conductoresMocked = [
-  {
-    id: 1,
-    nombre: 'Juan Perez',
-    documento: '123456789',
-    telefono: '123456789',
-    email: 'conductor@gmail.com',
-    estado: 'Disponible',
-  },
-  {
-    id: 2,
-    nombre: 'Carlos Perez',
-    documento: '123456789',
-    telefono: '123456789',
-    email: 'conductor2@hotmail.com',
-    estado: 'En uso',
-  },
-  {
-    id: 3,
-    nombre: 'Jose Perez',
-    documento: '123456789',
-    telefono: '123456789',
-    email: 'conductor3@gmail.com',
-    estado: 'Disponible',
-  },
-];
+import { getDriversByCoopId, getTrucksByCoopId } from '@/api/apiService';
+import { TrucksResources, DriversResources } from '@/types';
 
 const recursosCooperativa = () => {
-  const { user } = useUser();
-  const dispatch = useDispatch();
-  const router = useRouter();
-
+  const userSession = useSelector((state: RootState) => state.userSession);
+  const [loading, setLoading] = useState(false);
   const [modalTruckIsOpen, setModalTruckIsOpen] = useState(false);
   const [modalDriverIsOpen, setModalDriverIsOpen] = useState(false);
+
+  const [camiones, setCamiones] = useState<TrucksResources>([]);
+  const [conductores, setConductores] = useState<DriversResources>([]);
+
+  useEffect(() => {
+    retrieveData();
+  }, [modalTruckIsOpen, modalDriverIsOpen]);
+
+  const retrieveData = async () => {
+    try {
+      setLoading(true);
+      const camiones_response = await getTrucksByCoopId(userSession.userId);
+      const conductores_response = await getDriversByCoopId(userSession.userId);
+      setCamiones(camiones_response);
+      setConductores(conductores_response);
+    } catch (error) {
+      console.error('Error retrieving user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const handleAgregarCamion = () => {
     setModalTruckIsOpen(true);
@@ -101,15 +65,15 @@ const recursosCooperativa = () => {
             <TableColumn>Estado</TableColumn>
             <TableColumn>Acciones</TableColumn>
           </TableHeader>
-          <TableBody>
-            {camionesMocked.map((camion) => (
+          <TableBody emptyContent={"No hay camiones registrados."}>
+            {camiones.map((camion) => (
               <TableRow key={camion.id}>
                 <TableCell>{camion.id}</TableCell>
-                <TableCell>{camion.placa}</TableCell>
-                <TableCell>{camion.modelo}</TableCell>
-                <TableCell>{camion.marca}</TableCell>
-                <TableCell>{camion.capacidad}</TableCell>
-                <TableCell>{camion.estado}</TableCell>
+                <TableCell>{camion.patent}</TableCell>
+                <TableCell>{camion.model}</TableCell>
+                <TableCell>{camion.brand}</TableCell>
+                <TableCell>{camion.capacity}</TableCell>
+                <TableCell>{camion.status}</TableCell>
                 <TableCell>Editar</TableCell>
               </TableRow>
             ))}
@@ -130,18 +94,16 @@ const recursosCooperativa = () => {
             <TableColumn>Documento</TableColumn>
             <TableColumn>Telefono</TableColumn>
             <TableColumn>Email</TableColumn>
-            <TableColumn>Estado</TableColumn>
             <TableColumn>Acciones</TableColumn>
           </TableHeader>
-          <TableBody>
-            {conductoresMocked.map((conductor) => (
+          <TableBody emptyContent={"No hay conductores registrados."}>
+            {conductores.map((conductor) => (
               <TableRow key={conductor.id}>
                 <TableCell>{conductor.id}</TableCell>
-                <TableCell>{conductor.nombre}</TableCell>
-                <TableCell>{conductor.documento}</TableCell>
-                <TableCell>{conductor.telefono}</TableCell>
+                <TableCell>{conductor.username}</TableCell>
+                <TableCell>{conductor.national_id}</TableCell>
+                <TableCell>{conductor.phone}</TableCell>
                 <TableCell>{conductor.email}</TableCell>
-                <TableCell>{conductor.estado}</TableCell>
                 <TableCell>Editar</TableCell>
               </TableRow>
             ))}

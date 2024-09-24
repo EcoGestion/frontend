@@ -3,6 +3,7 @@ import Modal from 'react-modal';
 import { createTruck } from '@/api/apiService';
 import GreenRoundedButton from '@/components/greenRoundedButton';
 import Spinner from '@/components/Spinner';
+import { useSelector } from 'react-redux';
 
 const styles = {
   modal: {
@@ -37,13 +38,14 @@ const styles = {
 
 
 const TruckModal = ({ isOpen, onRequestClose }) => {
+  const userSession = useSelector((state) => state.userSession);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     patent: '',
     brand: '',
     model: '',
     capacity: '',
-    status: '1' // TODO: Definir los estados
+    status: 'ENABLED',
   });
 
   const handleChange = (e) => {
@@ -63,8 +65,13 @@ const TruckModal = ({ isOpen, onRequestClose }) => {
     }
     setLoading(true);
 
+    const payload = {
+      ...formData,
+      coop_id: userSession.userId
+    };
+
     try {
-      await createTruck(formData);
+      await createTruck(payload);
       onRequestClose();
     } catch (error) {
       console.error('Error al enviar el formulario:', error);
