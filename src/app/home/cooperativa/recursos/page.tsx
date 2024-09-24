@@ -7,6 +7,7 @@ import TruckModal from './components/truckModal';
 import DriverModal from './components/driverModal';
 import { getDriversByCoopId, getTrucksByCoopId } from '@/api/apiService';
 import { TrucksResources, DriversResources } from '@/types';
+import { mapTruckStatus } from '@constants/truck';
 
 const recursosCooperativa = () => {
   const userSession = useSelector((state: RootState) => state.userSession);
@@ -55,7 +56,7 @@ const recursosCooperativa = () => {
           Agregar camión
         </button>
       </div>
-        <Table>
+        <Table isStriped>
           <TableHeader>
             <TableColumn>ID</TableColumn>
             <TableColumn>Placa</TableColumn>
@@ -73,7 +74,7 @@ const recursosCooperativa = () => {
                 <TableCell>{camion.model}</TableCell>
                 <TableCell>{camion.brand}</TableCell>
                 <TableCell>{camion.capacity}</TableCell>
-                <TableCell>{camion.status}</TableCell>
+                <TableCell>{mapTruckStatus[camion.status]}</TableCell>
                 <TableCell>Editar</TableCell>
               </TableRow>
             ))}
@@ -87,7 +88,7 @@ const recursosCooperativa = () => {
             Agregar conductor
           </button>
         </div>
-        <Table>
+        <Table isStriped>
           <TableHeader>
             <TableColumn>ID</TableColumn>
             <TableColumn>Nombre</TableColumn>

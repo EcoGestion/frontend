@@ -4,6 +4,7 @@ import { createTruck } from '@/api/apiService';
 import GreenRoundedButton from '@/components/greenRoundedButton';
 import Spinner from '@/components/Spinner';
 import { useSelector } from 'react-redux';
+import { TruckStatus } from '@constants/truck';
 
 const styles = {
   modal: {
@@ -147,6 +148,20 @@ const TruckModal = ({ isOpen, onRequestClose }) => {
             required
             className='block w-full rounded-md py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
           />
+        <label className=' text-sm font-medium leading-6 text-gray-900'>
+          Capacidad (expresada en toneladas):
+        </label>
+        <select
+          name="status"
+          value={formData.status}
+          onChange={handleChange}
+          className='block w-full rounded-md py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
+        >
+          {TruckStatus.map((status) => (
+            <option key={status.key} value={status.value}>{status.label}</option>
+          ))}
+
+        </select>
         </div>
 
         <div style={{textAlign: 'center', padding: '2px', display:'flex', justifyContent:'center', gap: '8px'}}>

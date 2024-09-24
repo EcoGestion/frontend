@@ -51,7 +51,7 @@ export interface Truck {
   patent: string;
   model: string;
   brand: string;
-  status: string;
+  status: 'ENABLED' | 'DISABLE' | 'ON_ROUTE';
   capacity: number;
   coop_id: number;
 }
