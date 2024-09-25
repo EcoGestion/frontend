@@ -29,6 +29,14 @@ const config: Config = {
         '300': '#67e8f9',
         '800': '#155e75',
       },
+      'yellow': {
+        'light': '#ffcc00',
+        'dark': '#ff9900',
+      },
+      'red': {
+        'light': '#ff0000',
+        'dark': '#cc0000',
+      },
     },
     extend: {
       backgroundImage: {

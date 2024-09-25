@@ -51,3 +51,8 @@ export const getDriversByCoopId = async (coopId) => {
   const response = await axios.get(`${API_BASE_URL}/driver/coop/${coopId}`);
   return response.data;
 }
+
+export const updateTruckStatus = async (truckId, truck) => {
+  const response = await axios.put(`${API_BASE_URL}/truckstatus/${truckId}`, truck);
+  return response.data;
+}

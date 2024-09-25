@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { Table, TableHeader, TableBody, TableRow, TableColumn, TableCell } from '@nextui-org/react';
 import TruckModal from './components/truckModal';
 import DriverModal from './components/driverModal';
-import { getDriversByCoopId, getTrucksByCoopId } from '@/api/apiService';
+import { getDriversByCoopId, getTrucksByCoopId, updateTruckStatus } from '@/api/apiService';
 import { TrucksResources, DriversResources } from '@/types';
 import { mapTruckStatus } from '@constants/truck';
 
@@ -44,6 +44,39 @@ const recursosCooperativa = () => {
     setModalDriverIsOpen(true);
   };
 
+  const handleDeleteCamion = (id: number) => {
+    console.log('Eliminar camion', id);
+  }
+
+  const handleDeleteConductor = (id: number) => {
+    console.log('Eliminar conductor', id);
+  }
+
+  const handleDisableCamion = (id: number) => {
+    const camion = camiones.find((c) => c.id === id);
+    if (camion) {
+      camion.status = 'DISABLE';
+      updateTruckStatus(camion.id, camion).then(() => {
+        retrieveData();
+      })
+    }
+
+  }
+
+  const handleEnableCamion = (id: number) => {
+    const camion = camiones.find((c) => c.id === id);
+    if (camion) {
+      camion.status = 'ENABLED';
+      updateTruckStatus(camion.id, camion).then(() => {
+        retrieveData();
+      })
+    }
+  }
+
+  const handleDisableConductor = (id: number) => {
+    console.log('Deshabilitar conductor', id);
+  }
+
   return (
     <div className='flex flex-col h-screen p-3 gap-3'>
       <TruckModal isOpen={modalTruckIsOpen} onRequestClose={()=> setModalTruckIsOpen(false)}/>
@@ -75,7 +108,39 @@ const recursosCooperativa = () => {
                 <TableCell>{camion.brand}</TableCell>
                 <TableCell>{camion.capacity}</TableCell>
                 <TableCell>{mapTruckStatus[camion.status]}</TableCell>
-                <TableCell>Editar</TableCell>
+                <TableCell>
+                  
+                {camion.status === 'ENABLED' && (
+                  <button
+                    onClick={() => handleDisableCamion(camion.id)}
+                    className='bg-white text-yellow-dark px-3 py-2 rounded-full border border-yellow-light'
+                  >
+                    Deshabilitar
+                  </button>
+                )}
+
+                {camion.status === 'DISABLE' && (
+                  <button
+                    onClick={() => handleEnableCamion(camion.id)}
+                    className='bg-white text-green-dark px-3 py-2 rounded-full border border-green-light'
+                  >
+                    Habilitar
+                  </button>
+                )}
+
+                {camion.status === 'ON_ROUTE' && (
+                  <button
+                    disabled
+                    className='bg-white text-gray-400 px-3 py-2 rounded-full border border-gray-300'
+                  >
+                    En Ruta
+                  </button>
+                )}
+
+                  <button onClick={() => handleDeleteCamion(camion.id)} className='bg-white text-red-dark px-3 py-2 rounded-full border border-red-800'>
+                    Eliminar
+                  </button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -105,7 +170,14 @@ const recursosCooperativa = () => {
                 <TableCell>{conductor.national_id}</TableCell>
                 <TableCell>{conductor.phone}</TableCell>
                 <TableCell>{conductor.email}</TableCell>
-                <TableCell>Editar</TableCell>
+                <TableCell>
+                  <button onClick={() => handleDisableConductor(conductor.id)} className='bg-white text-yellow-dark px-3 py-2 rounded-full border border-yellow-light'>
+                    Deshabilitar
+                  </button>
+                  <button onClick={() => handleDeleteConductor(conductor.id)} className='bg-white text-red-dark px-3 py-2 rounded-full border border-red-800'>
+                    Eliminar
+                  </button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
