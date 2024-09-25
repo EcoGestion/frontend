@@ -8,6 +8,8 @@ import { createUserWithEmailAndPassword, deleteUser } from 'firebase/auth';
 import { auth } from '@firebaseConfig';
 import { Tabs, Tab } from '@nextui-org/react';
 import dynamic from 'next/dynamic'
+import { ToastContainer } from 'react-toastify';
+import { ToastNotifier } from '@/components/ToastNotifier';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
@@ -114,6 +116,7 @@ const DriverModal = ({ isOpen, onRequestClose }) => {
       try {
         await createUser(formData);
         onRequestClose();
+        ToastNotifier.success('Conductor registrado correctamente');
       } catch (error) {
         // Si hay error en el back elimino de Firebase
         console.log('Error al registrar el conductor:', error);
@@ -121,7 +124,8 @@ const DriverModal = ({ isOpen, onRequestClose }) => {
         throw error;
       }
     } catch (error) {
-      alert('Error al registrar el conductor. Por favor, intente nuevamente.');
+      ToastNotifier.error('Error al registrar al conductor');
+      console.error('Error al registrar al conductor:', error);
     } finally {
       setLoading(false);
     }
@@ -129,6 +133,7 @@ const DriverModal = ({ isOpen, onRequestClose }) => {
 
   return (
     <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={styles.modal}>
+      <ToastContainer />
       {loading && 
       <div style={styles.loadingContainer}>
         <h2 className='text-large font-bold'>Registrando conductor...</h2>

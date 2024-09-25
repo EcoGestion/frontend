@@ -5,6 +5,8 @@ import GreenRoundedButton from '@/components/greenRoundedButton';
 import Spinner from '@/components/Spinner';
 import { useSelector } from 'react-redux';
 import { TruckStatus } from '@constants/truck';
+import { ToastContainer } from 'react-toastify';
+import { ToastNotifier } from '@/components/ToastNotifier';
 
 const styles = {
   modal: {
@@ -74,8 +76,10 @@ const TruckModal = ({ isOpen, onRequestClose }) => {
     try {
       await createTruck(payload);
       onRequestClose();
+      ToastNotifier.success('Camión registrado correctamente');
     } catch (error) {
       console.error('Error al enviar el formulario:', error);
+      ToastNotifier.error('Error al registrar el camión');
     } finally {
       setLoading(false);
     }
@@ -83,6 +87,7 @@ const TruckModal = ({ isOpen, onRequestClose }) => {
 
   return (
     <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={styles.modal}>
+      <ToastContainer />
       {loading && 
       <div style={styles.loadingContainer}>
         <h2 className='text-large font-bold'>Registrando camión...</h2>

@@ -5,9 +5,11 @@ import { useSelector } from 'react-redux';
 import { Table, TableHeader, TableBody, TableRow, TableColumn, TableCell } from '@nextui-org/react';
 import TruckModal from './components/truckModal';
 import DriverModal from './components/driverModal';
-import { getDriversByCoopId, getTrucksByCoopId, updateTruckStatus } from '@/api/apiService';
+import { getDriversByCoopId, getTrucksByCoopId, updateTruckStatus, deleteTruck, deleteUser } from '@/api/apiService';
 import { TrucksResources, DriversResources } from '@/types';
 import { mapTruckStatus } from '@constants/truck';
+import { ToastContainer } from 'react-toastify';
+import { ToastNotifier } from '@/components/ToastNotifier';
 
 const recursosCooperativa = () => {
   const userSession = useSelector((state: RootState) => state.userSession);
@@ -44,8 +46,15 @@ const recursosCooperativa = () => {
     setModalDriverIsOpen(true);
   };
 
-  const handleDeleteCamion = (id: number) => {
-    console.log('Eliminar camion', id);
+  const handleDeleteCamion = async (id: number) => {
+    try {
+      await deleteTruck(id);
+      ToastNotifier.success('Camión eliminado correctamente');
+      retrieveData();
+    } catch (error) {
+      console.error('Error deleting truck:', error);
+      ToastNotifier.error('Error al eliminar el camión');
+    }
   }
 
   const handleDeleteConductor = (id: number) => {
@@ -57,8 +66,12 @@ const recursosCooperativa = () => {
     if (camion) {
       camion.status = 'DISABLE';
       updateTruckStatus(camion.id, camion).then(() => {
+        ToastNotifier.success('Camión deshabilitado correctamente');
         retrieveData();
-      })
+      }).catch((error) => {
+        console.error('Error disabling truck:', error);
+        ToastNotifier.error('Error al deshabilitar el camión');
+      });
     }
 
   }
@@ -68,8 +81,12 @@ const recursosCooperativa = () => {
     if (camion) {
       camion.status = 'ENABLED';
       updateTruckStatus(camion.id, camion).then(() => {
+        ToastNotifier.success('Camión habilitado correctamente');
         retrieveData();
-      })
+      }).catch((error) => {
+        console.error('Error enabling truck:', error);
+        ToastNotifier.error('Error al habilitar el camión');
+      });
     }
   }
 
@@ -79,6 +96,7 @@ const recursosCooperativa = () => {
 
   return (
     <div className='flex flex-col h-screen p-3 gap-3'>
+      <ToastContainer />
       <TruckModal isOpen={modalTruckIsOpen} onRequestClose={()=> setModalTruckIsOpen(false)}/>
       <DriverModal isOpen={modalDriverIsOpen} onRequestClose={()=> setModalDriverIsOpen(false)}/>
       <h1 className='text-2xl font-bold'>Gestión de los recursos de la Cooperativa</h1>

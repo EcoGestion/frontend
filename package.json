@@ -38,7 +38,8 @@
     "react-chartjs-2": "^5.2.0",
     "redux-persist": "^6.0.0",
     "tailwind": "^4.0.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "react-toastify": "^10.0.5"
   },
   "devDependencies": {
     "@types/node": "^20",

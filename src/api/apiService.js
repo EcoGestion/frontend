@@ -56,3 +56,13 @@ export const updateTruckStatus = async (truckId, truck) => {
   const response = await axios.put(`${API_BASE_URL}/truckstatus/${truckId}`, truck);
   return response.data;
 }
+
+export const deleteTruck = async (truckId) => {
+  const response = await axios.delete(`${API_BASE_URL}/truck/${truckId}`);
+  return response.data;
+}
+
+export const deleteUser = async (userId) => {
+  const response = await axios.delete(`${API_BASE_URL}/user/${userId}`);
+  return response.data;
+}
