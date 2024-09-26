@@ -141,17 +141,14 @@ export default function BasicFilterDemo() {
         }
     }
     const transform_order_data = async (order) => {
-        const response = await getUserById(order.generator_id);
         order.request_date = new Date(order.request_date)
         order.pickup_date_from = new Date(order.pickup_date_from)
         order.pickup_date_to = new Date(order.pickup_date_to)
         order.pickup_date = formatDate(order.pickup_date_from) + " - " + formatDate(order.pickup_date_to)
-        order.generator = response.username
+        order.generator = order.generator.username
         order.waste_types = order.waste_quantities.map(waste => waste.waste_type).sort()
         order.waste_quantities = getCombinations(order.waste_quantities.map(waste => waste.waste_type))
-        order.size = 50
         order.status = getStatus(order.status)
-        console.log(order)
         return order
     }
     

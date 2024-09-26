@@ -22,6 +22,30 @@ export const getCoopOrdersById = async (userId) => {
   return response.data;
 };
 
+export const getPendingOrders = async () => {
+  const requestBody =   {
+    operations: 
+    [
+      {
+        op: "EQ", 
+        attribute: "status", 
+        value: "PENDING", 
+        model: "WasteCollectionRequest"
+      }
+    ]
+}
+  const response = await fetch(`${API_BASE_URL}/waste_request/filter`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(requestBody), 
+  });
+  
+  const data = await response.json();
+  return data;
+};
+
 export const createRequest = async (requestData) => {
   const response = await axios.post(`${API_BASE_URL}/waste_collection_requests`, requestData);
   return response.data;

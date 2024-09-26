@@ -44,15 +44,7 @@ const NavBar = () => {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
     const menuItems = [
-        "Configuración",
-        "Dashboard",
-        "Activity",
-        "Analytics",
-        "System",
-        "Deployments",
-        "My Settings",
-        "Team Settings",
-        "Help & Feedback"
+
       ];
 
     const isActiveRoute = (route) => {
@@ -65,7 +57,7 @@ const NavBar = () => {
           <KeyboardBackspaceIcon className='text-3xl'/>
         </button>
 
-        <NavbarContent className={`ml-14 hidden sm:block sticky-bottom w-full items-center text-center h-1/2 justify-self-center ${currentPath == "/home/cooperativa" ? "translate-x-7" : ""}`} justify="center">
+        <NavbarContent className={`ml-14 hidden md:block sticky-bottom w-full items-center text-center h-1/2 justify-self-center ${currentPath == "/home/cooperativa" ? "translate-x-7" : ""}`} justify="center">
           <div className='flex flex-row items-center space-between justify-center gap-20'>
             <NavbarItem isActive={isActiveRoute('/home/cooperativa')} className='w-8'>
             <Link color="foreground" href="/home/cooperativa">
@@ -90,24 +82,6 @@ const NavBar = () => {
              <div className="flex flex-col items-center">
                 <MapIcon fontSize='medium'/>
                 <span className="text-sm text-black">Rutas</span>
-              </div>
-            </Link>
-            </NavbarItem>
-
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa/reportes')} className='w-10'>
-            <Link color="foreground" href="/home/cooperativa/reportes">
-              <div className="flex flex-col items-center">
-                <AssessmentIcon fontSize='medium'/>
-                <span className="text-sm text-black">Reportes</span>
-              </div>
-            </Link>
-            </NavbarItem>
-
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa/recursos')} className='w-10'>
-            <Link color="foreground" href="/home/cooperativa/recursos">
-              <div className="flex flex-col items-center">
-                <LocalShippingIcon fontSize='medium'/>
-                <span className="text-sm text-black">Recursos</span>
               </div>
             </Link>
             </NavbarItem>
@@ -147,7 +121,20 @@ const NavBar = () => {
             </Link>
           </NavbarMenuItem>
         ))}
-          <NavbarMenuItem key={`Cerrar Sesión-9`}>
+            
+            <NavbarItem key={`Reportes-1`}>
+            <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/reportes" >
+              Reportes
+            </Link>
+            </NavbarItem>
+
+            <NavbarItem key={`Recursos-2`}>
+            <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/recursos">
+            Recursos
+            </Link>
+            </NavbarItem>
+
+          <NavbarMenuItem key={`Cerrar Sesión-3`}>
             <a
               className="w-full text-lg justify-start"
               color={"danger"}

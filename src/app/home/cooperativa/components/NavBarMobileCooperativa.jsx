@@ -21,15 +21,6 @@ const NavBarMobile = () => {
     const { setUser } = useUser();
 
     const menuItems = [
-        "Configuración",
-        "Dashboard",
-        "Activity",
-        "Analytics",
-        "System",
-        "Deployments",
-        "My Settings",
-        "Team Settings",
-        "Help & Feedback"
       ];
 
       const logOut = (() => {
@@ -49,8 +40,8 @@ const NavBarMobile = () => {
     };
 
     return (
-        <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='flex bottom-0 justify-center border-1 sm:hidden'>
-        <NavbarContent className="flex sm:hidden gap-9 xs:gap-14 sticky-bottom w-full" justify="center">
+        <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='flex bottom-0 justify-center border-1 md:hidden'>
+        <NavbarContent className="flex md:hidden gap-9 xs:gap-14 sticky-bottom w-full" justify="center">
             <NavbarItem isActive={isActiveRoute('/home/cooperativa')}>
             <Link color="foreground" href="/home/cooperativa">
               <HomeIcon fontSize='large'/>
@@ -69,24 +60,54 @@ const NavBarMobile = () => {
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa/reportes')}>
-            <Link color="foreground" href="/home/cooperativa/reportes">
-                <AssessmentIcon fontSize='large'/>
-            </Link>
-            </NavbarItem>
-
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa/recursos')}>
-            <Link color="foreground" href="/home/cooperativa/recursos">
-                <LocalShippingIcon fontSize='large'/>
-            </Link>
-            </NavbarItem>
-
             <NavbarItem isActive={isActiveRoute('/home/cooperativa/perfil')}>
             <Link color="foreground" href="/home/cooperativa/perfil">
                 <AccountBoxIcon fontSize='large'/>
             </Link>
             </NavbarItem>
+
+            <NavbarItem onClick={() => setIsMenuOpen(!isMenuOpen)} className="w-10 h-10 items-center cursor-pointer">
+              <MenuRoundedIcon fontSize='large'/>
+            </NavbarItem>
         </NavbarContent>
+
+        <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
+        {menuItems.map((item, index) => (
+          <NavbarMenuItem key={`${item}-${index}`}>
+            <Link
+              className="w-full"
+              color={"foreground"}
+              href="#"
+              size="lg"
+            >
+              {item}
+            </Link>
+          </NavbarMenuItem>
+        ))}
+
+            <NavbarItem key={`Reportes-1`}>
+            <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/reportes" >
+              Reportes
+            </Link>
+            </NavbarItem>
+
+            <NavbarItem key={`Recursos-2`}>
+            <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/recursos">
+            Recursos
+            </Link>
+            </NavbarItem>
+
+          <NavbarMenuItem key={`Cerrar Sesión-9`}>
+            <a
+              className="w-full text-lg justify-start"
+              color={"danger"}
+              href="#"
+              onClick={logOut}
+            >
+              Cerrar Sesión
+            </a>
+          </NavbarMenuItem>
+      </NavbarMenu>
 
         </Navbar>
     )
