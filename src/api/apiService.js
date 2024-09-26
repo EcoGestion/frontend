@@ -62,7 +62,7 @@ export const deleteTruck = async (truckId) => {
   return response.data;
 }
 
-export const deleteUser = async (userId) => {
+export const deleteUserById = async (userId) => {
   const response = await axios.delete(`${API_BASE_URL}/user/${userId}`);
   return response.data;
 }

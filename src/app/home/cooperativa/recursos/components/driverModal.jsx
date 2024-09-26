@@ -7,11 +7,8 @@ import Spinner from '@/components/Spinner';
 import { createUserWithEmailAndPassword, deleteUser } from 'firebase/auth';
 import { auth } from '@firebaseConfig';
 import { Tabs, Tab } from '@nextui-org/react';
-import dynamic from 'next/dynamic'
 import { ToastContainer } from 'react-toastify';
 import { ToastNotifier } from '@/components/ToastNotifier';
-
-const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
 const styles = {
   modal: {

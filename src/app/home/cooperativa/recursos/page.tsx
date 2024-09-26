@@ -5,17 +5,26 @@ import { useSelector } from 'react-redux';
 import { Table, TableHeader, TableBody, TableRow, TableColumn, TableCell } from '@nextui-org/react';
 import TruckModal from './components/truckModal';
 import DriverModal from './components/driverModal';
-import { getDriversByCoopId, getTrucksByCoopId, updateTruckStatus, deleteTruck, deleteUser } from '@/api/apiService';
+import { getDriversByCoopId, getTrucksByCoopId, updateTruckStatus, deleteTruck, deleteUserById } from '@/api/apiService';
 import { TrucksResources, DriversResources } from '@/types';
 import { mapTruckStatus } from '@constants/truck';
 import { ToastContainer } from 'react-toastify';
 import { ToastNotifier } from '@/components/ToastNotifier';
+import { getAuth, deleteUser } from 'firebase/auth';
+import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
 
 const recursosCooperativa = () => {
   const userSession = useSelector((state: RootState) => state.userSession);
+  const auth = getAuth();
+  const user = auth.currentUser;
+
   const [loading, setLoading] = useState(false);
   const [modalTruckIsOpen, setModalTruckIsOpen] = useState(false);
   const [modalDriverIsOpen, setModalDriverIsOpen] = useState(false);
+  const [modalDeleteTruckIsOpen, setModalDeleteTruckIsOpen] = useState(false);
+  const [modalDeleteDriverIsOpen, setModalDeleteDriverIsOpen] = useState(false);
+  const [deletedTruckId, setDeletedTruckId] = useState<number | null>(null);
+  const [deletedDriverId, setDeletedDriverId] = useState<number | null>(null);
 
   const [camiones, setCamiones] = useState<TrucksResources>([]);
   const [conductores, setConductores] = useState<DriversResources>([]);
@@ -46,9 +55,13 @@ const recursosCooperativa = () => {
     setModalDriverIsOpen(true);
   };
 
-  const handleDeleteCamion = async (id: number) => {
+  const handleDeleteCamion = async () => {
+    if (!deletedTruckId) {
+      return;
+    }
     try {
-      await deleteTruck(id);
+      setModalDeleteTruckIsOpen(false);
+      await deleteTruck(deletedTruckId)
       ToastNotifier.success('Camión eliminado correctamente');
       retrieveData();
     } catch (error) {
@@ -57,8 +70,33 @@ const recursosCooperativa = () => {
     }
   }
 
-  const handleDeleteConductor = (id: number) => {
-    console.log('Eliminar conductor', id);
+  const handleDeleteConductor = () => {
+    if (!deletedDriverId) {
+      return;
+    }
+    try {
+      setModalDeleteDriverIsOpen(false);
+      deleteUserById(deletedDriverId).then(() => {
+        if (user) {
+          deleteUser(user).then(() => {
+            ToastNotifier.success('Conductor eliminado correctamente');
+            retrieveData();
+          }).catch((error) => {
+            console.error('Error deleting driver:', error);
+            ToastNotifier.error('Error al eliminar el conductor');
+          });
+        } else {
+          throw new Error('User not found to delete from Firebase');
+        }
+      }).catch((error) => {
+        console.error('Error deleting driver from Firebase:', error);
+        throw error;
+      });
+    }
+    catch (error) {
+      console.error('Error deleting driver:', error);
+      ToastNotifier.error('Error al eliminar el conductor');
+    }
   }
 
   const handleDisableCamion = (id: number) => {
@@ -99,6 +137,8 @@ const recursosCooperativa = () => {
       <ToastContainer />
       <TruckModal isOpen={modalTruckIsOpen} onRequestClose={()=> setModalTruckIsOpen(false)}/>
       <DriverModal isOpen={modalDriverIsOpen} onRequestClose={()=> setModalDriverIsOpen(false)}/>
+      <DeleteConfirmationModal isOpen={modalDeleteTruckIsOpen} onRequestClose={()=> setModalDeleteTruckIsOpen(false)} onConfirm={handleDeleteCamion}/>
+      <DeleteConfirmationModal isOpen={modalDeleteDriverIsOpen} onRequestClose={()=> setModalDeleteDriverIsOpen(false)} onConfirm={handleDeleteConductor}/>
       <h1 className='text-2xl font-bold'>Gestión de los recursos de la Cooperativa</h1>
       <div className='w-full'>
       <div className='flex justify-between items-center'>
@@ -155,7 +195,7 @@ const recursosCooperativa = () => {
                   </button>
                 )}
 
-                  <button onClick={() => handleDeleteCamion(camion.id)} className='bg-white text-red-dark px-3 py-2 rounded-full border border-red-800'>
+                  <button onClick={() => {setDeletedTruckId(camion.id); setModalDeleteTruckIsOpen(true)}} className='bg-white text-red-dark px-3 py-2 rounded-full border border-red-800'>
                     Eliminar
                   </button>
                 </TableCell>
@@ -192,7 +232,7 @@ const recursosCooperativa = () => {
                   <button onClick={() => handleDisableConductor(conductor.id)} className='bg-white text-yellow-dark px-3 py-2 rounded-full border border-yellow-light'>
                     Deshabilitar
                   </button>
-                  <button onClick={() => handleDeleteConductor(conductor.id)} className='bg-white text-red-dark px-3 py-2 rounded-full border border-red-800'>
+                  <button onClick={() => {setDeletedDriverId(conductor.id); setModalDeleteDriverIsOpen(true)}} className='bg-white text-red-dark px-3 py-2 rounded-full border border-red-800'>
                     Eliminar
                   </button>
                 </TableCell>
