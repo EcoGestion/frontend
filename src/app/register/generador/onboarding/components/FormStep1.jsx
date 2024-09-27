@@ -5,7 +5,9 @@ import GreenRoundedButton from '@/components/greenRoundedButton';
 import dynamic from 'next/dynamic';
 import geocodeAddress from '@/utils/geocodeAddress';
 import { Card, CardHeader, CardBody, Divider, CardFooter } from '@nextui-org/react';
+import {Select, SelectItem} from "@nextui-org/react";
 import BlueRoundedButton from '@/components/blueRoundedButton';
+import barrios from '@/constants/zones';
 
 // Dynamic import to avoid Window not defined error
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
@@ -13,6 +15,7 @@ const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 const OnboardingGeneradorFormStep1 = ({ nextStep, address, setAddress }) => {
     const [street, setStreet] = useState(address.street);
     const [number, setNumber] = useState(address.number);
+    const [zone, setZone] = useState(address.zone);
     const [city, setCity] = useState(address.city);
     const [province, setProvince] = useState(address.province);
     const [postalCode, setPostalCode] = useState(address.zip_code);
@@ -46,13 +49,14 @@ const OnboardingGeneradorFormStep1 = ({ nextStep, address, setAddress }) => {
       const address = {
         street: street,
         number: number,
+        zone: zone,
         city: city,
         province: province,
         zip_code: postalCode,
         lat: coordinates ? coordinates[0].toString() : "0",
         lng: coordinates ? coordinates[1].toString() : "0"
       }
-      setAddress(address)
+      setAddress(address);
       nextStep();
     }
 
@@ -111,6 +115,25 @@ const OnboardingGeneradorFormStep1 = ({ nextStep, address, setAddress }) => {
                   />
                 </div>
               </div>
+
+              <div className="sm:col-span-2">
+              <label htmlFor="barrio" className="block text-sm font-medium leading-6 text-gray-900">
+                Barrio
+              </label>
+              <div className="mt-2">
+                <Select
+                  value={zone}
+                  onChange={(e) => setZone(e.target.value)}
+                  placeholder="Seleccione un barrio"
+                >
+                  {barrios.map((barrio) => (
+                    <SelectItem key={barrio} value={barrio}>
+                      {barrio}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
+            </div>
   
               <div className="sm:col-span-2 sm:col-start-1">
                 <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">
