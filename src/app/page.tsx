@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import GreenRoundedButton from '../components/greenRoundedButton';
 import BlueRoundedButton from '../components/blueRoundedButton';
 import RootLayout from './layout';
+import { button } from '@nextui-org/react';
 
 const InitialPage = () => {
   const userSession = useSelector((state: RootState) => state.userSession);
@@ -29,17 +30,26 @@ const InitialPage = () => {
   return (
     
       <div className='flex flex-col items-center justify-center gap-5 h-screen bg-white'>
-        <h1 className='text-4xl font-bold text-gray-800 mb-4'>Bienvenido al sistema EcoGestion</h1>
+        <h1 className='text-4xl font-bold text-gray-800 mb-4 text-center'>Bienvenido al sistema EcoGestion</h1>
         <p className='text-lg text-gray-600 mb-6'>Por favor, seleccione su tipo de usuario:</p>
-        <div className='flex gap-4'>
-          <GreenRoundedButton
-            onClick={() => handleLogInTypeSelection('cooperativa')}
-            buttonTitle='Cooperativa'
-          />
-          <BlueRoundedButton
-            onClick={() => handleLogInTypeSelection('generador')}
-            buttonTitle='Generador'
-          />
+        <div className='flex flex-col gap-3'>
+          <div className='flex gap-4'>
+            <GreenRoundedButton
+              onClick={() => handleLogInTypeSelection('cooperativa')}
+              buttonTitle='Cooperativa'
+            />
+            <BlueRoundedButton
+              onClick={() => handleLogInTypeSelection('generador')}
+              buttonTitle='Generador'
+            />
+          </div>
+          <div className='flex justify-center'>
+            <button className="bg-cyan-800 hover:bg-cyan-300 text-white font-bold py-2 px-4 rounded"
+            onClick={() => handleLogInTypeSelection('conductor')}
+            >
+              Conductor
+            </button>
+          </div>
         </div>
       </div>
     
