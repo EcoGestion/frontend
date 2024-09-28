@@ -35,6 +35,7 @@ export interface UserInfo {
     id: number;
     street: string;
     number: string;
+    zone: string;
     city: string;
     province: string;
     lat: string;
@@ -71,3 +72,17 @@ export interface Driver {
 }
 
 export type DriversResources = Driver[];
+
+
+export interface WasteCollectionRequest {
+  id?: number;
+  request_date: Date;
+  pickup_date_from: Date;
+  pickup_date_to: Date;
+  generator_id: number | string | null;
+  coop_id?: number;
+  address?: Address;
+  details: string;
+  waste_quantities: {waste_type: string, quantity: number}[];
+  status: 'OPEN' | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED';
+}

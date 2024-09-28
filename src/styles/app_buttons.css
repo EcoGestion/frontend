@@ -1,0 +1,5 @@
+.disabled-button {
+    background-color: #d3d3d3;
+    color: #a0a0a0;
+    cursor: not-allowed;
+}
