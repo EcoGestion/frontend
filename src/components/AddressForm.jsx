@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import barrios from '@/constants/zones';
 import {Autocomplete, AutocompleteItem} from "@nextui-org/react";
-import "@styles/app_forms.css"
-import "@styles/app_buttons.css"
 
 const AddressForm = ({
   isDisabled = false,

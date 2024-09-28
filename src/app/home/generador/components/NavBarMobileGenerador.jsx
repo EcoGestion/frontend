@@ -52,31 +52,31 @@ const NavBarMobile = () => {
         <NavbarContent className="flex sm:hidden gap-9 xs:gap-14 sticky-bottom w-full" justify="center">
             <NavbarItem isActive={isActiveRoute('/home/generador')}>
             <Link color="foreground" href="/home/generador">
-              <HomeIcon fontSize='large'/>
+              <HomeIcon fontSize='large' color={isActiveRoute('/home/generador') ? 'success':''}/>
             </Link>
             </NavbarItem>
 
             <NavbarItem isActive={isActiveRoute('/home/generador/pedidos/crear')} >
             <Link color="foreground" href="/home/generador/pedidos/crear">
-                <AddIcon fontSize='large'/>
+                <AddIcon fontSize='large' color={isActiveRoute('/home/generador/pedidos/crear') ? 'success':''}/>
             </Link>
             </NavbarItem>
 
             <NavbarItem isActive={isActiveRoute('/home/generador/pedidos')}>
             <Link color="foreground" href="/home/generador/pedidos">
-                <ReceiptIcon fontSize='large'/>
+                <ReceiptIcon fontSize='large' color={isActiveRoute('/home/generador/pedidos') ? 'success':''}/>
             </Link>
             </NavbarItem>
 
             <NavbarItem isActive={isActiveRoute('/home/generador/estadisticas')} >
             <Link color="foreground" href="/home/generador/estadisticas">
-                <BarChartIcon fontSize='large'/>
+                <BarChartIcon fontSize='large' color={isActiveRoute('/home/generador/estadisticas') ? 'success':''}/>
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/generador/pagina2')}>
+            <NavbarItem isActive={isActiveRoute('/home/generador/perfil')}>
             <Link color="foreground" href="/home/generador/perfil">
-                <AccountBoxIcon fontSize='large'/>
+                <AccountBoxIcon fontSize='large' color={isActiveRoute('/home/generador/perfil') ? 'success':''}/>
             </Link>
             </NavbarItem>
 

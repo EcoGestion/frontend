@@ -66,7 +66,7 @@ const NavBarConductor = () => {
             <NavbarItem isActive={isActiveRoute('/home/conductor')} className='w-8'>
             <Link color="foreground" href="/home/conductor">
                 <div className="flex flex-col items-center">
-                  <HomeIcon fontSize='medium'/>
+                  <HomeIcon fontSize='medium' color={isActiveRoute('/home/conductor') ? 'success':''}/>
                   <span className="text-sm text-black">Inicio</span>
                 </div>
               </Link>
@@ -75,7 +75,7 @@ const NavBarConductor = () => {
             <NavbarItem isActive={isActiveRoute('/home/conductor/rutas')} className='w-10'>
             <Link color="foreground" href="/home/conductor/rutas" >
                 <div className="flex flex-col items-center">
-                  <MapIcon fontSize='medium'/>
+                  <MapIcon fontSize='medium' color={isActiveRoute('/home/conductor/rutas') ? 'success':''}/>
                   <span className="text-sm text-black">Historial de recolecciones</span>
                 </div>
             </Link>
@@ -84,7 +84,7 @@ const NavBarConductor = () => {
             <NavbarItem isActive={isActiveRoute('/home/conductor/perfil')} className='w-10'>
             <Link color="foreground" href="/home/conductor/perfil">
               <div className="flex flex-col items-center">
-                <AccountBoxIcon fontSize='medium'/>
+                <AccountBoxIcon fontSize='medium' color={isActiveRoute('/home/conductor/perfil') ? 'success':''}/>
                 <span className="text-sm text-black">Perfil</span>
               </div>
             </Link>
