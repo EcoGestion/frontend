@@ -5,7 +5,7 @@ import "@styles/app_forms.css"
 import "@styles/app_buttons.css"
 
 const AddressForm = ({
-  isDisabled = true,
+  isDisabled = false,
   address = {street:'', number:'', zone:'', city:'', province:'', zip_code:0},
   setAddress,
   }) => {
@@ -61,6 +61,9 @@ const AddressForm = ({
             onChange={(e) => setAddress({ ...address, zone: e.target.value })}
             placeholder="Seleccione un barrio"
             isDisabled={isDisabled}
+            scrollShadowProps={{
+              isEnabled: false
+            }}
           >
             {barrios.map((barrio) => (
               <SelectItem key={barrio} value={barrio}>

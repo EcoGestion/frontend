@@ -18,6 +18,7 @@ export interface Address {
   id: number;
   street: string;
   number: string;
+  zone: string;
   city: string;
   province: string;
   lat: string;
@@ -31,17 +32,7 @@ export interface UserInfo {
   email: string;
   firebase_id: string;
   type: string;
-  address: {
-    id: number;
-    street: string;
-    number: string;
-    zone: string;
-    city: string;
-    province: string;
-    lat: string;
-    lng: string;
-    zip_code: number;
-  };
+  address: Address;
   phone: string;
   waste_type_config: { name: string }[];
   days: Day[];
