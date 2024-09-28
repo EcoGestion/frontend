@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import barrios from '@/constants/zones';
-import {Select, SelectItem} from "@nextui-org/react";
+import {Autocomplete, AutocompleteItem} from "@nextui-org/react";
 import "@styles/app_forms.css"
 import "@styles/app_buttons.css"
 
@@ -51,26 +51,23 @@ const AddressForm = ({
         />
       </div>
 
-      <div className="">
+      <div>
         <label htmlFor="barrio" className="block text-sm font-medium leading-6 text-gray-900">
           Barrio
         </label>
         <div className="mt-2">
-          <Select
-            value={address.zone}
-            onChange={(e) => setAddress({ ...address, zone: e.target.value })}
+          <Autocomplete
+            onSelectionChange={(value) => setAddress({ ...address, zone: value })}
             placeholder="Seleccione un barrio"
             isDisabled={isDisabled}
-            scrollShadowProps={{
-              isEnabled: false
-            }}
+            scrollShadowProps={{ isEnabled: false }}
           >
             {barrios.map((barrio) => (
-              <SelectItem key={barrio} value={barrio}>
+              <AutocompleteItem key={barrio} value={barrio}>
                 {barrio}
-              </SelectItem>
+              </AutocompleteItem>
             ))}
-          </Select>
+          </Autocomplete>
         </div>
       </div>
 
