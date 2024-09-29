@@ -39,16 +39,10 @@ const NavBarConductor = () => {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
     const menuItems = [
-        "Configuración",
-        "Dashboard",
-        "Activity",
-        "Analytics",
-        "System",
-        "Deployments",
-        "My Settings",
-        "Team Settings",
-        "Help & Feedback"
-      ];
+      {key:1,  name: 'Inicio', route: '/home/conductor' },
+      {key:2,  name: 'Historial de recolecciones', route: '/home/conductor/rutas' },  
+      {key:3,  name: 'Perfil', route: '/home/conductor/perfil' },
+    ];
 
     const isActiveRoute = (route) => {
         return currentPath === route;
@@ -105,20 +99,20 @@ const NavBarConductor = () => {
 
         <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
         {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item}-${index}`}>
+          <NavbarMenuItem key={item.key}>
             <Link
               className="w-full"
               color={"foreground"}
-              href="#"
+              href={item.route}
               size="lg"
             >
-              {item}
+              {item.name}
             </Link>
           </NavbarMenuItem>
         ))}
-          <NavbarMenuItem key={`Cerrar Sesión-9`}>
+          <NavbarMenuItem key={`Cerrar Sesión-9`} className='mt-5'>
             <a
-              className="w-full text-lg justify-start"
+              className="logout-button w-full text-lg justify-start"
               color={"danger"}
               href="#"
               onClick={logOut}

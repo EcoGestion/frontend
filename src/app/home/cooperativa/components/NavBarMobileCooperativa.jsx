@@ -21,16 +21,13 @@ const NavBarMobileCooperativa = () => {
     const { setUser } = useUser();
 
     const menuItems = [
-        "Configuración",
-        "Dashboard",
-        "Activity",
-        "Analytics",
-        "System",
-        "Deployments",
-        "My Settings",
-        "Team Settings",
-        "Help & Feedback"
-      ];
+      {key:1,  name: 'Inicio', route: '/home/cooperativa' },
+      {key:2,  name: 'Solicitudes', route: '/home/cooperativa/pedidos' },
+      {key:3,  name: 'Rutas', route: '/home/cooperativa/rutas' },
+      {key:4,  name: 'Reportes', route: '/home/cooperativa/reportes' },
+      {key:5,  name: 'Recursos', route: '/home/cooperativa/recursos' },
+      {key:6,  name: 'Perfil', route: '/home/cooperativa/perfil' },
+    ];
 
       const logOut = (() => {
         signOut(auth)
@@ -69,24 +66,36 @@ const NavBarMobileCooperativa = () => {
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa/reportes')}>
-            <Link color="foreground" href="/home/cooperativa/reportes">
-                <AssessmentIcon fontSize='large' color={isActiveRoute('/home/cooperativa/reportes') ? 'success':''}/>
-            </Link>
-            </NavbarItem>
-
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa/recursos')}>
-            <Link color="foreground" href="/home/cooperativa/recursos">
-                <LocalShippingIcon fontSize='large' color={isActiveRoute('/home/cooperativa/recursos') ? 'success':''}/>
-            </Link>
-            </NavbarItem>
-
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa/perfil')}>
-            <Link color="foreground" href="/home/cooperativa/perfil">
-                <AccountBoxIcon fontSize='large' color={isActiveRoute('/home/cooperativa/perfil') ? 'success':''}/>
-            </Link>
+            <NavbarItem onClick={() => setIsMenuOpen(!isMenuOpen)} className="w-10 h-10 items-center cursor-pointer">
+              <MenuRoundedIcon fontSize='large'/>
             </NavbarItem>
         </NavbarContent>
+
+        <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
+        {menuItems.map((item, index) => (
+          <NavbarMenuItem key={item.key}>
+            <Link
+              className="w-full"
+              color={"foreground"}
+              href={item.route}
+              size="lg"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {item.name}
+            </Link>
+          </NavbarMenuItem>
+        ))}
+          <NavbarMenuItem key={`Cerrar Sesión-9`} className='mt-5'>
+            <a
+              className="logout-button w-full text-lg justify-start"
+              color={"danger"}
+              href="#"
+              onClick={logOut}
+            >
+              Cerrar Sesión
+            </a>
+          </NavbarMenuItem>
+      </NavbarMenu>
 
         </Navbar>
     )

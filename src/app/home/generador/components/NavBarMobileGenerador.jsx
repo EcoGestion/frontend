@@ -20,31 +20,26 @@ const NavBarMobile = () => {
     const { setUser } = useUser();
 
     const menuItems = [
-        "Configuración",
-        "Dashboard",
-        "Activity",
-        "Analytics",
-        "System",
-        "Deployments",
-        "My Settings",
-        "Team Settings",
-        "Help & Feedback"
-      ];
+      {key:1,  name: 'Inicio', route: '/home/generador' },
+      {key:2,  name: 'Solicitudes', route: '/home/generador/pedidos' },
+      {key:3,  name: 'Reportes', route: '/home/generador/estadisticas' },
+      {key:4,  name: 'Perfil', route: '/home/generador/perfil' },
+    ];
 
-      const logOut = (() => {
-        signOut(auth)
-        .then(() => {
-          setUser({
-            name: "",
-            email: "",
-            userId: null
-          });
-          router.replace("/")
-        })
+    const logOut = (() => {
+      signOut(auth)
+      .then(() => {
+        setUser({
+          name: "",
+          email: "",
+          userId: null
+        });
+        router.replace("/")
       })
+    })
 
     const isActiveRoute = (route) => {
-        return currentPath === route;
+      return currentPath === route;
     };
 
     return (
@@ -68,18 +63,6 @@ const NavBarMobile = () => {
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/generador/estadisticas')} >
-            <Link color="foreground" href="/home/generador/estadisticas">
-                <BarChartIcon fontSize='large' color={isActiveRoute('/home/generador/estadisticas') ? 'success':''}/>
-            </Link>
-            </NavbarItem>
-
-            <NavbarItem isActive={isActiveRoute('/home/generador/perfil')}>
-            <Link color="foreground" href="/home/generador/perfil">
-                <AccountBoxIcon fontSize='large' color={isActiveRoute('/home/generador/perfil') ? 'success':''}/>
-            </Link>
-            </NavbarItem>
-
             <NavbarItem onClick={() => setIsMenuOpen(!isMenuOpen)} className="w-10 h-10 items-center cursor-pointer">
               <MenuRoundedIcon fontSize='large'/>
             </NavbarItem>
@@ -87,21 +70,22 @@ const NavBarMobile = () => {
 
       <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
         {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item}-${index}`}>
+          <NavbarMenuItem key={item.key}>
             <Link
               className="w-full"
               color={"foreground"}
-              href="#"
+              href={item.route}
               size="lg"
+              onClick={() => setIsMenuOpen(false)}
             >
-              {item}
+              {item.name}
             </Link>
           </NavbarMenuItem>
         ))}
-          <NavbarMenuItem key={`Cerrar Sesión-9`}>
+          <NavbarMenuItem key={`Cerrar Sesión-9`} className='mt-5'>
             <a
-              className="w-full text-lg justify-start"
-              color={"danger"}
+              className="logout-button w-full text-lg justify-start"
+              color="danger"
               href="#"
               onClick={logOut}
             >
