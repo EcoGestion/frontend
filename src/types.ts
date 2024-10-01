@@ -77,3 +77,5 @@ export interface WasteCollectionRequest {
   waste_quantities: {waste_type: string, quantity: number}[];
   status: 'OPEN' | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED';
 }
+
+export type WasteCollectionRequests = WasteCollectionRequest[];
