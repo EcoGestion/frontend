@@ -64,14 +64,17 @@ const rutasCooperativa = () => {
   }
 
   const generarRuta = () => {
-    console.log('Generar ruta');
-    console.log ('Solicitudes seleccionadas:', selectedRequests);
-    console.log ('Camión seleccionado:', selectedTruck);
-    console.log ('Conductor seleccionado:', selectedDriver);
     if (hasErrors()) {
       ToastNotifier.error(errorMessage);
       return;
     }
+    const request_body = {
+      requests_ids: Array.from(selectedRequests),
+      truck_id: selectedTruck,
+      driver_id: selectedDriver
+    }
+    console.log('Request body:', request_body);
+    // Llamar a la API para generar la ruta
   }
 
   return (
