@@ -7,6 +7,16 @@ import Spinner from "./Spinner";
 const defaultZoom = 13;
 const defaultCoordinates = [-34.5814551, -58.4211107];
 
+const styles = {
+  map: {
+    height: "400px",
+    width: "100%",
+    borderRadius: "10px",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    margin: "20px 0",
+  },
+};
+
 const MapView = ({
   centerCoordinates = defaultCoordinates,
   markers = [],
@@ -15,11 +25,8 @@ const MapView = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
-  }, [centerCoordinates, markers, zoom]);
+    setLoading(false);
+  }, []);
 
   const customIcon = new Icon({
       iconUrl: "https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678111-map-marker-512.png",
@@ -34,7 +41,7 @@ const MapView = ({
       <MapContainer
       center={centerCoordinates}
       zoom={zoom}
-      style={{ height: "250px", width: "100%" }}
+      style={styles.map}
       >
           <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

@@ -4,8 +4,8 @@ import { RootState } from '@/state/store';
 import { useSelector } from 'react-redux';
 import dynamic from 'next/dynamic';
 import { Table, TableHeader, TableBody, TableRow, TableColumn, TableCell } from '@nextui-org/react';
-import { getCoopOrdersById, getTrucksByCoopId, getDriversByCoopId } from "@api/apiService";
-import { WasteCollectionRequests, Truck, TrucksResources, Driver, DriversResources } from '@/types';
+import { getCoopOrdersById, getTrucksByCoopId, getDriversByCoopId, getUserById } from "@api/apiService";
+import { WasteCollectionRequests, Truck, TrucksResources, Driver, DriversResources, UserInfo } from '@/types';
 import {formatDateRange, formatDate} from '@utils/dateStringFormat';
 import AddressFormat from '@utils/addressFormat';
 import Spinner from '@/components/Spinner';
@@ -19,6 +19,8 @@ const rutasCooperativa = () => {
   const userSession = useSelector((state: RootState) => state.userSession);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const [coopCoords, setCoopCoords] = useState([0,0]);
   const [requests, setRequests] = useState<WasteCollectionRequests>([]);
   const [trucks, setTrucks] = useState<TrucksResources>([]);
   const [drivers, setDrivers] = useState<DriversResources>([]);
@@ -34,9 +36,14 @@ const rutasCooperativa = () => {
   const retrieveData = async () => {
     try {
       setLoading(true);
+      const coop_info_response = await getUserById(userSession.userId);
       const camiones_response = await getTrucksByCoopId(userSession.userId);
       const conductores_response = await getDriversByCoopId(userSession.userId);
       const requests_response = await getCoopOrdersById(userSession.userId);
+      setCoopCoords([
+        parseFloat(coop_info_response.address.lat), 
+        parseFloat(coop_info_response.address.lng)
+      ]);
       setTrucks(camiones_response);
       setDrivers(conductores_response);
       setRequests(requests_response);
@@ -142,7 +149,7 @@ const rutasCooperativa = () => {
         </button>
       </div>
       <div className='p-2'>
-        <MapView />
+        <MapView centerCoordinates={coopCoords} zoom={12} />
       </div>
       </div>
       )}
