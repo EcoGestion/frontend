@@ -15,12 +15,19 @@ import { mapTruckStatus } from '@constants/truck';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
+interface Marker {
+  position: number[];
+  content: string;
+  popUp: string;
+}
+
 const rutasCooperativa = () => {
   const userSession = useSelector((state: RootState) => state.userSession);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   const [coopCoords, setCoopCoords] = useState([0,0]);
+  const [markers, setMarkers] = useState<Marker[]>([]);
   const [requests, setRequests] = useState<WasteCollectionRequests>([]);
   const [trucks, setTrucks] = useState<TrucksResources>([]);
   const [drivers, setDrivers] = useState<DriversResources>([]);
@@ -39,7 +46,7 @@ const rutasCooperativa = () => {
       const coop_info_response = await getUserById(userSession.userId);
       const camiones_response = await getTrucksByCoopId(userSession.userId);
       const conductores_response = await getDriversByCoopId(userSession.userId);
-      const requests_response = await getCoopOrdersById(userSession.userId);
+      const requests_response = await getCoopOrdersById(userSession.userId); // Todo cambiar a solicitudes pendientes
       setCoopCoords([
         parseFloat(coop_info_response.address.lat), 
         parseFloat(coop_info_response.address.lng)
@@ -47,12 +54,27 @@ const rutasCooperativa = () => {
       setTrucks(camiones_response);
       setDrivers(conductores_response);
       setRequests(requests_response);
+      setMarkersFromRequests(requests_response);
     } catch (error) {
       console.error('Error retrieving user data:', error);
     } finally {
       setLoading(false);
     }
   }
+
+  const setMarkersFromRequests = (requests: WasteCollectionRequests) => {
+    const markers = requests
+      .filter((request) => request.address && request.generator)
+      .map((request) => ({
+        position: [
+          parseFloat(request.address?.lat ?? "0"), 
+          parseFloat(request.address?.lng ?? "0")
+        ],
+        content: request.generator?.username ?? "Desconocido",
+        popUp: request.address ? AddressFormat(request.address) : "Dirección desconocida",
+      }));
+    setMarkers(markers);
+  };
 
   const hasErrors = () => {
     if (selectedRequests.size === 0) {
@@ -148,8 +170,9 @@ const rutasCooperativa = () => {
           Generar ruta
         </button>
       </div>
-      <div className='p-2'>
-        <MapView centerCoordinates={coopCoords} zoom={12} />
+      <div className='p-2 mt-4'>
+        <h2 className='text-xl'>Aqui puedes ver todas las solicitudes que tienes pendientes</h2>
+        <MapView centerCoordinates={coopCoords} zoom={12} markers={markers}/>
       </div>
       </div>
       )}
