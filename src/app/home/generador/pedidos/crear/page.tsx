@@ -138,7 +138,7 @@ const CreacionPedido = () => {
         <Spinner />
       ) : (
     <Card className="max-w-lg w-full mx-auto p-4">
-      <Accordion variant="bordered" className="">
+      <Accordion key='datetime' variant="bordered" className="">
         <AccordionItem title="Fecha de recolección">
           <Card className="md:col-span-1">
             <CardHeader>
@@ -173,7 +173,7 @@ const CreacionPedido = () => {
           </Card>
         </AccordionItem>
 
-        <AccordionItem title="Detalles del pedido">
+        <AccordionItem key='details' title="Detalles del pedido">
           <Card className="md:col-span-1">
             <CardHeader>
               <Divider />
@@ -207,7 +207,7 @@ const CreacionPedido = () => {
           </Card>
         </AccordionItem>
 
-        <AccordionItem title="Ubicación">
+        <AccordionItem key='location' title="Ubicación">
           <Card className="md:col-span-1">
             <CardHeader className="flex-col">
               <h2 className="text-lg font-semibold">Por favor confirma si esta es tu dirección</h2>
@@ -221,7 +221,7 @@ const CreacionPedido = () => {
           </Card>
         </AccordionItem>
 
-        <AccordionItem title="Comentarios">
+        <AccordionItem key='comments' title="Comentarios">
           <Card className="md:col-span-1">
             <CardHeader>
               <h2 className="text-lg font-semibold">Agregue indicaciones adicionales</h2>

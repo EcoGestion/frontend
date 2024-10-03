@@ -41,3 +41,28 @@ export const getOrderById = async (orderId) => {
   const response = await axios.get(`${API_BASE_URL}/waste_requests/${orderId}`);
   return response.data;
 };
+
+export const getTrucksByCoopId = async (coopId) => {
+  const response = await axios.get(`${API_BASE_URL}/truck/coop/${coopId}`);
+  return response.data;
+}
+
+export const getDriversByCoopId = async (coopId) => {
+  const response = await axios.get(`${API_BASE_URL}/driver/coop/${coopId}`);
+  return response.data;
+}
+
+export const updateTruckStatus = async (truckId, truck) => {
+  const response = await axios.put(`${API_BASE_URL}/truckstatus/${truckId}`, truck);
+  return response.data;
+}
+
+export const deleteTruck = async (truckId) => {
+  const response = await axios.delete(`${API_BASE_URL}/truck/${truckId}`);
+  return response.data;
+}
+
+export const deleteUserById = async (userId) => {
+  const response = await axios.delete(`${API_BASE_URL}/user/${userId}`);
+  return response.data;
+}
