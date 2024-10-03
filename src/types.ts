@@ -18,6 +18,7 @@ export interface Address {
   id: number;
   street: string;
   number: string;
+  zone: string;
   city: string;
   province: string;
   lat: string;
@@ -31,16 +32,7 @@ export interface UserInfo {
   email: string;
   firebase_id: string;
   type: string;
-  address: {
-    id: number;
-    street: string;
-    number: string;
-    city: string;
-    province: string;
-    lat: string;
-    lng: string;
-    zip_code: number;
-  };
+  address: Address;
   phone: string;
   waste_type_config: { name: string }[];
   days: Day[];
@@ -71,3 +63,17 @@ export interface Driver {
 }
 
 export type DriversResources = Driver[];
+
+
+export interface WasteCollectionRequest {
+  id?: number;
+  request_date: Date;
+  pickup_date_from: Date;
+  pickup_date_to: Date;
+  generator_id: number | string | null;
+  coop_id?: number;
+  address?: Address;
+  details: string;
+  waste_quantities: {waste_type: string, quantity: number}[];
+  status: 'OPEN' | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED';
+}

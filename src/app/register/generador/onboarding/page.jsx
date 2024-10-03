@@ -16,7 +16,7 @@ export default function onboarding() {
   const router = useRouter();
   const [step, setStep] = useState(1);
 
-  const [address, setAddress] = useState({});
+  const [address, setAddress] = useState({street:'', number:'', zone:'', city:'', province:'', zip_code:0, lat:0, lng:0});
   const [organizationType, setOrganizationType] = useState("");
   const [loading, setLoading] = useState(false)
 

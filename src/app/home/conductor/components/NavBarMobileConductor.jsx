@@ -51,19 +51,19 @@ const NavBarMobileConductor = () => {
         <NavbarContent className="flex sm:hidden gap-9 xs:gap-14 sticky-bottom w-full" justify="center">
             <NavbarItem isActive={isActiveRoute('/home/conductor')}>
             <Link color="foreground" href="/home/conductor">
-              <HomeIcon fontSize='large'/>
+              <HomeIcon fontSize='large' color={isActiveRoute('/home/conductor') ? 'success':''}/>
             </Link>
             </NavbarItem>
 
             <NavbarItem isActive={isActiveRoute('/home/conductor/rutas')}>
             <Link color="foreground" href="/home/conductor/rutas">
-              <MapIcon fontSize='medium'/>
+              <MapIcon fontSize='medium' color={isActiveRoute('/home/conductor/rutas') ? 'success':''}/>
             </Link>
             </NavbarItem>
 
             <NavbarItem isActive={isActiveRoute('/home/conductor/pagina2')}>
             <Link color="foreground" href="/home/conductor/perfil">
-                <AccountBoxIcon fontSize='large'/>
+                <AccountBoxIcon fontSize='large' color={isActiveRoute('/home/conductor/perfil') ? 'success':''}/>
             </Link>
             </NavbarItem>
 

@@ -40,16 +40,11 @@ const NavBar = () => {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
     const menuItems = [
-        "Configuración",
-        "Dashboard",
-        "Activity",
-        "Analytics",
-        "System",
-        "Deployments",
-        "My Settings",
-        "Team Settings",
-        "Help & Feedback"
-      ];
+      {key:1,  name: 'Inicio', route: '/home/generador' },
+      {key:2,  name: 'Solicitudes', route: '/home/generador/pedidos' },
+      {key:3,  name: 'Reportes', route: '/home/generador/estadisticas' },
+      {key:4,  name: 'Perfil', route: '/home/generador/perfil' },
+    ];
 
     const isActiveRoute = (route) => {
         return currentPath === route;
@@ -67,7 +62,7 @@ const NavBar = () => {
             <NavbarItem isActive={isActiveRoute('/home/generador')} className='w-8'>
             <Link color="foreground" href="/home/generador">
                 <div className="flex flex-col items-center">
-                  <HomeIcon fontSize='medium'/>
+                  <HomeIcon fontSize='medium' color={isActiveRoute('/home/generador') ? 'success':''}/>
                   <span className="text-sm text-black">Inicio</span>
                 </div>
               </Link>
@@ -76,7 +71,7 @@ const NavBar = () => {
             <NavbarItem isActive={isActiveRoute('/home/generador/pedidos/crear')}  className='w-10'>
             <Link color="foreground" href="/home/generador/pedidos/crear">
                 <div className="flex flex-col items-center">
-                    <AddIcon fontSize='medium'/>
+                    <AddIcon fontSize='medium' color={isActiveRoute('/home/generador/pedidos/crear') ? 'success':''}/>
                     <span className="text-sm text-black">Nueva solicitud</span>
                   </div>
             </Link>
@@ -85,7 +80,7 @@ const NavBar = () => {
             <NavbarItem isActive={isActiveRoute('/home/generador/pedidos')} className='w-10'>
             <Link color="foreground" href="/home/generador/pedidos" >
                 <div className="flex flex-col items-center">
-                  <ReceiptIcon fontSize='medium'/>
+                  <ReceiptIcon fontSize='medium' color={isActiveRoute('/home/generador/pedidos') ? 'success':''}/>
                   <span className="text-sm text-black">Historial de solicitudes</span>
                 </div>
             </Link>
@@ -94,7 +89,7 @@ const NavBar = () => {
             <NavbarItem isActive={isActiveRoute('/home/generador/estadisticas')} className='w-10'>
             <Link color="foreground" href="/home/generador/estadisticas" >
                 <div className="flex flex-col items-center">
-                  <BarChartIcon fontSize='medium'/>
+                  <BarChartIcon fontSize='medium' color={isActiveRoute('/home/generador/estadisticas') ? 'success':''}/>
                   <span className="text-sm text-black">Estadisticas</span>
                 </div>
             </Link>
@@ -103,7 +98,7 @@ const NavBar = () => {
             <NavbarItem isActive={isActiveRoute('/home/generador/perfil')} className='w-10'>
             <Link color="foreground" href="/home/generador/perfil">
               <div className="flex flex-col items-center">
-                <AccountBoxIcon fontSize='medium'/>
+                <AccountBoxIcon fontSize='medium' color={isActiveRoute('/home/generador/perfil') ? 'success':''}/>
                 <span className="text-sm text-black">Perfil</span>
               </div>
             </Link>
@@ -124,20 +119,21 @@ const NavBar = () => {
 
         <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
         {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item}-${index}`}>
+          <NavbarMenuItem key={item.key}>
             <Link
               className="w-full"
               color={"foreground"}
-              href="#"
+              href={item.route}
               size="lg"
+              onClick={() => setIsMenuOpen(false)}
             >
-              {item}
+              {item.name}
             </Link>
           </NavbarMenuItem>
         ))}
-          <NavbarMenuItem key={`Cerrar Sesión-9`}>
+          <NavbarMenuItem key={`Cerrar Sesión-9`} className='mt-5'>
             <a
-              className="w-full text-lg justify-start"
+              className="logout-button w-full text-lg justify-start"
               color={"danger"}
               href="#"
               onClick={logOut}

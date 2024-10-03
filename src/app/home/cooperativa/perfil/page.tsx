@@ -86,11 +86,11 @@ const Perfil = () => {
   };
 
   return (
-    <div className="flex items-center justify-center bg-white">
+    <div className="flex items-start justify-center bg-white">
       {loading ? (
         <Spinner />
       ) : (
-        <div className="flex flex-col items-center justify-center p-4 pt-8">
+        <div className="flex flex-col items-center justify-center p-4">
           <h1 className="text-4xl font-bold mb-6">Perfil de usuario</h1>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
             <Card className="md:col-span-1">

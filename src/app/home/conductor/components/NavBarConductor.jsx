@@ -39,16 +39,10 @@ const NavBarConductor = () => {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
     const menuItems = [
-        "Configuración",
-        "Dashboard",
-        "Activity",
-        "Analytics",
-        "System",
-        "Deployments",
-        "My Settings",
-        "Team Settings",
-        "Help & Feedback"
-      ];
+      {key:1,  name: 'Inicio', route: '/home/conductor' },
+      {key:2,  name: 'Historial de recolecciones', route: '/home/conductor/rutas' },  
+      {key:3,  name: 'Perfil', route: '/home/conductor/perfil' },
+    ];
 
     const isActiveRoute = (route) => {
         return currentPath === route;
@@ -66,7 +60,7 @@ const NavBarConductor = () => {
             <NavbarItem isActive={isActiveRoute('/home/conductor')} className='w-8'>
             <Link color="foreground" href="/home/conductor">
                 <div className="flex flex-col items-center">
-                  <HomeIcon fontSize='medium'/>
+                  <HomeIcon fontSize='medium' color={isActiveRoute('/home/conductor') ? 'success':''}/>
                   <span className="text-sm text-black">Inicio</span>
                 </div>
               </Link>
@@ -75,7 +69,7 @@ const NavBarConductor = () => {
             <NavbarItem isActive={isActiveRoute('/home/conductor/rutas')} className='w-10'>
             <Link color="foreground" href="/home/conductor/rutas" >
                 <div className="flex flex-col items-center">
-                  <MapIcon fontSize='medium'/>
+                  <MapIcon fontSize='medium' color={isActiveRoute('/home/conductor/rutas') ? 'success':''}/>
                   <span className="text-sm text-black">Historial de recolecciones</span>
                 </div>
             </Link>
@@ -84,7 +78,7 @@ const NavBarConductor = () => {
             <NavbarItem isActive={isActiveRoute('/home/conductor/perfil')} className='w-10'>
             <Link color="foreground" href="/home/conductor/perfil">
               <div className="flex flex-col items-center">
-                <AccountBoxIcon fontSize='medium'/>
+                <AccountBoxIcon fontSize='medium' color={isActiveRoute('/home/conductor/perfil') ? 'success':''}/>
                 <span className="text-sm text-black">Perfil</span>
               </div>
             </Link>
@@ -105,20 +99,20 @@ const NavBarConductor = () => {
 
         <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
         {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item}-${index}`}>
+          <NavbarMenuItem key={item.key}>
             <Link
               className="w-full"
               color={"foreground"}
-              href="#"
+              href={item.route}
               size="lg"
             >
-              {item}
+              {item.name}
             </Link>
           </NavbarMenuItem>
         ))}
-          <NavbarMenuItem key={`Cerrar Sesión-9`}>
+          <NavbarMenuItem key={`Cerrar Sesión-9`} className='mt-5'>
             <a
-              className="w-full text-lg justify-start"
+              className="logout-button w-full text-lg justify-start"
               color={"danger"}
               href="#"
               onClick={logOut}

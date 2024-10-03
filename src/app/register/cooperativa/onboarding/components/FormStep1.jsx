@@ -1,34 +1,35 @@
 'use client'
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import GreenRoundedButton from '@/components/greenRoundedButton';
 import geocodeAddress from '@/utils/geocodeAddress';
 import dynamic from 'next/dynamic';
 import { Card, CardHeader, CardBody, Divider, CardFooter } from '@nextui-org/react';
 import BlueRoundedButton from '@/components/blueRoundedButton';
+import AddressForm from '@/components/AddressForm';
 
 // Dynamic import to avoid Window not defined error
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
-const OnboardingCooperativaFormStep1 = ({ nextStep, address, setAddress }) => {
-  const [street, setStreet] = useState(address.street);
-  const [number, setNumber] = useState(address.number);
-  const [city, setCity] = useState(address.city);
-  const [province, setProvince] = useState(address.province);
-  const [postalCode, setPostalCode] = useState(address.zip_code);
+const OnboardingCooperativaFormStep1 = ({
+  nextStep,
+  address = {street:'', number:'', zone:'', city:'', province:'', zip_code:0, lat:0, lng:0},
+  setAddress
+  }) => {
+  
   const [coordinates, setCoordinates] = useState();
   const [markers, setMarkers] = useState([]);
 
   const updateCoordinates = async () => {
     const addressObj = {
-      street: street,
-      number: number,
-      city: city,
-      zip_code: postalCode,
-      province: province,
+      street: address.street,
+      number: address.number,
+      city: address.city,
+      zip_code: address.zip_code,
+      province: address.province,
       country: 'Argentina'
     };
     const addressCoordinates = await geocodeAddress(addressObj);
+    setAddress({...address, lat: addressCoordinates.latitud.toString(), lng: addressCoordinates.longitud.toString()});
     setCoordinates([addressCoordinates.latitud, addressCoordinates.longitud]);
     setMarkers([
       {
@@ -43,16 +44,6 @@ const OnboardingCooperativaFormStep1 = ({ nextStep, address, setAddress }) => {
     if (!coordinates) {
       await updateCoordinates();
     }
-    const address = {
-      street: street,
-      number: number,
-      city: city,
-      province: province,
-      zip_code: postalCode,
-      lat: coordinates ? coordinates[0].toString() : "0",
-      lng: coordinates ? coordinates[1].toString() : "0"
-    }
-    setAddress(address)
     nextStep();
   }
 
@@ -76,92 +67,7 @@ const OnboardingCooperativaFormStep1 = ({ nextStep, address, setAddress }) => {
 
         <CardBody>
           <p className="mt-2 text-sm leading-6 font-bold text-gray-800">Dirección de la cooperativa</p>
-
-          <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-            <div className="sm:col-span-2 sm:col-start-1">
-              <label htmlFor="street-address" className="block text-sm font-medium leading-6 text-gray-900">
-                Calle
-              </label>
-              <div className="mt-2">
-                <input
-                  id="calle"
-                  name="street-address"
-                  type="text"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                  value={street}
-                  required
-                  onChange={(e) => setStreet(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="sm:col-span-2">
-              <label htmlFor="street-address" className="block text-sm font-medium leading-6 text-gray-900">
-                Altura
-              </label>
-              <div className="mt-2">
-                <input
-                  id="altura"
-                  name="street-address"
-                  type="text"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                  value={number}
-                  required
-                  onChange={(e) => setNumber(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="sm:col-span-2 sm:col-start-1">
-              <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">
-                Ciudad
-              </label>
-              <div className="mt-2">
-                <input
-                  id="ciudad"
-                  name="ciudad"
-                  type="text"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                  value={city}
-                  required
-                  onChange={(e) => setCity(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="sm:col-span-2">
-              <label htmlFor="region" className="block text-sm font-medium leading-6 text-gray-900">
-                Provincia
-              </label>
-              <div className="mt-2">
-                <input
-                  id="provincia"
-                  name="provincia"
-                  type="text"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                  value={province}
-                  required
-                  onChange={(e) => setProvince(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="sm:col-span-2">
-              <label htmlFor="postal-code" className="block text-sm font-medium leading-6 text-gray-900">
-                Codigo Postal
-              </label>
-              <div className="mt-2">
-                <input
-                  id="codigoPostal"
-                  name="codigoPostal"
-                  type="text"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                  value={postalCode}
-                  onChange={(e) => setPostalCode(e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
+          <AddressForm address={address} setAddress={setAddress} />
         </CardBody>
         <Divider />
         <CardBody>

@@ -7,8 +7,6 @@ import { RootState } from '@/state/store';
 import { useSelector } from 'react-redux';
 import GreenRoundedButton from '../components/greenRoundedButton';
 import BlueRoundedButton from '../components/blueRoundedButton';
-import RootLayout from './layout';
-import { button } from '@nextui-org/react';
 
 const InitialPage = () => {
   const userSession = useSelector((state: RootState) => state.userSession);

@@ -20,31 +20,26 @@ const NavBarMobile = () => {
     const { setUser } = useUser();
 
     const menuItems = [
-        "Configuración",
-        "Dashboard",
-        "Activity",
-        "Analytics",
-        "System",
-        "Deployments",
-        "My Settings",
-        "Team Settings",
-        "Help & Feedback"
-      ];
+      {key:1,  name: 'Inicio', route: '/home/generador' },
+      {key:2,  name: 'Solicitudes', route: '/home/generador/pedidos' },
+      {key:3,  name: 'Reportes', route: '/home/generador/estadisticas' },
+      {key:4,  name: 'Perfil', route: '/home/generador/perfil' },
+    ];
 
-      const logOut = (() => {
-        signOut(auth)
-        .then(() => {
-          setUser({
-            name: "",
-            email: "",
-            userId: null
-          });
-          router.replace("/")
-        })
+    const logOut = (() => {
+      signOut(auth)
+      .then(() => {
+        setUser({
+          name: "",
+          email: "",
+          userId: null
+        });
+        router.replace("/")
       })
+    })
 
     const isActiveRoute = (route) => {
-        return currentPath === route;
+      return currentPath === route;
     };
 
     return (
@@ -52,31 +47,19 @@ const NavBarMobile = () => {
         <NavbarContent className="flex sm:hidden gap-9 xs:gap-14 sticky-bottom w-full" justify="center">
             <NavbarItem isActive={isActiveRoute('/home/generador')}>
             <Link color="foreground" href="/home/generador">
-              <HomeIcon fontSize='large'/>
+              <HomeIcon fontSize='large' color={isActiveRoute('/home/generador') ? 'success':''}/>
             </Link>
             </NavbarItem>
 
             <NavbarItem isActive={isActiveRoute('/home/generador/pedidos/crear')} >
             <Link color="foreground" href="/home/generador/pedidos/crear">
-                <AddIcon fontSize='large'/>
+                <AddIcon fontSize='large' color={isActiveRoute('/home/generador/pedidos/crear') ? 'success':''}/>
             </Link>
             </NavbarItem>
 
             <NavbarItem isActive={isActiveRoute('/home/generador/pedidos')}>
             <Link color="foreground" href="/home/generador/pedidos">
-                <ReceiptIcon fontSize='large'/>
-            </Link>
-            </NavbarItem>
-
-            <NavbarItem isActive={isActiveRoute('/home/generador/estadisticas')} >
-            <Link color="foreground" href="/home/generador/estadisticas">
-                <BarChartIcon fontSize='large'/>
-            </Link>
-            </NavbarItem>
-
-            <NavbarItem isActive={isActiveRoute('/home/generador/pagina2')}>
-            <Link color="foreground" href="/home/generador/perfil">
-                <AccountBoxIcon fontSize='large'/>
+                <ReceiptIcon fontSize='large' color={isActiveRoute('/home/generador/pedidos') ? 'success':''}/>
             </Link>
             </NavbarItem>
 
@@ -87,21 +70,22 @@ const NavBarMobile = () => {
 
       <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
         {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item}-${index}`}>
+          <NavbarMenuItem key={item.key}>
             <Link
               className="w-full"
               color={"foreground"}
-              href="#"
+              href={item.route}
               size="lg"
+              onClick={() => setIsMenuOpen(false)}
             >
-              {item}
+              {item.name}
             </Link>
           </NavbarMenuItem>
         ))}
-          <NavbarMenuItem key={`Cerrar Sesión-9`}>
+          <NavbarMenuItem key={`Cerrar Sesión-9`} className='mt-5'>
             <a
-              className="w-full text-lg justify-start"
-              color={"danger"}
+              className="logout-button w-full text-lg justify-start"
+              color="danger"
               href="#"
               onClick={logOut}
             >
