@@ -1,8 +1,8 @@
 'use client'
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from 'next/navigation';
 import Spinner from "@/components/Spinner";
-import { Table, TableHeader, TableBody, TableRow, TableColumn, TableCell } from "@nextui-org/react";
+import { Table, TableHeader, TableBody, TableRow, TableColumn, TableCell, Pagination } from "@nextui-org/react";
 import { ToastContainer } from "react-toastify";
 import { ToastNotifier } from "@/components/ToastNotifier";
 
@@ -48,12 +48,27 @@ const rutasCooperativa = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const [historyPage, setHistoryPage] = useState(1);
+  const rowsPerPage = 5;
+  const pages = Math.ceil(historyRoutesMock.length / rowsPerPage);
+
+  const items = useMemo(() => {
+    const start = (historyPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    return historyRoutesMock.slice(start, end);
+  }, [historyPage, historyRoutesMock]);
+
   const handleCreateRoute = () => {
     router.push('/home/cooperativa/rutas/crear');
   }
 
-  const handleViewHistory = () => {
-    // navegar a historial de rutas
+  const handleRouteDetails = (id: number) => {
+    router.push(`/home/cooperativa/rutas/detalles/${id}`);
+  }
+
+  const handleCancelRoute = (id: number) => {
+    // cancelar ruta
   }
 
   return (
@@ -61,7 +76,7 @@ const rutasCooperativa = () => {
       <h1 className='text-2xl font-bold text-center'>Administre sus rutas de recolección</h1>
       {loading ? (<Spinner />) : (
       <div>
-        <div className='w-full gap-4 pt-4'>
+        <div className='w-full gap-2 pt-2'>
           <button className='bg-white text-green-dark px-4 py-2 rounded-full border border-green-800' onClick={handleCreateRoute}>
             Crear nueva ruta
           </button>
@@ -88,11 +103,11 @@ const rutasCooperativa = () => {
                     <TableCell>{route.status}</TableCell>
                     <TableCell>
                       <div className="gap-2">
-                      <button className='bg-white text-green-dark px-4 py-2 rounded-2xl border border-green-800'>
+                      <button className='bg-white text-green-dark px-4 py-2 rounded-2xl border border-green-800' onClick={()=>handleRouteDetails(route.id)}>
                         Ver detalles
                       </button>
                       {route.status === 'Pendiente' && (
-                        <button className='bg-white text-green-dark px-4 py-2 rounded-2xl border border-green-800'>
+                        <button className='bg-white text-green-dark px-4 py-2 rounded-2xl border border-green-800' onClick={() => handleCancelRoute(route.id)}>
                           Cancelar
                         </button>
                       )}
@@ -106,10 +121,6 @@ const rutasCooperativa = () => {
         </div>
 
         <div className='w-full gap-4 pt-4'>
-          <button className='bg-white text-green-dark px-4 py-2 rounded-full border border-green-800' onClick={handleViewHistory}>
-            Ver historial de rutas
-          </button>
-
           <div className='w-full pt-2'>
             <h2 className='text-xl font-bold'>Historial de rutas</h2>
             <Table>
@@ -123,7 +134,7 @@ const rutasCooperativa = () => {
                 <TableColumn>Acciónes</TableColumn>
               </TableHeader>
               <TableBody>
-                {historyRoutesMock.map((route, index) => (
+                {items.map((route, index) => (
                   <TableRow key={index}>
                     <TableCell>{route.id}</TableCell>
                     <TableCell>{route.date}</TableCell>
@@ -140,6 +151,18 @@ const rutasCooperativa = () => {
                 ))}
               </TableBody>
             </Table>
+            <div className="flex w-full justify-center">
+              <Pagination
+                page={historyPage}
+                color="success"
+                showControls
+                showShadow
+                size="lg"
+                variant="bordered"
+                total={pages}
+                onChange={(page) => setHistoryPage(page)}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -64,6 +64,15 @@ export interface Driver {
 
 export type DriversResources = Driver[];
 
+export interface WasteQuantity {
+  id: number;
+  waste_type: string;
+  quantity: number;
+  waste_collection_request_id: number;
+}
+
+export type WasteQuantities = WasteQuantity[];
+
 
 export interface WasteCollectionRequest {
   id?: number;
@@ -74,7 +83,7 @@ export interface WasteCollectionRequest {
   coop_id?: number;
   address?: Address;
   details: string;
-  waste_quantities: {waste_type: string, quantity: number}[];
+  waste_quantities: WasteQuantities;
   status: 'OPEN' | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED';
   generator?: UserInfo;
   coop?: UserInfo;
