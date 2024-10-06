@@ -2,6 +2,8 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "./styles/app_buttons.css";
+import "./styles/app_forms.css";
 import { Provider } from 'react-redux';
 import { store, persistor } from '../state/store';
 import { PersistGate } from 'redux-persist/integration/react';

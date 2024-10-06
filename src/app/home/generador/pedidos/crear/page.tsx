@@ -1,19 +1,22 @@
 'use client'
 import React, { useState, useEffect } from "react";
 import {
-  Card, CardHeader, CardBody, Divider, Button, Textarea,
+  Card, CardHeader, CardBody, Divider, Textarea,
   DatePicker, TimeInput, Checkbox, CheckboxGroup, Accordion, AccordionItem,
   CardFooter, DateValue
 } from "@nextui-org/react";
+import geocodeAddress from '@/utils/geocodeAddress';
 import { useSelector } from "react-redux";
 import { RootState } from '@/state/store';
 import {now, getLocalTimeZone, parseDate, Time} from "@internationalized/date";
 import dynamic from 'next/dynamic'
 import GreenRoundedButton from "@/components/greenRoundedButton";
 import { getUserById, createRequest } from "@/api/apiService";
-import { UserInfo } from '@/types';
+import { UserInfo, WasteCollectionRequest } from '@/types';
 import { useRouter } from "next/navigation";
 import Spinner from "@/components/Spinner";
+import materialsDefault from "@/constants/recyclables";
+import AddressForm from "@components/AddressForm";
 
 // Dynamic import to avoid Window not defined error
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
@@ -35,6 +38,9 @@ const CreacionPedido = () => {
   const [selectedRecyclables, setSelectedRecyclables] = useState<string[]>([]);
   const [quantities, setQuantities] = useState<{ waste_type: string, quantity: number }[]>([]);
   const [comments, setComments] = useState("");
+  
+  const [useUserProfileAddress, setUseUserProfileAddress] = useState(true);
+  const [userNewAddress, setUserAddress] = useState({} as UserInfo['address']);
 
   const [coordinates, setCoordinates] = useState<[number, number] | undefined>(undefined);
   const [markers, setMarkers] = useState<Marker[]>([]);
@@ -70,18 +76,7 @@ const CreacionPedido = () => {
     }
   }, [userInfo]);
 
-  const [items, setItems] = useState([
-    { id: 1, label: 'Papel', name:'PAPER', checked: false, quantity: 0 },
-    { id: 2, label: 'Metal', name:'METAL', checked: false, quantity: 0 },
-    { id: 3, label: 'Vidrio', name:'GLASS', checked: false, quantity: 0 },
-    { id: 4, label: 'Plástico', name:'PLASTIC', checked: false, quantity: 0 },
-    { id: 5, label: 'Cartón', name:'CARDBOARD', checked: false, quantity: 0 },
-    { id: 6, label: 'Tetra Brik', name:'TETRA_BRIK', checked: false, quantity: 0 },
-    { id: 7, label: 'Telgopor', name:'STYROFOAM', checked: false, quantity: 0 },
-    { id: 8, label: 'Pilas', name:'BATTERIES', checked: false, quantity: 0 },
-    { id: 9, label: 'Aceite', name:'OIL', checked: false, quantity: 0 },
-    { id: 10, label: 'Electrónicos', name:'ELECTRONICS', checked: false, quantity: 0 },
-  ]);
+  const [items, setItems] = useState(materialsDefault);
 
   const handleRequestDateChange = (date: DateValue) => {
     const { year, month, day } = date;
@@ -117,17 +112,45 @@ const CreacionPedido = () => {
     });
   };
 
+  const updateCoordinates = async () => {
+    const requestObj = {
+      street: userNewAddress.street,
+      number: userNewAddress.number,
+      city: userNewAddress.city,
+      province: userNewAddress.province,
+      zip_code: userNewAddress.zip_code,
+      country: 'Argentina',
+    };
+    const addressCoordinates = await geocodeAddress(requestObj);
+    if (addressCoordinates) {
+      setCoordinates([addressCoordinates.latitud, addressCoordinates.longitud]);
+      setMarkers([
+        {
+          position: [addressCoordinates.latitud, addressCoordinates.longitud],
+          content: 'Tu ubicación',
+          popUp: 'Aquí se realizará la recolección de tus reciclables'
+        }
+      ]);
+    } else {
+      alert('No se encontraron coordenadas para la dirección ingresada');
+    }
+  };
+
   const handleConfirm = () => {
-    const body = {
+    const body: WasteCollectionRequest = {
       request_date: now(getLocalTimeZone()).toDate(),
       generator_id: userSession.userId,
       details: comments,
       waste_quantities:quantities,
       pickup_date_from: request_from.toDate(),
       pickup_date_to: request_to.toDate(),
-      zone: "",
       status: "OPEN",
     };
+    
+    if (!useUserProfileAddress) {
+      body.address = userNewAddress;
+    }
+
     console.log(body);
     setLoading(true);
     try {
@@ -142,13 +165,13 @@ const CreacionPedido = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center bg-white p-6">
-      <h1 className="text-2xl font-semibold pb-3">Solicita la recolección de tus reciclables</h1>
+    <div className="flex flex-col items-center justify-center bg-white py-6 px-2">
+      <h1 className="text-2xl font-semibold pb-3 text-center">Solicita la recolección de tus reciclables</h1>
       {loading ? (
         <Spinner />
       ) : (
-    <Card className="max-w-lg w-full mx-auto p-4">
-      <Accordion variant="bordered" className="">
+    <Card className="max-w-2xl w-full mx-auto p-3">
+      <Accordion key='datetime' variant="bordered" className="">
         <AccordionItem title="Fecha de recolección">
           <Card className="md:col-span-1">
             <CardHeader>
@@ -183,7 +206,7 @@ const CreacionPedido = () => {
           </Card>
         </AccordionItem>
 
-        <AccordionItem title="Detalles del pedido">
+        <AccordionItem key='details' title="Detalles del pedido">
           <Card className="md:col-span-1">
             <CardHeader>
               <Divider />
@@ -217,21 +240,40 @@ const CreacionPedido = () => {
           </Card>
         </AccordionItem>
 
-        <AccordionItem title="Ubicación">
+        <AccordionItem key='location' title="Ubicación">
           <Card className="md:col-span-1">
             <CardHeader className="flex-col">
-              <h2 className="text-lg font-semibold">Por favor confirma si esta es tu dirección</h2>
-              <p> En caso de error dirigete a tu perfil para indicar la dirección correcta</p>
+              <h2 className="text-lg font-semibold">Cual es la dirección de recolección?</h2>
             </CardHeader>
             <Divider />
             <CardBody>
+              <Checkbox
+                isSelected={useUserProfileAddress}
+                onChange={() => setUseUserProfileAddress(!useUserProfileAddress)}
+              >
+                Usar mi dirección actual
+              </Checkbox>
+              <div>
+                <AddressForm 
+                  address={userNewAddress}
+                  setAddress={setUserAddress}
+                  isDisabled={useUserProfileAddress}
+                />
+              </div>
+
+              <button
+              className={`bg-blue-dark text-white font-bold py-2 px-4 rounded mt-2 ${useUserProfileAddress ? 'disabled-button' : 'hover:bg-blue-light'}`}
+              disabled={useUserProfileAddress}
+              onClick={updateCoordinates}>
+                Buscar dirección
+              </button>
               {/* TODO: Cambiar a la direccion del usuario */}
               <MapView centerCoordinates={coordinates} zoom={15} markers={markers} />
             </CardBody>
           </Card>
         </AccordionItem>
 
-        <AccordionItem title="Comentarios">
+        <AccordionItem key='comments' title="Comentarios">
           <Card className="md:col-span-1">
             <CardHeader>
               <h2 className="text-lg font-semibold">Agregue indicaciones adicionales</h2>

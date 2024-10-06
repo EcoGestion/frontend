@@ -8,6 +8,7 @@ import TimeSelector from '@/components/TimeSelector';
 import Spinner from '@/components/Spinner';
 import { Card, CardHeader, CardBody, Divider } from '@nextui-org/react';
 import { Day, Item, UserInfo } from '@/types';
+import materialsDefault from '@constants/recyclables';
 
 const nameSpanishMap: Record<string, string> = {
   MONDAY: 'Lunes',
@@ -36,18 +37,7 @@ const Perfil = () => {
     const [days, setDays] = useState<Day[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const [items, setItems] = useState([
-        { id: 1, label: 'Papel', name:'PAPER', checked: false },
-        { id: 2, label: 'Metal', name:'METAL', checked: false },
-        { id: 3, label: 'Vidrio', name:'GLASS', checked: false },
-        { id: 4, label: 'Plástico', name:'PLASTIC', checked: false },
-        { id: 5, label: 'Cartón', name:'CARDBOARD', checked: false },
-        { id: 6, label: 'Tetra Brik', name:'TETRA_BRIK', checked: false },
-        { id: 7, label: 'Telgopor', name:'STYROFOAM', checked: false },
-        { id: 8, label: 'Pilas', name:'BATTERIES', checked: false },
-        { id: 9, label: 'Aceite', name:'OIL', checked: false },
-        { id: 10, label: 'Electrónicos', name:'ELECTRONICS', checked: false },
-      ]);
+    const [items, setItems] = useState(materialsDefault);
 
     const nameSpanishMap = {
     MONDAY: 'Lunes',
@@ -96,11 +86,11 @@ const Perfil = () => {
   };
 
   return (
-    <div className="flex items-center justify-center bg-white">
+    <div className="flex items-start justify-center bg-white">
       {loading ? (
         <Spinner />
       ) : (
-        <div className="flex flex-col items-center justify-center p-4 pt-8">
+        <div className="flex flex-col items-center justify-center p-4">
           <h1 className="text-4xl font-bold mb-6">Perfil de usuario</h1>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
             <Card className="md:col-span-1">

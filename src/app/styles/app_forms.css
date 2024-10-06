@@ -1,0 +1,31 @@
+.form-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.form-container label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.form-container input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.form-container input:disabled {
+  background-color: #f0f0f0;
+  color: #a0a0a0;
+  border: 1px solid #ccc;
+}
+
+.form-container input.error {
+  border: 1px solid red;
+}

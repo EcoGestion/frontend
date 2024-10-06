@@ -15,6 +15,7 @@ const config: Config = {
       'green':{
         'dark': '#3f833e',
         'light': '#4ec55d',
+        'lighter': '#f2f7f0',
       },
       'blue': {
         'light': '#00a6fb',
@@ -27,6 +28,14 @@ const config: Config = {
       'cyan': {
         '300': '#67e8f9',
         '800': '#155e75',
+      },
+      'yellow': {
+        'light': '#ffcc00',
+        'dark': '#ff9900',
+      },
+      'red': {
+        'light': '#ff0000',
+        'dark': '#cc0000',
       },
     },
     extend: {

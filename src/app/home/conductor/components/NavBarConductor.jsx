@@ -6,15 +6,14 @@ import { useRouter, usePathname } from 'next/navigation';
 import HomeIcon from '@mui/icons-material/Home';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import AddIcon from '@mui/icons-material/Add';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import MenuRoundedIcon from '@mui/icons-material/Menu';
-import BarChartIcon from '@mui/icons-material/BarChart';
+import MapIcon from '@mui/icons-material/Map';
 import { useUser } from '../../../../state/userProvider';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../../firebaseConfig';
 
-const NavBar = () => {
+const NavBarConductor = () => {
     const currentPath = usePathname();
     const router = useRouter();
     const { setUser } = useUser();
@@ -40,10 +39,9 @@ const NavBar = () => {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
     const menuItems = [
-      {key:1,  name: 'Inicio', route: '/home/generador' },
-      {key:2,  name: 'Solicitudes', route: '/home/generador/pedidos' },
-      {key:3,  name: 'Reportes', route: '/home/generador/estadisticas' },
-      {key:4,  name: 'Perfil', route: '/home/generador/perfil' },
+      {key:1,  name: 'Inicio', route: '/home/conductor' },
+      {key:2,  name: 'Historial de recolecciones', route: '/home/conductor/rutas' },  
+      {key:3,  name: 'Perfil', route: '/home/conductor/perfil' },
     ];
 
     const isActiveRoute = (route) => {
@@ -52,53 +50,35 @@ const NavBar = () => {
 
     return (
       <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='flex space-between  items-center text-center gap-10 w-100'>
-        <button onClick={handleGoBack} className={`justify-self-start ${currentPath == "/home/generador" ? "hidden" : "block"}`}>
+        <button onClick={handleGoBack} className={`justify-self-start ${currentPath == "/home/conductor" ? "hidden" : "block"}`}>
           <KeyboardBackspaceIcon className='text-3xl'/>
         </button>
 
-        <NavbarContent className={`ml-14 hidden sm:block sticky-bottom w-full items-center text-center h-1/2 justify-self-center ${currentPath == "/home/generador" ? "translate-x-7" : ""}`} justify="center">
+        <NavbarContent className={`ml-14 hidden sm:block sticky-bottom w-full items-center text-center h-1/2 justify-self-center ${currentPath == "/home/conductor" ? "translate-x-7" : ""}`} justify="center">
           <div className='flex flex-row items-center space-between justify-center gap-28'>
             
-            <NavbarItem isActive={isActiveRoute('/home/generador')} className='w-8'>
-            <Link color="foreground" href="/home/generador">
+            <NavbarItem isActive={isActiveRoute('/home/conductor')} className='w-8'>
+            <Link color="foreground" href="/home/conductor">
                 <div className="flex flex-col items-center">
-                  <HomeIcon fontSize='medium' color={isActiveRoute('/home/generador') ? 'success':''}/>
+                  <HomeIcon fontSize='medium' color={isActiveRoute('/home/conductor') ? 'success':''}/>
                   <span className="text-sm text-black">Inicio</span>
                 </div>
               </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/generador/pedidos/crear')}  className='w-10'>
-            <Link color="foreground" href="/home/generador/pedidos/crear">
+            <NavbarItem isActive={isActiveRoute('/home/conductor/rutas')} className='w-10'>
+            <Link color="foreground" href="/home/conductor/rutas" >
                 <div className="flex flex-col items-center">
-                    <AddIcon fontSize='medium' color={isActiveRoute('/home/generador/pedidos/crear') ? 'success':''}/>
-                    <span className="text-sm text-black">Nueva solicitud</span>
-                  </div>
-            </Link>
-            </NavbarItem>
-
-            <NavbarItem isActive={isActiveRoute('/home/generador/pedidos')} className='w-10'>
-            <Link color="foreground" href="/home/generador/pedidos" >
-                <div className="flex flex-col items-center">
-                  <ReceiptIcon fontSize='medium' color={isActiveRoute('/home/generador/pedidos') ? 'success':''}/>
-                  <span className="text-sm text-black">Historial de solicitudes</span>
+                  <MapIcon fontSize='medium' color={isActiveRoute('/home/conductor/rutas') ? 'success':''}/>
+                  <span className="text-sm text-black">Historial de recolecciones</span>
                 </div>
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/generador/estadisticas')} className='w-10'>
-            <Link color="foreground" href="/home/generador/estadisticas" >
-                <div className="flex flex-col items-center">
-                  <BarChartIcon fontSize='medium' color={isActiveRoute('/home/generador/estadisticas') ? 'success':''}/>
-                  <span className="text-sm text-black">Estadisticas</span>
-                </div>
-            </Link>
-            </NavbarItem>
-
-            <NavbarItem isActive={isActiveRoute('/home/generador/perfil')} className='w-10'>
-            <Link color="foreground" href="/home/generador/perfil">
+            <NavbarItem isActive={isActiveRoute('/home/conductor/perfil')} className='w-10'>
+            <Link color="foreground" href="/home/conductor/perfil">
               <div className="flex flex-col items-center">
-                <AccountBoxIcon fontSize='medium' color={isActiveRoute('/home/generador/perfil') ? 'success':''}/>
+                <AccountBoxIcon fontSize='medium' color={isActiveRoute('/home/conductor/perfil') ? 'success':''}/>
                 <span className="text-sm text-black">Perfil</span>
               </div>
             </Link>
@@ -112,7 +92,7 @@ const NavBar = () => {
         </NavbarContent>
 
         <NavbarBrand className='justify-end'>
-            <Link color="foreground" href="/home/generador">
+            <Link color="foreground" href="/home/conductor">
               <p className="font-bold text-green-dark text-lg">EcoGestion</p>
             </Link>
         </NavbarBrand>
@@ -125,7 +105,6 @@ const NavBar = () => {
               color={"foreground"}
               href={item.route}
               size="lg"
-              onClick={() => setIsMenuOpen(false)}
             >
               {item.name}
             </Link>
@@ -146,4 +125,4 @@ const NavBar = () => {
     )
 };
 
-export default NavBar;
+export default NavBarConductor;

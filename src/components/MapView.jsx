@@ -15,18 +15,11 @@ const MapView = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(false);
-  }, []);
-
-  const MapUpdater = ({ centerCoordinates }) => {
-    const map = useMap();
-    useEffect(() => {
-      if (centerCoordinates) {
-        map.setView(centerCoordinates, map.getZoom());
-      }
-    }, [centerCoordinates, map]);
-    return null;
-  };
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
+  }, [centerCoordinates, markers, zoom]);
 
   const customIcon = new Icon({
       iconUrl: "https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678111-map-marker-512.png",
@@ -46,7 +39,6 @@ const MapView = ({
           <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <MapUpdater centerCoordinates={centerCoordinates} zoom={zoom} />
           {markers.map((marker) => (
           <Marker position={marker.position} icon={customIcon }>
               <Popup>

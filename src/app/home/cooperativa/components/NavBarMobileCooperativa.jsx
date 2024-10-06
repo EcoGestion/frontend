@@ -14,14 +14,20 @@ import { useUser } from '../../../../state/userProvider';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../../../app/firebaseConfig';
 
-const NavBarMobile = () => {
+const NavBarMobileCooperativa = () => {
     const currentPath = usePathname();
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
     const { setUser } = useUser();
 
     const menuItems = [
-      ];
+      {key:1,  name: 'Inicio', route: '/home/cooperativa' },
+      {key:2,  name: 'Solicitudes', route: '/home/cooperativa/pedidos' },
+      {key:3,  name: 'Rutas', route: '/home/cooperativa/rutas' },
+      {key:4,  name: 'Reportes', route: '/home/cooperativa/reportes' },
+      {key:5,  name: 'Recursos', route: '/home/cooperativa/recursos' },
+      {key:6,  name: 'Perfil', route: '/home/cooperativa/perfil' },
+    ];
 
       const logOut = (() => {
         signOut(auth)
@@ -44,19 +50,19 @@ const NavBarMobile = () => {
         <NavbarContent className="flex md:hidden gap-9 xs:gap-14 sticky-bottom w-full" justify="center">
             <NavbarItem isActive={isActiveRoute('/home/cooperativa')}>
             <Link color="foreground" href="/home/cooperativa">
-              <HomeIcon fontSize='large'/>
+              <HomeIcon fontSize='large' color={isActiveRoute('/home/cooperativa') ? 'success':''}/>
             </Link>
             </NavbarItem>
 
             <NavbarItem isActive={isActiveRoute('/home/cooperativa/pedidos')}>
             <Link color="foreground" href="/home/cooperativa/pedidos">
-                <ReceiptIcon fontSize='large'/>
+                <ReceiptIcon fontSize='large' color={isActiveRoute('/home/cooperativa/pedidos') ? 'success':''}/>
             </Link>
             </NavbarItem>
 
             <NavbarItem isActive={isActiveRoute('/home/cooperativa/rutas')}>
             <Link color="foreground" href="/home/cooperativa/rutas">
-                <MapIcon fontSize='large'/>
+                <MapIcon fontSize='large' color={isActiveRoute('/home/cooperativa/rutas') ? 'success':''}/>
             </Link>
             </NavbarItem>
 
@@ -113,30 +119,32 @@ const NavBarMobile = () => {
     )
 };
 
-export default NavBarMobile;
+export default NavBarMobileCooperativa;
 
 /*
 
             <NavbarItem onClick={() => setIsMenuOpen(!isMenuOpen)} className="w-10 h-10 items-center cursor-pointer">
               <MenuRoundedIcon fontSize='large'/>
             </NavbarItem>
-      
-      <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
+        </NavbarContent>
+
+        <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
         {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item}-${index}`}>
+          <NavbarMenuItem key={item.key}>
             <Link
               className="w-full"
               color={"foreground"}
-              href="#"
+              href={item.route}
               size="lg"
+              onClick={() => setIsMenuOpen(false)}
             >
-              {item}
+              {item.name}
             </Link>
           </NavbarMenuItem>
         ))}
-          <NavbarMenuItem key={`Cerrar Sesión-9`}>
+          <NavbarMenuItem key={`Cerrar Sesión-9`} className='mt-5'>
             <a
-              className="w-full text-lg justify-start"
+              className="logout-button w-full text-lg justify-start"
               color={"danger"}
               href="#"
               onClick={logOut}

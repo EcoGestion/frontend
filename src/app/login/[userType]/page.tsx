@@ -12,11 +12,12 @@ import { useUser } from '../../../state/userProvider';
 import Spinner  from '../../../components/Spinner';
 import { setUserSession } from '../../../state/userSessionSlice';
 import React from 'react';
+import { userTypeMapping, UserType, mapUserType } from '@/constants/userTypes';
 
 // /login/{cooperativa/generador}
 
 const Login = ({ params }: { params: { userType: string } }) => {
-  const userType = params.userType;
+  const userType = params.userType as keyof typeof userTypeMapping;
   const { setUser } = useUser();
   const dispatch = useDispatch();
   const router = useRouter();
@@ -37,6 +38,14 @@ const Login = ({ params }: { params: { userType: string } }) => {
         "firebase_id": firebaseToken
       }
       const userInfo = await loginUser(userData)
+
+      const front_type = mapUserType(userInfo.type);
+      if (front_type !== userType) {
+        alert('Su usuario no se encuentra registrado como ' + userType + '.\nPor favor, inicie sesión con el usuario correspondiente.');
+        setLoading(false);
+        return;
+      }
+
       setUser({
         name: userInfo.username,
         email: userInfo.email,
@@ -49,10 +58,16 @@ const Login = ({ params }: { params: { userType: string } }) => {
       }));
       router.replace('/home/' + userType);
     }
-    catch (error) {
-        console.log("Error al loguear usuario", error);
-        alert('Error al iniciar sesión');
-        setLoading(false);
+    catch (error: any) {
+        switch (error.code) {
+          case 'auth/invalid-credential':
+            alert('El mail o la contraseña ingresados no son correctos.');
+            break;
+          default:
+            alert('Ha ocurrido un error. Por favor, inténtelo de nuevo.');
+            console.log(error);
+        }
+      setLoading(false);
     }
   }
 

@@ -6,60 +6,64 @@ import Link from 'next/link';
 import HomeIcon from '@mui/icons-material/Home';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import AddIcon from '@mui/icons-material/Add';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
-import BarChartIcon from '@mui/icons-material/BarChart';
+import MapIcon from '@mui/icons-material/Map';
 import { useUser } from '../../../../state/userProvider';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../../firebaseConfig';
 
-const NavBarMobile = () => {
+const NavBarMobileConductor = () => {
     const currentPath = usePathname();
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
     const { setUser } = useUser();
 
     const menuItems = [
-      {key:1,  name: 'Inicio', route: '/home/generador' },
-      {key:2,  name: 'Solicitudes', route: '/home/generador/pedidos' },
-      {key:3,  name: 'Reportes', route: '/home/generador/estadisticas' },
-      {key:4,  name: 'Perfil', route: '/home/generador/perfil' },
-    ];
+        "Configuración",
+        "Dashboard",
+        "Activity",
+        "Analytics",
+        "System",
+        "Deployments",
+        "My Settings",
+        "Team Settings",
+        "Help & Feedback"
+      ];
 
-    const logOut = (() => {
-      signOut(auth)
-      .then(() => {
-        setUser({
-          name: "",
-          email: "",
-          userId: null
-        });
-        router.replace("/")
+      const logOut = (() => {
+        signOut(auth)
+        .then(() => {
+          setUser({
+            name: "",
+            email: "",
+            userId: null
+          });
+          router.replace("/")
+        })
       })
-    })
 
     const isActiveRoute = (route) => {
-      return currentPath === route;
+        return currentPath === route;
     };
 
     return (
         <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='flex bottom-0 justify-center border-1 sm:hidden'>
         <NavbarContent className="flex sm:hidden gap-9 xs:gap-14 sticky-bottom w-full" justify="center">
-            <NavbarItem isActive={isActiveRoute('/home/generador')}>
-            <Link color="foreground" href="/home/generador">
-              <HomeIcon fontSize='large' color={isActiveRoute('/home/generador') ? 'success':''}/>
+            <NavbarItem isActive={isActiveRoute('/home/conductor')}>
+            <Link color="foreground" href="/home/conductor">
+              <HomeIcon fontSize='large' color={isActiveRoute('/home/conductor') ? 'success':''}/>
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/generador/pedidos/crear')} >
-            <Link color="foreground" href="/home/generador/pedidos/crear">
-                <AddIcon fontSize='large' color={isActiveRoute('/home/generador/pedidos/crear') ? 'success':''}/>
+            <NavbarItem isActive={isActiveRoute('/home/conductor/rutas')}>
+            <Link color="foreground" href="/home/conductor/rutas">
+              <MapIcon fontSize='medium' color={isActiveRoute('/home/conductor/rutas') ? 'success':''}/>
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/generador/pedidos')}>
-            <Link color="foreground" href="/home/generador/pedidos">
-                <ReceiptIcon fontSize='large' color={isActiveRoute('/home/generador/pedidos') ? 'success':''}/>
+            <NavbarItem isActive={isActiveRoute('/home/conductor/pagina2')}>
+            <Link color="foreground" href="/home/conductor/perfil">
+                <AccountBoxIcon fontSize='large' color={isActiveRoute('/home/conductor/perfil') ? 'success':''}/>
             </Link>
             </NavbarItem>
 
@@ -70,22 +74,21 @@ const NavBarMobile = () => {
 
       <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
         {menuItems.map((item, index) => (
-          <NavbarMenuItem key={item.key}>
+          <NavbarMenuItem key={`${item}-${index}`}>
             <Link
               className="w-full"
               color={"foreground"}
-              href={item.route}
+              href="#"
               size="lg"
-              onClick={() => setIsMenuOpen(false)}
             >
-              {item.name}
+              {item}
             </Link>
           </NavbarMenuItem>
         ))}
-          <NavbarMenuItem key={`Cerrar Sesión-9`} className='mt-5'>
+          <NavbarMenuItem key={`Cerrar Sesión-9`}>
             <a
-              className="logout-button w-full text-lg justify-start"
-              color="danger"
+              className="w-full text-lg justify-start"
+              color={"danger"}
               href="#"
               onClick={logOut}
             >
@@ -98,4 +101,4 @@ const NavBarMobile = () => {
     )
 };
 
-export default NavBarMobile;
+export default NavBarMobileConductor;
