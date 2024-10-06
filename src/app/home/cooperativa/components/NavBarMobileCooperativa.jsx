@@ -78,19 +78,6 @@ const NavBarMobileCooperativa = () => {
         </NavbarContent>
 
         <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
-        {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item}-${index}`}>
-            <Link
-              className="w-full"
-              color={"foreground"}
-              href="#"
-              size="lg"
-            >
-              {item}
-            </Link>
-          </NavbarMenuItem>
-        ))}
-
             <NavbarItem key={`Reportes-1`}>
             <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/reportes" >
               Reportes
@@ -103,7 +90,7 @@ const NavBarMobileCooperativa = () => {
             </Link>
             </NavbarItem>
 
-          <NavbarMenuItem key={`Cerrar Sesión-9`}>
+          <NavbarMenuItem key={`Cerrar Sesión-3`} className='mt-2'>
             <a
               className="w-full text-lg justify-start"
               color={"danger"}
@@ -121,36 +108,3 @@ const NavBarMobileCooperativa = () => {
 
 export default NavBarMobileCooperativa;
 
-/*
-
-            <NavbarItem onClick={() => setIsMenuOpen(!isMenuOpen)} className="w-10 h-10 items-center cursor-pointer">
-              <MenuRoundedIcon fontSize='large'/>
-            </NavbarItem>
-        </NavbarContent>
-
-        <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
-        {menuItems.map((item, index) => (
-          <NavbarMenuItem key={item.key}>
-            <Link
-              className="w-full"
-              color={"foreground"}
-              href={item.route}
-              size="lg"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {item.name}
-            </Link>
-          </NavbarMenuItem>
-        ))}
-          <NavbarMenuItem key={`Cerrar Sesión-9`} className='mt-5'>
-            <a
-              className="logout-button w-full text-lg justify-start"
-              color={"danger"}
-              href="#"
-              onClick={logOut}
-            >
-              Cerrar Sesión
-            </a>
-          </NavbarMenuItem>
-      </NavbarMenu>
-*/

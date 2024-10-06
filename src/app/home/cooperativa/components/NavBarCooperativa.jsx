@@ -44,12 +44,6 @@ const NavBarCooperativa = () => {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
     const menuItems = [
-        {key:1,  name: 'Inicio', route: '/home/cooperativa' },
-        {key:2,  name: 'Solicitudes', route: '/home/cooperativa/pedidos' },
-        {key:3,  name: 'Rutas', route: '/home/cooperativa/rutas' },
-        {key:4,  name: 'Reportes', route: '/home/cooperativa/reportes' },
-        {key:5,  name: 'Recursos', route: '/home/cooperativa/recursos' },
-        {key:6,  name: 'Perfil', route: '/home/cooperativa/perfil' },
       ];
 
     const isActiveRoute = (route) => {
@@ -114,19 +108,6 @@ const NavBarCooperativa = () => {
         </NavbarBrand>
 
         <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
-        {menuItems.map((item, index) => (
-          <NavbarMenuItem key={item.key}>
-            <Link
-              className="w-full"
-              color={"foreground"}
-              href={item.route}
-              size="lg"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {item.name}
-            </Link>
-          </NavbarMenuItem>
-        ))}
             <NavbarItem key={`Reportes-1`}>
             <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/reportes" >
               Reportes
@@ -139,7 +120,7 @@ const NavBarCooperativa = () => {
             </Link>
             </NavbarItem>
 
-          <NavbarMenuItem key={`Cerrar Sesión-3`}>
+          <NavbarMenuItem key={`Cerrar Sesión-3`} className='mt-2'>
             <a
               className="logout-button w-full text-lg justify-start"
               color={"danger"}
