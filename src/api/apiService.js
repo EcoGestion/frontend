@@ -38,7 +38,7 @@ export const getGeneratorOrdersById = async (userId) => {
 };
 
 export const getOrderById = async (orderId) => {
-  const response = await axios.get(`${API_BASE_URL}/waste_requests/${orderId}`);
+  const response = await axios.get(`${API_BASE_URL}/waste_request/${orderId}`);
   return response.data;
 };
 
@@ -87,4 +87,35 @@ export const getCoopPendingRequests = async (coopId) => {
   };
   const response = await getRequestsWithFilter(requests_filters);
   return response;
+}
+
+export const getCoopRoutes = async (coopId) => {
+  const response = await axios.get(`${API_BASE_URL}/route/coop/${coopId}`);
+  return response.data;
+}
+
+export const getRoutesWithFilter = async (filters) => {
+  const response = await axios.post(`${API_BASE_URL}/route/filter`, filters);
+  return response.data;
+}
+
+export const getCoopActiveRoutes = async (coopId) => {
+  const requests_filters = {
+    "operations": [
+    {"op": "EQ", "attribute": "id", "value": coopId, "model": "Coop"},
+    {"op": "IN", "attribute": "status", "value": ["CREATED", "IN_PROGRESS"], "model": "Route"}
+    ]
+  };
+  const response = await getRoutesWithFilter(requests_filters);
+  return response;
+}
+
+export const getRouteById = async (routeId) => {
+  const response = await axios.get(`${API_BASE_URL}/route/${routeId}`);
+  return response.data;
+}
+
+export const getRequestsByRouteId = async (routeId) => {
+  const response = await axios.get(`${API_BASE_URL}/waste_request/route/${routeId}`);
+  return response.data;
 }

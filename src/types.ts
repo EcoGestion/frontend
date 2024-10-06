@@ -90,3 +90,30 @@ export interface WasteCollectionRequest {
 }
 
 export type WasteCollectionRequests = WasteCollectionRequest[];
+
+export interface RouteRequest {
+  id: number;
+  order: number;
+  route_id: number;
+  status: 'PENDING' | 'ON_ROUTE' | 'COMPLETED' | 'REPROGRAMED';
+  delivery_time: Date;
+  address_id: number;
+  request_id: number;
+  lat: string;
+  lng: string;
+}
+
+export type RouteRequests = RouteRequest[];
+
+export interface Route {
+  id: number;
+  total_weight: number;
+  driver: UserInfo;
+  truck: Truck;
+  route_requests: RouteRequest[];
+  status: 'CREATED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED';
+  created_at: Date;
+  updated_at: Date;
+}
+
+export type Routes = Route[];
