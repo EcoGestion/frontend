@@ -44,12 +44,6 @@ const NavBarCooperativa = () => {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
     const menuItems = [
-        {key:1,  name: 'Inicio', route: '/home/cooperativa' },
-        {key:2,  name: 'Solicitudes', route: '/home/cooperativa/pedidos' },
-        {key:3,  name: 'Rutas', route: '/home/cooperativa/rutas' },
-        {key:4,  name: 'Reportes', route: '/home/cooperativa/reportes' },
-        {key:5,  name: 'Recursos', route: '/home/cooperativa/recursos' },
-        {key:6,  name: 'Perfil', route: '/home/cooperativa/perfil' },
       ];
 
     const isActiveRoute = (route) => {
@@ -62,7 +56,7 @@ const NavBarCooperativa = () => {
           <KeyboardBackspaceIcon className='text-3xl'/>
         </button>
 
-        <NavbarContent className={`ml-14 hidden sm:block sticky-bottom w-full items-center text-center h-1/2 justify-self-center ${currentPath == "/home/cooperativa" ? "translate-x-7" : ""}`} justify="center">
+        <NavbarContent className={`ml-14 hidden md:block sticky-bottom w-full items-center text-center h-1/2 justify-self-center ${currentPath == "/home/cooperativa" ? "translate-x-7" : ""}`} justify="center">
           <div className='flex flex-row items-center space-between justify-center gap-20'>
             <NavbarItem isActive={isActiveRoute('/home/cooperativa')} className='w-8'>
               <Link color="foreground" href="/home/cooperativa">
@@ -91,24 +85,6 @@ const NavBarCooperativa = () => {
             </Link>
             </NavbarItem>
 
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa/reportes')} className='w-10'>
-            <Link color="foreground" href="/home/cooperativa/reportes">
-              <div className="flex flex-col items-center">
-                <AssessmentIcon fontSize='medium' color={isActiveRoute('/home/cooperativa/reportes') ? 'success':''}/>
-                <span className="text-sm text-black">Reportes</span>
-              </div>
-            </Link>
-            </NavbarItem>
-
-            <NavbarItem isActive={isActiveRoute('/home/cooperativa/recursos')} className='w-10'>
-            <Link color="foreground" href="/home/cooperativa/recursos">
-              <div className="flex flex-col items-center">
-                <LocalShippingIcon fontSize='medium' color={isActiveRoute('/home/cooperativa/recursos') ? 'success':''}/>
-                <span className="text-sm text-black">Recursos</span>
-              </div>
-            </Link>
-            </NavbarItem>
-
             <NavbarItem isActive={isActiveRoute('/home/cooperativa/perfil')} className='w-10'>
             <Link color="foreground" href="/home/cooperativa/perfil">
               <div className="flex flex-col items-center">
@@ -132,20 +108,19 @@ const NavBarCooperativa = () => {
         </NavbarBrand>
 
         <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
-        {menuItems.map((item, index) => (
-          <NavbarMenuItem key={item.key}>
-            <Link
-              className="w-full"
-              color={"foreground"}
-              href={item.route}
-              size="lg"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {item.name}
+            <NavbarItem key={`Reportes-1`}>
+            <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/reportes" >
+              Reportes
             </Link>
-          </NavbarMenuItem>
-        ))}
-          <NavbarMenuItem key={`Cerrar Sesión-9`} className='mt-5'>
+            </NavbarItem>
+
+            <NavbarItem key={`Recursos-2`}>
+            <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/recursos">
+            Recursos
+            </Link>
+            </NavbarItem>
+
+          <NavbarMenuItem key={`Cerrar Sesión-3`} className='mt-2'>
             <a
               className="logout-button w-full text-lg justify-start"
               color={"danger"}
