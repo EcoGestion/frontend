@@ -149,7 +149,7 @@ const detallesRuta = (props: {params?: { id?: string } }) => {
             <TableBody emptyContent={"No hay solicitudes para seleccionar"}>
               {requests.map((request) => (
                 <TableRow key={request.id}>
-                  <TableCell>{request.id}</TableCell>
+                  <TableCell>{request.request_id}</TableCell>
                   <TableCell>{getGeneratorTextFromRequestId(request.request_id)}</TableCell>
                   <TableCell>{getAddressTextFromRequestId(request.request_id)}</TableCell>
                   <TableCell>{request.status === 'COMPLETED' ? formatDate(request.delivery_time) : request.status === 'REPROGRAMED' ? 'Reprogramado' : 'Pendiente'}</TableCell>
