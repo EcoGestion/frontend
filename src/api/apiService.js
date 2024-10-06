@@ -73,7 +73,6 @@ export const createRoute = async (routeData) => {
 }
 
 export const getRequestsWithFilter = async (filters) => {
-  console.log(filters);
   const response = await axios.post(`${API_BASE_URL}/waste_request/filter`, filters);
   return response.data;
 }
@@ -81,8 +80,8 @@ export const getRequestsWithFilter = async (filters) => {
 export const getCoopPendingRequests = async (coopId) => {
   const requests_filters = {
     "operations": [
-    {"op": "EQ", "attribute": "id", "value": coopId, "model": "Coop"},
-    {"op": "EQ", "attribute": "status", "value": "PENDING", "model": "WasteCollectionRequest"},
+    {"op": "EQ", "attribute": "coop_id", "value": coopId, "model": "WasteCollectionRequest"},
+    {"op": "EQ", "attribute": "status", "value": "PENDING", "model": "WasteCollectionRequest"}
     ]
   };
   const response = await getRequestsWithFilter(requests_filters);

@@ -101,7 +101,7 @@ const rutasCooperativa = () => {
                         Ver detalles
                       </button>
                       {route.status === 'CREATED' && (
-                        <button className='bg-white text-green-dark px-4 py-2 rounded-2xl border border-green-800' onClick={() => handleCancelRoute(route.id)}>
+                        <button className='bg-white text-red-dark px-4 py-2 rounded-2xl border border-red-dark' onClick={() => handleCancelRoute(route.id)}>
                           Cancelar
                         </button>
                       )}
