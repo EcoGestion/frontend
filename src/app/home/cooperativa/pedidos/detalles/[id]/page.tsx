@@ -3,26 +3,35 @@ import Order from "../../../../../../components/Order";
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../../../../../../state/userProvider';
 import Spinner from "../../../../../../components/Spinner";
-import { getOrderById, getUserById } from "../../../../../../api/apiService";
+import { getOrderById, updateOrderById } from "../../../../../../api/apiService";
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
+import dynamic from 'next/dynamic'
+import "./style.css"
+import { Button } from "@nextui-org/react";
+import { useRouter } from 'next/navigation';
+
+const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
 interface Address {
     street: string;
     city: string;
     number: string;
     province: string;
+    zone: string;
+    lat: string;
+    lng: string;
   }
 interface Generator {
     username: string;
     email: string;
     phone: string;
     address: Address;
-    zone: string;
+    type: string;
   }
 
 interface WasteQuantities {
@@ -43,7 +52,45 @@ interface Order {
     generator: Generator;
     coop: Generator;
     waste_quantities: [WasteQuantities];
+    address: Address
   } 
+
+  const getGeneratorType = (type: any) => {
+    switch (type) {
+      case "GEN_RESTAURANT":
+          return 'Restaurante';
+  
+      case "GEN_BUILDING":
+          return 'Edificio';
+  
+      case "GEN_COMPANY":
+          return 'Empresa';
+  
+      case "GEN_OFFICE":
+          return 'Oficina';
+  
+      case "GEN_HOTEL":
+          return 'Hotel';
+  
+      case "GEN_FACTORY":
+          return 'Fábrica';
+  
+      case "GEN_CLUB":
+          return 'Club';
+  
+      case "GEN_EDUCATIONAL_INSTITUTION":
+          return 'Institución Educativa';
+  
+      case "GEN_HOSPITAL":
+          return 'Hospital';
+  
+      case "GEN_MARKET":
+          return 'Mercado';
+  
+      case "GEN_OTHER":
+          return 'Otro';
+    }
+  }
 
 const monthNames: { [key: number]: string } = {
     1: 'Enero',    // Enero
@@ -62,17 +109,20 @@ const monthNames: { [key: number]: string } = {
 
 const getStatus = (status : any) => {
     switch (status) {
-        case 'CANCELED':
+        case 'REJECTED':
             return 'Cancelada';
 
         case 'COMPLETED':
             return 'Completada';
 
+        case 'PENDING':
+            return 'En proceso';
+
         case 'OPEN':
             return 'Ingresada';
 
-        case 'Coordinada':
-            return 'Coordinada';
+        case 'ON_ROUTE':
+            return 'En ruta';
     }
 }
 
@@ -100,10 +150,12 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
     const orderId = props.params?.id
     
     const [loading, setLoading] = useState(true);
-    const [generator, setGenerator] = useState<Generator | null>(null);
+    const [update, setUpdate] = useState<string | null>(null);
+    const [userId, setUserId] = useState<string | null>(null);
     const [order, setOrder] = useState<Order | null>(null);
     const [isCollapsedItems, setIsCollapsedItems] = useState(false);
     const [isCollapsedObservations, setIsCollapsedObservations] = useState(false);
+    const router = useRouter();
 
     const toggleCollapseItems = () => {
         setIsCollapsedItems(!isCollapsedItems);
@@ -117,25 +169,22 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
         const fetchUser = async () => {
             try {
                 const responseOrder = await getOrderById(orderId);
-                const responseGenerator = await getUserById(responseOrder.generator_id);
                 setOrder(responseOrder);
-                setGenerator(responseGenerator);
                 setLoading(false);
+                setUserId(user? user.userId : null)
             } catch (error) {
                 console.log("Error al obtener usuario", error);
             } 
         }
         fetchUser();
-    }, [props]);
+    }, [props, user.userId, update]);
 
     const date_from =  order? formatDate(new Date(order.pickup_date_from)): null;
-
     const date_to =  order? formatDate(new Date(order.pickup_date_to)): null;
-
     const inserted_date =  order? formatDate(new Date(order.request_date)): null;
-
     const status : any = order? getStatus(order.status): null;
-
+    const address = order && (order.address? order.address : order.generator.address)
+    const point : any = address && [{position: [parseFloat(address.lat), parseFloat(address.lng)], content: order.generator.username, popUp: `${address.street} ${address.number}` }]
     const products = order && order.waste_quantities ? order.waste_quantities : [
         {
             waste_type: "Pilas",
@@ -147,16 +196,26 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
         }
     ]
 
+    const acceptRequest = async (rowData: any) => {
+        setLoading(true);
+        updateOrderById(rowData.id, userId, "PENDING")
+        .then(() => getOrderById(orderId))
+        .then((response) => {
+            setOrder(response);
+            setLoading(false);
+        })
+      };
+      
 
     return (
         <div className="items-center flex justify-center">
-            {!loading && order && date_from && date_to && inserted_date && status && (
+            {!loading && order && date_from && date_to && inserted_date && status && address && (
                         // INICIO CARD
                         <div className="card mx-3 my-4 md:m-3 w-100 px-1 md:px-3 py-1 md:py-3 md:m-5">
                         <div className="row g-0 w-full">
                         <div className="col-md-20">
                         <div className="card-body flex flex-col gap-1">
-                                {generator && <h5 className="card-title font-medium text-5xl"> {generator.username}</h5>}
+                                <h5 className="card-title font-medium text-5xl"> {order.generator.username} - {getGeneratorType(order.generator.type)}</h5>
                                 {status == "Cancelado" ?
                                 (<h3 className="card-title font-semibold text-[#ec1a09] text-xl">{status.toUpperCase()} </h3>) :
                                 (<h3 className="card-title font-semibold text-black text-xl">{status.toUpperCase()} </h3>)}
@@ -212,15 +271,15 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
                                 <div className="card-text flex gap-3 flex-col justify-start">
                                     <div className="flex flex-row gap-3 text-xl items-center">
                                         <LocationOnIcon className="ml-1"/>
-                                        {generator && <p className="card-text"><small className="text-body-secondary text-md">{generator.address.street} {generator.address.number}, {order.zone}, {generator.address.city}, {generator.address.province}</small></p>}
+                                        <p className="card-text"><small className="text-body-secondary text-md">{address.street} {address.number}, {address.zone}, {address.city}</small></p>
                                     </div>
                                     <div className="flex flex-row gap-3 text-xl items-center">
                                         <AlternateEmailIcon className="ml-1"/>
-                                        {generator && <p className="card-text"><small className="text-body-secondary text-md">{generator.email} </small></p>}
+                                        <p className="card-text"><small className="text-body-secondary text-md">{order.generator.email} </small></p>
                                     </div>
                                     <div className="flex flex-row gap-3 text-xl items-center">
                                         <LocalPhoneIcon className="ml-1"/>
-                                        {generator && <p className="card-text"><small className="text-body-secondary text-md">{generator.phone} </small></p>}
+                                        <p className="card-text"><small className="text-body-secondary text-md">{order.generator.phone} </small></p>
                                     </div>
                                     <div className="flex flex-col gap-0 text-lg justify-normal">
                                         <span className="ml-1 font-semibold">Observaciones</span>
@@ -234,9 +293,16 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
                         </div> 
                         {/*  FIN OBSERVACIONEs */}
 
+                        {point && 
+                        <div className="lg:mx-9 my-4 h-80">
+                        <MapView centerCoordinates={point.position} markers={point}/>
+                        </div>
+                        }   
+
                         {/* FECHA INSERTADO */}
-                        <div className="flex flex-row gap-3 text-xl items-center">
+                        <div className="flex flex-row gap-3 text-xl items-center mt-52 justify-between">
                             <p className="card-text"><small className="text-body-secondary text-md">Ingresado el {inserted_date}</small></p>
+                            {order.status == "OPEN" && <Button className="bg-green-dark text-white w-32" onClick={() => acceptRequest(order)}>Aceptar</Button>}
                         </div>
 
                         </div>
