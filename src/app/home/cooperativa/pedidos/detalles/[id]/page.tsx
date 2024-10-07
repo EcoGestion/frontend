@@ -3,29 +3,75 @@
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../../../../../../state/userProvider';
 import Spinner from "../../../../../../components/Spinner";
-import { getOrderById, getUserById } from "../../../../../../api/apiService";
+import { getOrderById, updateOrderById, getUserById } from "../../../../../../api/apiService";
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
+import dynamic from 'next/dynamic'
+import "./style.css"
+import { Button } from "@nextui-org/react";
+import { useRouter } from 'next/navigation';
 import { Address, UserInfo, WasteQuantity, WasteQuantities, WasteCollectionRequest, WasteCollectionRequests } from '@/types';
+
+const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
+
+  const getGeneratorType = (type: any) => {
+    switch (type) {
+      case "GEN_RESTAURANT":
+          return 'Restaurante';
+  
+      case "GEN_BUILDING":
+          return 'Edificio';
+  
+      case "GEN_COMPANY":
+          return 'Empresa';
+  
+      case "GEN_OFFICE":
+          return 'Oficina';
+  
+      case "GEN_HOTEL":
+          return 'Hotel';
+  
+      case "GEN_FACTORY":
+          return 'Fábrica';
+  
+      case "GEN_CLUB":
+          return 'Club';
+  
+      case "GEN_EDUCATIONAL_INSTITUTION":
+          return 'Institución Educativa';
+  
+      case "GEN_HOSPITAL":
+          return 'Hospital';
+  
+      case "GEN_MARKET":
+          return 'Mercado';
+  
+      case "GEN_OTHER":
+          return 'Otro';
+    }
+  }
 
 
 const getStatus = (status : any) => {
     switch (status) {
-        case 'CANCELED':
+        case 'REJECTED':
             return 'Cancelada';
 
         case 'COMPLETED':
             return 'Completada';
 
+        case 'PENDING':
+            return 'En proceso';
+
         case 'OPEN':
             return 'Ingresada';
 
-        case 'Coordinada':
-            return 'Coordinada';
+        case 'ON_ROUTE':
+            return 'En ruta';
     }
 }
 
@@ -53,10 +99,13 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
     const orderId = props.params?.id
     
     const [loading, setLoading] = useState(true);
+    const [update, setUpdate] = useState<string | null>(null);
+    const [userId, setUserId] = useState<string | null>(null);
     const [generator, setGenerator] = useState<UserInfo | null>(null);
     const [order, setOrder] = useState<WasteCollectionRequest | null>(null);
     const [isCollapsedItems, setIsCollapsedItems] = useState(false);
     const [isCollapsedObservations, setIsCollapsedObservations] = useState(false);
+    const router = useRouter();
 
     const toggleCollapseItems = () => {
         setIsCollapsedItems(!isCollapsedItems);
@@ -79,20 +128,36 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
                 setInserted_date(formatDate(new Date(responseOrder.request_date)));
                 setStatus(getStatus(responseOrder.status));
                 setProducts(responseOrder.waste_quantities);
+                setAddress(responseOrder.address);
+                setPoint([{position: [parseFloat(responseOrder.address.lat), parseFloat(responseOrder.address.lng)], content: responseOrder.generator.username, popUp: `${responseOrder.address.street} ${responseOrder.address.number}`}])
 
                 setLoading(false);
+                setUserId(user? user.userId : null)
             } catch (error) {
                 console.log("Error al obtener usuario", error);
             } 
         }
         fetchUser();
-    }, [props]);
+    }, [props, user.userId, update]);
 
     const [date_from, setDate_from] = useState<string | null>(null);
     const [date_to, setDate_to] = useState<string | null>(null);
     const [inserted_date, setInserted_date] = useState<string | null>(null);
     const [status, setStatus] = useState<string | null | undefined>(null);
     const [products, setProducts] = useState<WasteQuantities | null>(null);
+    const [address, setAddress] = useState<Address | null>(null);
+    const [point, setPoint] = useState<any | null>(null);
+    
+    const acceptRequest = async (rowData: any) => {
+        setLoading(true);
+        updateOrderById(rowData.id, userId, "PENDING")
+        .then(() => getOrderById(orderId))
+        .then((response) => {
+            setOrder(response);
+            setLoading(false);
+        })
+      };
+      
 
     return (
         <div className="items-center flex justify-center">
@@ -180,9 +245,16 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
                         </div> 
                         {/*  FIN OBSERVACIONEs */}
 
+                        {point && 
+                        <div className="lg:mx-9 my-4 h-80">
+                        <MapView centerCoordinates={point.position} markers={point}/>
+                        </div>
+                        }   
+
                         {/* FECHA INSERTADO */}
-                        <div className="flex flex-row gap-3 text-xl items-center">
+                        <div className="flex flex-row gap-3 text-xl items-center mt-52 justify-between">
                             <p className="card-text"><small className="text-body-secondary text-md">Ingresado el {inserted_date}</small></p>
+                            {order && order.status == "OPEN" && <Button className="bg-green-dark text-white w-32" onClick={() => acceptRequest(order)}>Aceptar</Button>}
                         </div>
 
                         </div>
