@@ -65,10 +65,10 @@ export interface Driver {
 export type DriversResources = Driver[];
 
 export interface WasteQuantity {
-  id: number;
+  id?: number;
   waste_type: string;
   quantity: number;
-  waste_collection_request_id: number;
+  waste_collection_request_id?: number;
 }
 
 export type WasteQuantities = WasteQuantity[];
