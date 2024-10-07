@@ -102,3 +102,20 @@ export const deleteUserById = async (userId) => {
   const response = await axios.delete(`${API_BASE_URL}/user/${userId}`);
   return response.data;
 }
+
+export const getRoutesById = async (userId) => {
+  const requestBody =
+  {
+    operations: 
+    [
+      {
+        op: "EQ", 
+        attribute: "id", 
+        value: parseInt(userId, 10), 
+        model: "User"
+      }
+    ]
+  }
+  const response = await axios.post(`${API_BASE_URL}/route/filter`);
+  return response.data;
+}

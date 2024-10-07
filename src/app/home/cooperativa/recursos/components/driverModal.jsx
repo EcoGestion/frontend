@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import Modal from 'react-modal';
 import { createUser } from '@/api/apiService';
@@ -43,6 +43,7 @@ const styles = {
 
 const DriverModal = ({ isOpen, onRequestClose }) => {
   const userSession = useSelector((state) => state.userSession);
+  console.log(userSession)
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState('');
   const [formData, setFormData] = useState({
@@ -58,10 +59,12 @@ const DriverModal = ({ isOpen, onRequestClose }) => {
       province: '',
       lat: '',
       lng: '',
-      zip_code: ''
+      zip_code: '',
+      zone: ''
     },
     driver_details: {
       coop_id: 0,
+      status: ""
     }
   });
 
@@ -100,18 +103,23 @@ const DriverModal = ({ isOpen, onRequestClose }) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+      console.log(userSession)
 
-      // Actualizo con el id de firebase y el id de la cooperativa
-      setFormData({
+      const form = {
         ...formData,
         firebase_id: user.uid,
         driver_details: {
-          coop_id: userSession.userId
+          coop_id: userSession.userId,
+          status: "ENABLED"
         }
-      });
-      console.log(formData);
+      }
+
+      // Actualizo con el id de firebase y el id de la cooperativa
+      setFormData(form);
+      console.log(form);
+
       try {
-        await createUser(formData);
+        await createUser(form);
         onRequestClose();
         ToastNotifier.success('Conductor registrado correctamente');
       } catch (error) {

@@ -152,7 +152,7 @@ useEffect(() => {
 
 useEffect(() => {
   if (filteredDailyOrders) {
-    setPages(Math.ceil(filteredDailyOrders.length / rowsPerPage)); 
+    setDailyPages(Math.ceil(filteredDailyOrders.length / rowsPerPage)); 
   } 
 }, [dailyOrders, dailyFilters]);
 
