@@ -64,6 +64,15 @@ export interface Driver {
 
 export type DriversResources = Driver[];
 
+export interface WasteQuantity {
+  id?: number;
+  waste_type: string;
+  quantity: number;
+  waste_collection_request_id?: number;
+}
+
+export type WasteQuantities = WasteQuantity[];
+
 
 export interface WasteCollectionRequest {
   id?: number;
@@ -74,6 +83,37 @@ export interface WasteCollectionRequest {
   coop_id?: number;
   address?: Address;
   details: string;
-  waste_quantities: {waste_type: string, quantity: number}[];
+  waste_quantities: WasteQuantities;
   status: 'OPEN' | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED';
+  generator?: UserInfo;
+  coop?: UserInfo;
 }
+
+export type WasteCollectionRequests = WasteCollectionRequest[];
+
+export interface RouteRequest {
+  id: number;
+  order: number;
+  route_id: number;
+  status: 'PENDING' | 'ON_ROUTE' | 'COMPLETED' | 'REPROGRAMED';
+  delivery_time: Date;
+  address_id: number;
+  request_id: number;
+  lat: string;
+  lng: string;
+}
+
+export type RouteRequests = RouteRequest[];
+
+export interface Route {
+  id: number;
+  total_weight: number;
+  driver: UserInfo;
+  truck: Truck;
+  route_requests: RouteRequest[];
+  status: 'CREATED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELED';
+  created_at: Date;
+  updated_at: Date;
+}
+
+export type Routes = Route[];

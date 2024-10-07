@@ -1,9 +1,9 @@
 'use client'
-import Order from "../../../../../../components/Order";
+//import Order from "../../../../../../components/Order";
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../../../../../../state/userProvider';
 import Spinner from "../../../../../../components/Spinner";
-import { getOrderById, updateOrderById } from "../../../../../../api/apiService";
+import { getOrderById, updateOrderById, getUserById } from "../../../../../../api/apiService";
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -14,46 +14,9 @@ import dynamic from 'next/dynamic'
 import "./style.css"
 import { Button } from "@nextui-org/react";
 import { useRouter } from 'next/navigation';
+import { Address, UserInfo, WasteQuantity, WasteQuantities, WasteCollectionRequest, WasteCollectionRequests } from '@/types';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
-
-interface Address {
-    street: string;
-    city: string;
-    number: string;
-    province: string;
-    zone: string;
-    lat: string;
-    lng: string;
-  }
-interface Generator {
-    username: string;
-    email: string;
-    phone: string;
-    address: Address;
-    type: string;
-  }
-
-interface WasteQuantities {
-waste_type: string;
-quantity: string;
-}
-
-interface Order {
-    request_date: string;
-    generator_id: string;
-    status: string;
-    pickup_date_from: string;
-    zone: string;
-    id: number;
-    coop_id: number;
-    details: string;
-    pickup_date_to: string;
-    generator: Generator;
-    coop: Generator;
-    waste_quantities: [WasteQuantities];
-    address: Address
-  } 
 
   const getGeneratorType = (type: any) => {
     switch (type) {
@@ -92,20 +55,6 @@ interface Order {
     }
   }
 
-const monthNames: { [key: number]: string } = {
-    1: 'Enero',    // Enero
-    2: 'Febrero',  // Febrero
-    3: 'Marzo',    // Marzo
-    4: 'Abril',    // Abril
-    5: 'Mayo',     // Mayo
-    6: 'Junio',    // Junio
-    7: 'Julio',    // Julio
-    8: 'Agosto',   // Agosto
-    9: 'Septiembre', // Septiembre
-    10: 'Octubre', // Octubre
-    11: 'Noviembre', // Noviembre
-    12: 'Diciembre'  // Diciembre
-};
 
 const getStatus = (status : any) => {
     switch (status) {
@@ -152,7 +101,8 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
     const [loading, setLoading] = useState(true);
     const [update, setUpdate] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
-    const [order, setOrder] = useState<Order | null>(null);
+    const [generator, setGenerator] = useState<UserInfo | null>(null);
+    const [order, setOrder] = useState<WasteCollectionRequest | null>(null);
     const [isCollapsedItems, setIsCollapsedItems] = useState(false);
     const [isCollapsedObservations, setIsCollapsedObservations] = useState(false);
     const router = useRouter();
@@ -169,7 +119,18 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
         const fetchUser = async () => {
             try {
                 const responseOrder = await getOrderById(orderId);
+                const responseGenerator = await getUserById(responseOrder.generator_id);
                 setOrder(responseOrder);
+                setGenerator(responseGenerator);
+
+                setDate_from(formatDate(new Date(responseOrder.pickup_date_from)));
+                setDate_to(formatDate(new Date(responseOrder.pickup_date_to)));
+                setInserted_date(formatDate(new Date(responseOrder.request_date)));
+                setStatus(getStatus(responseOrder.status));
+                setProducts(responseOrder.waste_quantities);
+                setAddress(responseOrder.address);
+                setPoint([{position: [parseFloat(responseOrder.address.lat), parseFloat(responseOrder.address.lng)], content: responseOrder.generator.username, popUp: `${responseOrder.address.street} ${responseOrder.address.number}`}])
+
                 setLoading(false);
                 setUserId(user? user.userId : null)
             } catch (error) {
@@ -179,23 +140,14 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
         fetchUser();
     }, [props, user.userId, update]);
 
-    const date_from =  order? formatDate(new Date(order.pickup_date_from)): null;
-    const date_to =  order? formatDate(new Date(order.pickup_date_to)): null;
-    const inserted_date =  order? formatDate(new Date(order.request_date)): null;
-    const status : any = order? getStatus(order.status): null;
-    const address = order && (order.address? order.address : order.generator.address)
-    const point : any = address && [{position: [parseFloat(address.lat), parseFloat(address.lng)], content: order.generator.username, popUp: `${address.street} ${address.number}` }]
-    const products = order && order.waste_quantities ? order.waste_quantities : [
-        {
-            waste_type: "Pilas",
-            quantity: 50
-        },
-        {
-            waste_type: "Plástico",
-            quantity: 50
-        }
-    ]
-
+    const [date_from, setDate_from] = useState<string | null>(null);
+    const [date_to, setDate_to] = useState<string | null>(null);
+    const [inserted_date, setInserted_date] = useState<string | null>(null);
+    const [status, setStatus] = useState<string | null | undefined>(null);
+    const [products, setProducts] = useState<WasteQuantities | null>(null);
+    const [address, setAddress] = useState<Address | null>(null);
+    const [point, setPoint] = useState<any | null>(null);
+    
     const acceptRequest = async (rowData: any) => {
         setLoading(true);
         updateOrderById(rowData.id, userId, "PENDING")
@@ -209,16 +161,16 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
 
     return (
         <div className="items-center flex justify-center">
-            {!loading && order && date_from && date_to && inserted_date && status && address && (
+            {!loading && (
                         // INICIO CARD
-                        <div className="card mx-3 my-4 md:m-3 w-100 px-1 md:px-3 py-1 md:py-3 md:m-5">
+                        <div className="card mx-3 my-4 md:m-3 w-100 px-1 md:px-3 py-1 md:py-3">
                         <div className="row g-0 w-full">
                         <div className="col-md-20">
                         <div className="card-body flex flex-col gap-1">
-                                <h5 className="card-title font-medium text-5xl"> {order.generator.username} - {getGeneratorType(order.generator.type)}</h5>
+                                {generator && <h5 className="card-title font-medium text-5xl"> {generator.username}</h5>}
                                 {status == "Cancelado" ?
                                 (<h3 className="card-title font-semibold text-[#ec1a09] text-xl">{status.toUpperCase()} </h3>) :
-                                (<h3 className="card-title font-semibold text-black text-xl">{status.toUpperCase()} </h3>)}
+                                (<h3 className="card-title font-semibold text-black text-xl">{status ? status.toUpperCase() : ""} </h3>)}
                                 <div className="flex flex-row gap-3 text-xl items-center">
                                     <LocalShippingIcon className="ml-1"/>
                                     <div className="flex flex-col">
@@ -237,7 +189,7 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
                             </div>
                             
                             <div className={`${isCollapsedItems ? 'block' : 'hidden'}`}>
-                                {
+                                {products &&
                                 products.map(product => 
                                     (
                                         <div className="flex flex-row gap-3 justify-start mx-2 md:mx-5">
@@ -271,19 +223,19 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
                                 <div className="card-text flex gap-3 flex-col justify-start">
                                     <div className="flex flex-row gap-3 text-xl items-center">
                                         <LocationOnIcon className="ml-1"/>
-                                        <p className="card-text"><small className="text-body-secondary text-md">{address.street} {address.number}, {address.zone}, {address.city}</small></p>
+                                        {order && <p className="card-text"><small className="text-body-secondary text-md">{order.address?.street} {order.address?.number}, {order.address?.zone}, {order.address?.city}, {order.address?.province}</small></p>}
                                     </div>
                                     <div className="flex flex-row gap-3 text-xl items-center">
                                         <AlternateEmailIcon className="ml-1"/>
-                                        <p className="card-text"><small className="text-body-secondary text-md">{order.generator.email} </small></p>
+                                        {generator && <p className="card-text"><small className="text-body-secondary text-md">{generator.email} </small></p>}
                                     </div>
                                     <div className="flex flex-row gap-3 text-xl items-center">
                                         <LocalPhoneIcon className="ml-1"/>
-                                        <p className="card-text"><small className="text-body-secondary text-md">{order.generator.phone} </small></p>
+                                        {generator && <p className="card-text"><small className="text-body-secondary text-md">{generator.phone} </small></p>}
                                     </div>
                                     <div className="flex flex-col gap-0 text-lg justify-normal">
                                         <span className="ml-1 font-semibold">Observaciones</span>
-                                        <small className="text-body-secondary text-md ml-4">{order.details}</small>
+                                        <small className="text-body-secondary text-md ml-4">{order ? order.details : ""}</small>
                                     </div>
                                 </div>
                             </div>
@@ -302,7 +254,7 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
                         {/* FECHA INSERTADO */}
                         <div className="flex flex-row gap-3 text-xl items-center mt-52 justify-between">
                             <p className="card-text"><small className="text-body-secondary text-md">Ingresado el {inserted_date}</small></p>
-                            {order.status == "OPEN" && <Button className="bg-green-dark text-white w-32" onClick={() => acceptRequest(order)}>Aceptar</Button>}
+                            {order && order.status == "OPEN" && <Button className="bg-green-dark text-white w-32" onClick={() => acceptRequest(order)}>Aceptar</Button>}
                         </div>
 
                         </div>
