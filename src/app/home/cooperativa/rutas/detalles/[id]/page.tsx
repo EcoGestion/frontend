@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { Table, TableHeader, TableBody, TableRow, TableColumn, TableCell, Card, CardHeader, CardBody, Divider } from '@nextui-org/react';
 import { getRouteById, getUserById, getRequestsByRouteId } from "@api/apiService";
-import { WasteCollectionRequests, WasteQuantities, Route, RouteRequests } from '@/types';
+import { WasteCollectionRequests, WasteQuantities, Route, RouteRequests, Address, UserInfo } from '@/types';
 import {formatDateRange, formatDate} from '@utils/dateStringFormat';
 import AddressFormat from '@utils/addressFormat';
 import Spinner from '@/components/Spinner';
@@ -15,7 +15,7 @@ import { mapTruckStatus } from '@constants/truck';
 import { mapRequestStatus } from '@constants/request';
 import { mapRouteStatus } from '@constants/route';
 
-const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
+const MapView = dynamic(() => import('@/components/MapWithRouteView'), { ssr: false });
 
 interface Marker {
   position: number[];
@@ -36,6 +36,8 @@ const detallesRuta = (props: {params?: { id?: string } }) => {
   const [requests, setRequests] = useState<RouteRequests>([]);
   const [wasteRequests, setWasteRequests] = useState<WasteCollectionRequests>([]);
 
+  const [routeCoords, setRouteCoords] = useState<number[][]>([]);
+
   useEffect(() => {
     retrieveData();
   }, []);
@@ -48,8 +50,9 @@ const detallesRuta = (props: {params?: { id?: string } }) => {
       const routeInfo_response = await getRouteById(route_id);
       setRouteInfo(routeInfo_response);
       setRequests(routeInfo_response.route_requests);
-      setMarkersFromRequests(routeInfo_response.route_requests);
+      setRouteCoordsFromRequests(routeInfo_response.route_requests, userInfo.address);
       const wasteRequests_response = await getRequestsByRouteId(route_id);
+      setMarkersFromRequests(wasteRequests_response, userInfo);
       setWasteRequests(wasteRequests_response);
     } catch (error) {
       console.error(error);
@@ -58,9 +61,9 @@ const detallesRuta = (props: {params?: { id?: string } }) => {
     }
   }
 
-  const setMarkersFromRequests = (requests: WasteCollectionRequests) => {
-    const markers = requests
-      .filter((request) => request.address && request.generator)
+  const setMarkersFromRequests = (requests: WasteCollectionRequests, coopInfo: UserInfo) => {
+    console.log("Requests en page: ", requests);
+    const genMarkers = requests
       .map((request) => ({
         position: [
           parseFloat(request.address?.lat ?? "0"), 
@@ -69,8 +72,24 @@ const detallesRuta = (props: {params?: { id?: string } }) => {
         content: request.generator?.username ?? "Desconocido",
         popUp: request.address ? AddressFormat(request.address) : "Dirección desconocida",
       }));
+    const markers = [...genMarkers, {
+      position: [parseFloat(coopInfo.address.lat), parseFloat(coopInfo.address.lng)],
+      content: 'Cooperativa',
+      popUp: AddressFormat(coopInfo.address),
+    }
+    ]
     setMarkers(markers);
+    console.log("Markers en page: ", markers);
   };
+
+  const setRouteCoordsFromRequests = (requests: RouteRequests, coopAddress: Address) => {
+    const coopCoords = [parseFloat(coopAddress.lat), parseFloat(coopAddress.lng)];
+    const routeCoords = requests
+      .filter((request) => request.lat && request.lng)
+      .map((request) => [parseFloat(request.lat), parseFloat(request.lng)]);
+    const updatedRouteCoords = [coopCoords, ...routeCoords, coopCoords];
+    setRouteCoords(updatedRouteCoords);
+  }
 
   const formatWasteQuantities = (wasteQuantities: WasteQuantities): string => {
     return wasteQuantities.map(waste => `${waste.waste_type}: ${waste.quantity} kg`).join(', ');
@@ -167,7 +186,7 @@ const detallesRuta = (props: {params?: { id?: string } }) => {
 
         <div className='p-2 mt-4'>
           <h2 className='text-xl'>Recorrido</h2>
-          <MapView centerCoordinates={coopCoords} zoom={12} markers={markers}/>
+          <MapView centerCoordinates={coopCoords} zoom={14} markers={markers} routeCoordinates={routeCoords}/>
         </div>
       </div>
       )}
