@@ -60,10 +60,6 @@ export const getOrderById = async (orderId) => {
 };
 
 export const updateOrderById = async (orderId, coopId, status) => {
-  console.log(coopId)
-  console.log(parseInt(coopId, 10))
-  console.log(status)
-  console.log(orderId)
   const requestBody =
   {
     coop_id: parseInt(coopId, 10), 
@@ -100,5 +96,57 @@ export const deleteTruck = async (truckId) => {
 
 export const deleteUserById = async (userId) => {
   const response = await axios.delete(`${API_BASE_URL}/user/${userId}`);
+  return response.data;
+}
+
+export const createRoute = async (routeData) => {
+  const response = await axios.post(`${API_BASE_URL}/route`, routeData);
+  return response.data;
+}
+
+export const getRequestsWithFilter = async (filters) => {
+  const response = await axios.post(`${API_BASE_URL}/waste_request/filter`, filters);
+  return response.data;
+}
+
+export const getCoopPendingRequests = async (coopId) => {
+  const requests_filters = {
+    "operations": [
+    {"op": "EQ", "attribute": "coop_id", "value": coopId, "model": "WasteCollectionRequest"},
+    {"op": "EQ", "attribute": "status", "value": "PENDING", "model": "WasteCollectionRequest"}
+    ]
+  };
+  const response = await getRequestsWithFilter(requests_filters);
+  return response;
+}
+
+export const getCoopRoutes = async (coopId) => {
+  const response = await axios.get(`${API_BASE_URL}/route/coop/${coopId}`);
+  return response.data;
+}
+
+export const getRoutesWithFilter = async (filters) => {
+  const response = await axios.post(`${API_BASE_URL}/route/filter`, filters);
+  return response.data;
+}
+
+export const getCoopActiveRoutes = async (coopId) => {
+  const requests_filters = {
+    "operations": [
+    {"op": "EQ", "attribute": "id", "value": coopId, "model": "Coop"},
+    {"op": "IN", "attribute": "status", "value": ["CREATED", "IN_PROGRESS"], "model": "Route"}
+    ]
+  };
+  const response = await getRoutesWithFilter(requests_filters);
+  return response;
+}
+
+export const getRouteById = async (routeId) => {
+  const response = await axios.get(`${API_BASE_URL}/route/${routeId}`);
+  return response.data;
+}
+
+export const getRequestsByRouteId = async (routeId) => {
+  const response = await axios.get(`${API_BASE_URL}/waste_request/route/${routeId}`);
   return response.data;
 }

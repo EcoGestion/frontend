@@ -20,6 +20,7 @@ const barrios = [
     "Montserrat",
     "Nueva Pompeya",
     "Nuñez",
+    "Otro",
     "Palermo",
     "Parque Avellaneda",
     "Parque Chacabuco",

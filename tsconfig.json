@@ -19,7 +19,7 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@api/hooks/*": ["./src/api/hooks/*"],
+      "@api/*": ["./src/api/*"],
       "@utils/*": ["./src/utils/*"],
       "@state/*": ["./src/state/*"],
       "@styles/*": ["./src/styles/*"],
