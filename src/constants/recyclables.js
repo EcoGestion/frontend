@@ -11,4 +11,17 @@ const materialsDefault = [
     { id: 10, label: 'Electrónicos', name: 'ELECTRONICS', checked: false, quantity: 0 },
 ];
 
-export default materialsDefault;
+const mapMaterialNameToLabel = {
+    PAPER: 'Papel',
+    METAL: 'Metal',
+    GLASS: 'Vidrio',
+    PLASTIC: 'Plástico',
+    CARDBOARD: 'Cartón',
+    TETRA_BRIK: 'Tetra Brik',
+    STYROFOAM: 'Telgopor',
+    BATTERIES: 'Pilas',
+    OIL: 'Aceite',
+    ELECTRONICS: 'Electrónicos',
+};
+
+export { materialsDefault, mapMaterialNameToLabel };

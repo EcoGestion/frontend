@@ -1,9 +1,7 @@
 'use client'
-//import Order from "../../../../../../components/Order";
 import React, { useEffect, useState } from 'react';
-import { useUser } from '../../../../../../state/userProvider';
-import Spinner from "../../../../../../components/Spinner";
-import { getOrderById, updateOrderById, getUserById } from "../../../../../../api/apiService";
+import Spinner from "@components/Spinner";
+import { getOrderById, updateOrderById, getUserById } from "@api/apiService";
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -14,46 +12,11 @@ import dynamic from 'next/dynamic'
 import "./style.css"
 import { Button } from "@nextui-org/react";
 import { useRouter } from 'next/navigation';
-import { Address, UserInfo, WasteQuantity, WasteQuantities, WasteCollectionRequest, WasteCollectionRequests } from '@/types';
+import { Address, UserInfo, WasteQuantities, WasteCollectionRequest } from '@/types';
+import { RootState } from '@/state/store';
+import { useSelector } from 'react-redux';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
-
-  const getGeneratorType = (type: any) => {
-    switch (type) {
-      case "GEN_RESTAURANT":
-          return 'Restaurante';
-  
-      case "GEN_BUILDING":
-          return 'Edificio';
-  
-      case "GEN_COMPANY":
-          return 'Empresa';
-  
-      case "GEN_OFFICE":
-          return 'Oficina';
-  
-      case "GEN_HOTEL":
-          return 'Hotel';
-  
-      case "GEN_FACTORY":
-          return 'Fábrica';
-  
-      case "GEN_CLUB":
-          return 'Club';
-  
-      case "GEN_EDUCATIONAL_INSTITUTION":
-          return 'Institución Educativa';
-  
-      case "GEN_HOSPITAL":
-          return 'Hospital';
-  
-      case "GEN_MARKET":
-          return 'Mercado';
-  
-      case "GEN_OTHER":
-          return 'Otro';
-    }
-  }
 
 
 const getStatus = (status : any) => {
@@ -95,7 +58,7 @@ const formatDate = (value: any) => {
 };
 
 const OrderDetails = (props: {params?: { id?: string } }) => {
-    const {user} = useUser();
+    const userSession = useSelector((state: RootState) => state.userSession);
     const orderId = props.params?.id
     
     const [loading, setLoading] = useState(true);
@@ -132,13 +95,13 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
                 setPoint([{position: [parseFloat(responseOrder.address.lat), parseFloat(responseOrder.address.lng)], content: responseOrder.generator.username, popUp: `${responseOrder.address.street} ${responseOrder.address.number}`}])
 
                 setLoading(false);
-                setUserId(user? user.userId : null)
+                setUserId(userSession? userSession.userId : null)
             } catch (error) {
                 console.log("Error al obtener usuario", error);
             } 
         }
         fetchUser();
-    }, [props, user.userId, update]);
+    }, [props, update]);
 
     const [date_from, setDate_from] = useState<string | null>(null);
     const [date_to, setDate_to] = useState<string | null>(null);
@@ -249,7 +212,7 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
                         <div className="lg:mx-9 my-4 h-80">
                         <MapView centerCoordinates={point.position} markers={point}/>
                         </div>
-                        }   
+                        }
 
                         {/* FECHA INSERTADO */}
                         <div className="flex flex-row gap-3 text-xl items-center mt-52 justify-between">

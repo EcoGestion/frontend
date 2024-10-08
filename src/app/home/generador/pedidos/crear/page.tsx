@@ -15,8 +15,10 @@ import { getUserById, createRequest } from "@/api/apiService";
 import { UserInfo, WasteCollectionRequest } from '@/types';
 import { useRouter } from "next/navigation";
 import Spinner from "@/components/Spinner";
-import materialsDefault from "@/constants/recyclables";
+import {materialsDefault} from "@/constants/recyclables";
 import AddressForm from "@components/AddressForm";
+import { ToastNotifier } from "@/components/ToastNotifier";
+import { ToastContainer } from "react-toastify";
 
 // Dynamic import to avoid Window not defined error
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
@@ -155,7 +157,10 @@ const CreacionPedido = () => {
     setLoading(true);
     try {
       const response = createRequest(body);
-      router.push('/home/generador/pedidos');
+      ToastNotifier.success('Pedido creado exitosamente');
+      setTimeout(() => {
+        router.push('/home/generador/pedidos');
+      }, 2000);
     } catch (error) {
       console.error('Error creating request', error);
       alert('Error al crear el pedido. Por favor intente nuevamente.');
@@ -166,6 +171,7 @@ const CreacionPedido = () => {
 
   return (
     <div className="flex flex-col items-center justify-center bg-white py-6 px-2">
+      <ToastContainer />
       <h1 className="text-2xl font-semibold pb-3 text-center">Solicita la recolección de tus reciclables</h1>
       {loading ? (
         <Spinner />
