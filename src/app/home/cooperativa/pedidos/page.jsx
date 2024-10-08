@@ -8,11 +8,12 @@ import { Card, CardHeader, CardBody, Divider, CardFooter,
 import { getCoopOrdersById } from "../../../../api/apiService";
 import { useRouter } from 'next/navigation';
 import Spinner from "../../../../components/Spinner"
+import { useSelector } from 'react-redux';
 import "./style.css"
 
 export default function Orders() {
     const router = useRouter();
-    const {user} = useUser();
+    const userSession = useSelector((state) => state.userSession);
     const [page, setPage] = React.useState(1);
     const [pages, setPages] = React.useState(null); 
     const [orders, setOrders] = useState(null)
@@ -179,9 +180,9 @@ export default function Orders() {
 
     useEffect(() => {
         const fetchOrders = async () => {
-          if (user.userId) {
+          if (userSession.userId) {
             try {
-              await getCoopOrdersById(user.userId)
+              await getCoopOrdersById(userSession.userId)
               .then((response) => Promise.all(response.map(order => transform_order_data(order))))
               .then((transformed_orders) => {
                 setOrders(transformed_orders)
@@ -198,7 +199,7 @@ export default function Orders() {
         };
     
         fetchOrders();
-    }, [user.userId]);
+    }, []);
 
     const getStatus = (status) => {
         switch (status) {
