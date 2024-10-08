@@ -357,7 +357,23 @@ const redirectDetailPage = (rowData) => {
 
 const acceptRequest = async (rowData) => {
   await updateOrderById(rowData.id, user.userId, "PENDING")
-  router.replace(`/home/cooperativa/`)
+
+  const order = availableOrders.filter(order => order.id === rowData.id)
+  setAvailableOrders(prevOrders => 
+    prevOrders.filter(order => order.id !== rowData.id)
+  );
+
+  const today = new Date(Date.now())
+  const date = new Date(order.pickup_date_from)
+
+  if (date.getFullYear() === today.getFullYear() &&
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate()){
+      setAvailableOrders(prevOrders => [
+        ...prevOrders,
+        order 
+      ]);
+    }
 };
 
   const formatDateRange = (from, to) => {
