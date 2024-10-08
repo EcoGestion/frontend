@@ -19,7 +19,10 @@ const NavBarConductor = () => {
     const { setUser } = useUser();
 
     const handleGoBack = () => {
-      router.back();
+      if(currentPath.includes("/recoleccion/detalles"))
+        router.replace(currentPath.split('/').slice(0, -4).join('/'))
+      else
+        router.back();
     };
 
     const logOut = (() => {

@@ -89,61 +89,79 @@ const HomeCooperativa = () => {
     { value: 'Coordinada', label: 'Coordinada' }
   ];
 
-  const generatorTypes = [
-    { value: "Restaurante", label: "Restaurante" },
-    { value: "Edificio", label: "Edificio" },
-    { value: "Empresa", label: "Empresa" },
-    { value: "Oficina", label: "Oficina" },
-    { value: "Hotel", label: "Hotel" },
-    { value: "Fábrica", label: "Fábrica" },
-    { value: "Club", label: "Club" },
-    { value: "Institución Educativa", label: "Institución Educativa" },
-    { value: "Hospital", label: "Hospital" },
-    { value: "Mercado", label: "Mercado" },
-    { value: "Otro", label: "Otro" }
-  ];
+const generatorTypes = [
+  { value: "Restaurante", label: "Restaurante" },
+  { value: "Edificio", label: "Edificio" },
+  { value: "Empresa", label: "Empresa" },
+  { value: "Oficina", label: "Oficina" },
+  { value: "Hotel", label: "Hotel" },
+  { value: "Fábrica", label: "Fábrica" },
+  { value: "Club", label: "Club" },
+  { value: "Institución Educativa", label: "Institución Educativa" },
+  { value: "Hospital", label: "Hospital" },
+  { value: "Mercado", label: "Mercado" },
+  { value: "Otro", label: "Otro" }
+];
 
-  const wasteTypes = [
-    { label: 'Papel', value: 'Papel' },
-    { label: 'Metal', value: 'Metal' },
-    { label: 'Vidrio', value: 'Vidrio' },
-    { label: 'Plástico', value: 'Plastico' },
-    { label: 'Cartón', value: 'Cartón' },
-    { label: 'Tetra Brik', value: 'Tetra Brik' },
-    { label: 'Telgopor', value: 'Telgopor' },
-    { label: 'Pilas', value: 'Pilas' },
-    { label: 'Aceite', value: 'Aceite' },
-    { label: 'Electrónicos', value: 'Electrónicos' }
-  ];
+const wasteTypes = [
+  { label: 'Papel', value: 'Papel' },
+  { label: 'Metal', value: 'Metal' },
+  { label: 'Vidrio', value: 'Vidrio' },
+  { label: 'Plástico', value: 'Plastico' },
+  { label: 'Cartón', value: 'Cartón' },
+  { label: 'Tetra Brik', value: 'Tetra Brik' },
+  { label: 'Telgopor', value: 'Telgopor' },
+  { label: 'Pilas', value: 'Pilas' },
+  { label: 'Aceite', value: 'Aceite' },
+  { label: 'Electrónicos', value: 'Electrónicos' }
+];
 
-  const filteredAvailableOrders = availableOrders?.filter(order => {
-    const zone = order.address? order.address.zone : order.generator.address.zone
-    return (
-      ((!availableFilters.date_from && !availableFilters.date_to) ||
-      (availableFilters.date_from && availableFilters.date_to && (order.pickup_date_to >= availableFilters.date_from && order.pickup_date_from <= availableFilters.date_to))) &&
-      (availableFilters.wasteType.length == 0 || (availableFilters.wasteType.length == 1 && !availableFilters.wasteType[0]) || availableFilters.wasteType.every(element => order.waste_types.includes(element))) &&
-      (availableFilters.zone.length == 0 || (availableFilters.zone.length == 1 && !availableFilters.zone[0]) || availableFilters.zone.includes(zone)) &&
-      (availableFilters.generatorType.length == 0 || (availableFilters.generatorType.length == 1 && !availableFilters.generatorType[0]) || availableFilters.generatorType.includes(order.generator_type))
-    );
-  });
+const filteredAvailableOrders = availableOrders?.filter(order => {
+  const zone = order.address? order.address.zone : order.generator.address.zone
+  return (
+    ((!availableFilters.date_from && !availableFilters.date_to) ||
+    (availableFilters.date_from && availableFilters.date_to && (order.pickup_date_to >= availableFilters.date_from && order.pickup_date_from <= availableFilters.date_to))) &&
+    (availableFilters.wasteType.length == 0 || (availableFilters.wasteType.length == 1 && !availableFilters.wasteType[0]) || availableFilters.wasteType.every(element => order.waste_types.includes(element))) &&
+    (availableFilters.zone.length == 0 || (availableFilters.zone.length == 1 && !availableFilters.zone[0]) || availableFilters.zone.includes(zone)) &&
+    (availableFilters.generatorType.length == 0 || (availableFilters.generatorType.length == 1 && !availableFilters.generatorType[0]) || availableFilters.generatorType.includes(order.generator_type))
+  );
+});
 
-  const filteredDailyOrders = dailyOrders?.filter(order => {
-    const zone = order.address? order.address.zone : order.generator.address.zone
-    return (
-      (!dailyFilters.generator || order.generator_name.toLowerCase().includes(dailyFilters.generator.toLowerCase())) &&
-      (dailyFilters.wasteType.length == 0 || (dailyFilters.wasteType.length == 1 && !dailyFilters.wasteType[0]) || dailyFilters.wasteType.every(element => order.waste_types.includes(element))) &&
-      (dailyFilters.zone.length == 0 || (dailyFilters.zone.length == 1 && !dailyFilters.zone[0]) || dailyFilters.zone.includes(zone)) &&
-      (dailyFilters.status.length == 0 || (dailyFilters.status.length == 1 && !dailyFilters.status[0])  || dailyFilters.status.includes(order.status)) &&
-      (dailyFilters.generatorType.length == 0 || (dailyFilters.generatorType.length == 1 && !dailyFilters.generatorType[0]) || dailyFilters.generatorType.includes(order.generator_type))
-    );
-  });
+const filteredDailyOrders = dailyOrders?.filter(order => {
+  const zone = order.address? order.address.zone : order.generator.address.zone
+  return (
+    (!dailyFilters.generator || order.generator_name.toLowerCase().includes(dailyFilters.generator.toLowerCase())) &&
+    (dailyFilters.wasteType.length == 0 || (dailyFilters.wasteType.length == 1 && !dailyFilters.wasteType[0]) || dailyFilters.wasteType.every(element => order.waste_types.includes(element))) &&
+    (dailyFilters.zone.length == 0 || (dailyFilters.zone.length == 1 && !dailyFilters.zone[0]) || dailyFilters.zone.includes(zone)) &&
+    (dailyFilters.status.length == 0 || (dailyFilters.status.length == 1 && !dailyFilters.status[0])  || dailyFilters.status.includes(order.status)) &&
+    (dailyFilters.generatorType.length == 0 || (dailyFilters.generatorType.length == 1 && !dailyFilters.generatorType[0]) || dailyFilters.generatorType.includes(order.generator_type))
+  );
+});
 
-  const filteredTrucks = trucks?.filter(truck => {
-    return (
-      (!truckFilters.patent || truck.patent.toLowerCase().includes(truckFilters.patent.toLowerCase())) &&
-      (truckFilters.brand.length == 0 || (truckFilters.brand.length == 1 && !truckFilters.brand[0]) || truckFilters.brand.includes(truck.brand))
-    );
-  });
+const filteredTrucks = trucks?.filter(truck => {
+  return (
+    (!truckFilters.patent || truck.patent.toLowerCase().includes(truckFilters.patent.toLowerCase())) &&
+    (truckFilters.brand.length == 0 || (truckFilters.brand.length == 1 && !truckFilters.brand[0]) || truckFilters.brand.includes(truck.brand))
+  );
+});
+
+useEffect(() => {
+  if (filteredAvailableOrders) {
+    setPages(Math.ceil(filteredAvailableOrders.length / rowsPerPage)); 
+  } 
+}, [availableOrders, availableFilters]);
+
+useEffect(() => {
+  if (filteredDailyOrders) {
+    setDailyPages(Math.ceil(filteredDailyOrders.length / rowsPerPage)); 
+  } 
+}, [dailyOrders, dailyFilters]);
+
+useEffect(() => {
+  if (filteredTrucks) {
+    setTruckPages(Math.ceil(filteredTrucks.length / rowsPerPage)); 
+  } 
+}, [trucks, truckFilters]);
 
   useEffect(() => {
     if (filteredAvailableOrders) {
