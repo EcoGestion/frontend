@@ -99,7 +99,8 @@ export const deleteUserById = async (userId) => {
   return response.data;
 }
 
-export const getRoutesById = async (userId) => {
+export const getRoutesByDriverId = async (driverId) => {
+  console.log(driverId)
   const requestBody =
   {
     operations: 
@@ -107,12 +108,12 @@ export const getRoutesById = async (userId) => {
       {
         op: "EQ", 
         attribute: "id", 
-        value: parseInt(userId, 10), 
+        value: parseInt(driverId, 10), 
         model: "User"
       }
     ]
   }
-  const response = await axios.post(`${API_BASE_URL}/route/filter`);
+  const response = await axios.post(`${API_BASE_URL}/route/filter`, requestBody);
   return response.data;
 }
 
@@ -150,7 +151,7 @@ export const getRoutesWithFilter = async (filters) => {
 export const getCoopActiveRoutes = async (coopId) => {
   const requests_filters = {
     "operations": [
-    {"op": "EQ", "attribute": "id", "value": coopId, "model": "Coop"},
+    {"op": "EQ", "attribute": "coop_id", "value": coopId, "model": "Truck"},
     {"op": "IN", "attribute": "status", "value": ["CREATED", "IN_PROGRESS"], "model": "Route"}
     ]
   };
@@ -165,5 +166,15 @@ export const getRouteById = async (routeId) => {
 
 export const getRequestsByRouteId = async (routeId) => {
   const response = await axios.get(`${API_BASE_URL}/waste_request/route/${routeId}`);
+  return response.data;
+}
+
+export const startRouteById = async (routeId) => {
+  const response = await axios.put(`${API_BASE_URL}/route/${routeId}/start`);
+  return response.data;
+}
+
+export const updateRouteRequestById = async (routeRequestId, routeId, status) => {
+  const response = await axios.put(`${API_BASE_URL}/route_requests/${routeRequestId}/route/${routeId}?status=${status}`);
   return response.data;
 }

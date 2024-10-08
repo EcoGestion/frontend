@@ -1,3 +1,4 @@
+'use client'
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardBody, Divider, CardFooter,
@@ -6,7 +7,7 @@ import { Card, CardHeader, CardBody, Divider, CardFooter,
  } from '@nextui-org/react';
 import { useUser } from '../../../../state/userProvider';
 import Spinner from '../../../../components/Spinner';
-import { getRoutesById } from '../../../../api/apiService';
+import { getRoutesById, getRequestsByRouteId} from '../../../../api/apiService';
 import "./style.css"
 
 const zones = [

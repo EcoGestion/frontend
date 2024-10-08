@@ -5,14 +5,17 @@ import { Card, CardHeader, CardBody, Divider, CardFooter,
   Table, TableHeader, TableBody, TableRow, TableCell, Button,
   TableColumn, Input, Select, SelectItem, Pagination
  } from '@nextui-org/react';
+ import {RadioGroup, Radio, cn} from "@nextui-org/react";
 import dynamic from 'next/dynamic';
 import 'dotenv/config';
+import AddressFormat from '@utils/addressFormat';
 import { useUser } from '../../../state/userProvider';
 import Spinner from '../../../components/Spinner';
-import { getCoopOrdersById } from '../../../api/apiService';
+import { getRequestsByRouteId, getRoutesByDriverId, startRouteById, getRouteById, updateRouteRequestById, getUserById} from '../../../api/apiService';
 import "./style.css"
+import Route from "../conductor/components/Route"
 
-const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
+const MapView = dynamic(() => import('@/components/MapWithRouteView'), { ssr: false });
 
 const zones = [
   { value: "Abasto", label: "Abasto" },
@@ -56,10 +59,10 @@ const zones = [
 ];
 
 const statuses = [
-  { value: 'Ingresada', label: 'Ingresada' },
+  { value: 'Pendiente', label: 'Pendiente' },
   { value: 'Completada', label: 'Completada' },
-  { value: 'Cancelada', label: 'Cancelada' },
-  { value: 'Coordinada', label: 'Coordinada' }
+  { value: 'Reprogramada', label: 'Reprogramada' },
+  { value: 'En ruta', label: 'En ruta' }
 ];
 
 const generatorTypes = [
@@ -180,45 +183,49 @@ const MockData = [
 ]
 
 const HomeConductor = () => {
-  const [dailyPage, setDailyPage] = React.useState(1);
-  const [dailyPages, setDailyPages] = React.useState(null);
-  const [dailyOrders, setDailyOrders] = useState(null)
-  const [dailyFilters, setDailyFilters] = useState({ zone: [], status: [], wasteType: [], generatorType: [], generator: '' });
+  const [page, setPage] = React.useState(1);
+  const [pages, setPages] = React.useState(null);
+  const [requests, setRequests] = useState(null)
+  const [wastes, setWastes] = useState(null)
+  const [routes, setRoutes] = useState(null)
+  const [coords, setCoords] = useState([0,0]);
+  const [markers, setMarkers] = useState(null);
+  const [routeCoords, setRouteCoords] = useState(null);
+  const [filters, setFilters] = useState({ zone: [], status: [], generator: '' });
   const [points, setPoints] = useState(null)
 
   const { user } = useUser();
   const [loading, setLoading] = useState(true);
+  const [routeActive, setRouteActive] = useState(null);
+  const [userId, setUserId] = useState(null);
   const rowsPerPage = 5;
   const router = useRouter();
 
-  const filteredDailyOrders = dailyOrders?.filter(order => {
-    const zone = order.address? order.address.zone : order.generator.address.zone
+  const filteredRequests = requests?.filter(request => {
     return (
-      (!dailyFilters.generator || order.generator_name.toLowerCase().includes(dailyFilters.generator.toLowerCase())) &&
-      (dailyFilters.wasteType.length == 0 || (dailyFilters.wasteType.length == 1 && !dailyFilters.wasteType[0]) || dailyFilters.wasteType.every(element => order.waste_types.includes(element))) &&
-      (dailyFilters.zone.length == 0 || (dailyFilters.zone.length == 1 && !dailyFilters.zone[0]) || dailyFilters.zone.includes(zone)) &&
-      (dailyFilters.status.length == 0 || (dailyFilters.status.length == 1 && !dailyFilters.status[0])  || dailyFilters.status.includes(order.status)) &&
-      (dailyFilters.generatorType.length == 0 || (dailyFilters.generatorType.length == 1 && !dailyFilters.generatorType[0]) || dailyFilters.generatorType.includes(order.generator_type))
+      (!filters.generator || request.generator.username.toLowerCase().includes(filters.generator.toLowerCase())) &&
+      (filters.zone.length == 0 || (filters.zone.length == 1 && !filters.zone[0]) || filters.zone.includes(request.address.zone)) &&
+      (filters.status.length == 0 || (filters.status.length == 1 && !filters.status[0])  || filters.status.includes(request.route_request_status))
     );
   });
 
   useEffect(() => {
-    if (filteredDailyOrders) {
-      setDailyPages(Math.ceil(filteredDailyOrders.length / rowsPerPage)); 
+    if (filteredRequests) {
+      setPages(Math.ceil(filteredRequests.length / rowsPerPage)); 
     } 
-  }, [dailyOrders, dailyFilters]);
+  }, [requests, filters]);
 
-  const get_daily_orders = React.useMemo(() => {
-    if (filteredDailyOrders) {
-      const start = (dailyPage - 1) * rowsPerPage;
+  const get_orders = React.useMemo(() => {
+    if (filteredRequests) {
+      const start = (page - 1) * rowsPerPage;
       const end = start + rowsPerPage;
   
-      return filteredDailyOrders.slice(start, end);
+      return filteredRequests.slice(start, end);
     }
     else
       return []
   
-  }, [dailyPage, filteredDailyOrders]);
+  }, [page, filteredRequests]);
 
   const getStatus = (status) => {
     switch (status) {
@@ -236,6 +243,38 @@ const HomeConductor = () => {
   
         case 'ON_ROUTE':
             return 'En ruta';
+    }
+  }
+
+  const getRouteStatus = (status) => {
+    switch (status) {
+        case 'CANCELED':
+            return 'Cancelada';
+  
+        case 'COMPLETED':
+            return 'Completada';
+  
+        case 'IN_PROGRESS':
+            return 'En proceso';
+  
+        case 'CREATED':
+            return 'Creada';
+    }
+  }
+
+  const getRouteRequestStatus = (status) => {
+    switch (status) {
+        case 'REPROGRAMED':
+            return 'Reprogramada';
+  
+        case 'COMPLETED':
+            return 'Completada';
+  
+        case 'ON_ROUTE':
+            return 'En ruta';
+  
+        case 'PENDING':
+            return 'Pendiente';
     }
   }
   
@@ -299,15 +338,18 @@ const HomeConductor = () => {
     return value.join(", ");
   };
 
-  const transform_order_data = async (order) => {
-    order.request_date = new Date(order.request_date)
-    order.pickup_date_from = new Date(order.pickup_date_from)
-    order.pickup_date_to = new Date(order.pickup_date_to)
-    order.generator_type = getGeneratorType(order.generator.type)
-    order.generator_name = order.generator.username
-    order.waste_types = order.waste_quantities.map(waste => waste.waste_type).sort()
-    order.status = getStatus(order.status)
-    return order
+  const transform_requests = async (request) => {
+    request.route_request_status = getRouteRequestStatus(getRequestStatus(request.id))
+    request.route_request_id = getRequestId(request.id)
+    return request
+}
+
+const transform_route_data = async (route) => {
+  console.log("RUTA")
+  console.log(route)
+  route.created_at = new Date(route.created_at)
+  route.status = getRouteStatus(route.status)
+  return route
 }
 
 const filter_daily_orders = (orders) => {
@@ -321,9 +363,104 @@ const filter_daily_orders = (orders) => {
   })
 }
 
+const filter_daily_routes = (routes) => {
+  console.log("RUTITAS")
+  console.log(routes)
+  const today = new Date(Date.now())
+  console.log(today)
+  return routes.filter(route => {
+    const date = route.created_at
+
+    return date.getFullYear() <= today.getFullYear() &&
+    date.getMonth() <= today.getMonth() &&
+    date.getDate() <= today.getDate()
+  })
+}
+
+const filter_canceled = (routes) => {
+  return routes.filter(route => {
+    return route.status != "Cancelada"
+  })
+}
+
 const getPoints = (order, address) => {
   return { position: [parseFloat(address.lat), parseFloat(address.lng)], content: order.generator.username, popUp: `${address.street} ${address.number}`}
 }
+
+const getRequestStatus = (requestId) => {
+  const request = wastes.find((request) => request.request_id === requestId);
+  return request.status;
+}
+
+const getRequestId = (requestId) => {
+  const request = wastes.find((request) => request.request_id === requestId);
+  return request.id;
+}
+
+useEffect(() => {
+  const fetchOrders = async () => {
+    if(wastes) {
+      console.log("PIDO REQUESTSS")
+      console.log(wastes)
+      await getRequestsByRouteId(routeActive)
+      .then((response) => Promise.all(response.map(request => transform_requests(request))))
+      .then(async (transformed) => {
+        const coop = await getUserById(transformed[0].coop_id)
+        setRequests(transformed)
+        setMarkersFromRequests(transformed, coop);
+      })
+      .then(() => setLoading(false))
+    }
+  }
+  fetchOrders()
+}, [wastes])
+
+useEffect(() => {
+  const fetchOrders = async () => {
+    if(routeActive) {
+      console.log("PIDO RUTARDA")
+      await getRouteById(routeActive)
+      .then(async (response) => {
+        setWastes(response.route_requests)
+        const coop = await getUserById(response.truck.coop_id)
+        setCoords([parseFloat(coop.address.lat), parseFloat(coop.address.lng)]);
+        setRouteCoordsFromRequests(response.route_requests, coop.address);
+      })
+    }
+  }
+  fetchOrders()
+}, [routeActive])
+
+const setMarkersFromRequests = (requests, coopInfo) => {
+  console.log("Requests en page: ", requests);
+  const genMarkers = requests
+    .map((request) => ({
+      position: [
+        parseFloat(request.address?.lat ?? "0"), 
+        parseFloat(request.address?.lng ?? "0")
+      ],
+      content: request.generator?.username ?? "Desconocido",
+      popUp: request.address ? AddressFormat(request.address) : "Dirección desconocida",
+    }));
+  const markers = [...genMarkers, {
+    position: [parseFloat(coopInfo.address.lat), parseFloat(coopInfo.address.lng)],
+    content: 'Cooperativa',
+    popUp: AddressFormat(coopInfo.address),
+  }
+  ]
+  setMarkers(markers);
+  console.log("Markers en page: ", markers);
+};
+
+const setRouteCoordsFromRequests = (requests, coopAddress) => {
+  const coopCoords = [parseFloat(coopAddress.lat), parseFloat(coopAddress.lng)];
+  const routeCoords = requests
+    .filter((request) => request.lat && request.lng)
+    .map((request) => [parseFloat(request.lat), parseFloat(request.lng)]);
+  const updatedRouteCoords = [coopCoords, ...routeCoords, coopCoords];
+  setRouteCoords(updatedRouteCoords);
+}
+
 
 
 
@@ -332,20 +469,26 @@ useEffect(() => {
     if (user.userId) {
       console.log(user)
       try {
-        await getCoopOrdersById(user.userId)
-        .then((response) => Promise.all(response.map(order => transform_order_data(order))))
-        .then((transformed_orders) => {
-          const filtered_orders = filter_daily_orders(transformed_orders)
-          setDailyOrders(filtered_orders)
-          setPoints(filtered_orders.map(order => getPoints(order, order.address? order.address : order.generator.address)))
-          setDailyPages(Math.ceil(filtered_orders.length / rowsPerPage))
-          })
+        setUserId(user.userId)
+        await getRoutesByDriverId(user.userId)
+        .then((response) => Promise.all(response.map(route => transform_route_data(route))))
+        .then((transformed_routes) => {
+          //const filtered_routes = filter_daily_routes(transformed_routes)
+          const filtered_routes = filter_canceled(transformed_routes)
+          const activeRoute = filtered_routes.find(route => route.status === "En proceso")
+          if(activeRoute) {
+            console.log("HAY ACTIVA")
+            setRouteActive(activeRoute.id)
+          }
+          else{
+            setLoading(false)
+          }
+          setRoutes(filtered_routes)
+        })
         
       } catch (error) {
         console.log("Error al obtener pedidos", error);
-      } finally {
-        setLoading(false)
-      }
+      } 
     } else {
       setLoading(false);
     }
@@ -355,35 +498,79 @@ useEffect(() => {
 }, [user.userId]);
 
 const redirectDetailPage = (rowData) => {
+  router.replace(`/home/conductor/rutas/recoleccion/detalles/${rowData.id}`)
+};
+
+const startRoute = async (id) => {
+  await startRouteById(id)
+  .then(() => setRouteActive(id))
+};
+
+const cancelRoute = (rowData) => {
   router.replace(`/home/cooperativa/pedidos/detalles/${rowData.id}`)
 };
 
-  function formatDateRange(date_from, date_to) {
-    const fromDate = new Date(date_from);
-    const toDate = new Date(date_to);
+const updateRouteRequest = async (id, routeId, status) => {
+  setLoading(true)
+  await updateRouteRequestById(id, routeId, status)
+  .then((response) => {
+    if(response.route_status == "COMPLETED"){
+      setRouteActive(null)
+      setWastes(null)
+      setRequests(null)
+      setRoutes(prevRoutes => 
+        prevRoutes.map(route => 
+            route.id === routeId ? { ...route, status: "Completada" } : route
+        )
+      );
+      setLoading(false)
+    }
+    else{
+      setRequests(prevRequests => 
+        prevRequests.map(request => 
+          request.route_request_id === id ? { ...request, route_request_status: getRouteRequestStatus(status) } : request
+        )
+      );
+      setLoading(false)
+    }
+    
+})
+};
 
-    const day = fromDate.getDate().toString().padStart(2, '0');
-    const month = (fromDate.getMonth() + 1).toString().padStart(2, '0');
-    const year = fromDate.getFullYear();
+function formatDateRange(date_from, date_to) {
+  const fromDate = new Date(date_from);
+  const toDate = new Date(date_to);
 
-    const fromHours = fromDate.getHours().toString().padStart(2, '0');
-    const fromMinutes = fromDate.getMinutes().toString().padStart(2, '0');
+  const day = fromDate.getDate().toString().padStart(2, '0');
+  const month = (fromDate.getMonth() + 1).toString().padStart(2, '0');
+  const year = fromDate.getFullYear();
 
-    const toHours = toDate.getHours().toString().padStart(2, '0');
-    const toMinutes = toDate.getMinutes().toString().padStart(2, '0');
+  const fromHours = fromDate.getHours().toString().padStart(2, '0');
+  const fromMinutes = fromDate.getMinutes().toString().padStart(2, '0');
 
-    return `${day}/${month}/${year} ${fromHours}:${fromMinutes} - ${toHours}:${toMinutes}`;
-  }
+  const toHours = toDate.getHours().toString().padStart(2, '0');
+  const toMinutes = toDate.getMinutes().toString().padStart(2, '0');
+
+  return `${day}/${month}/${year} ${fromHours}:${fromMinutes} - ${toHours}:${toMinutes}`;
+}
 
   return (
     <div className='flex flex-col p-4 gap-3 h-screen'>
       <div className='flex justify-between items-center'>
         <h1 className='text-3xl font-bold'>Bienvenido!</h1>
       </div>
-      {(loading || !dailyOrders) && <Spinner/>}
+      {(loading || !routes) && <Spinner/>}
+
+    {!loading && routes && 
+      <div className='flex flex-col'>
+        {routes.map((route) => (
+          <Route route={route} startRoute={startRoute} cancelRoute={cancelRoute}></Route>
+        ))}
+      </div>
+    }
 
       <div className='flex flex-col gap-2 w-full home-col'>
-      {dailyOrders &&
+      {!loading && requests &&
           <Card className='lg:mx-9 my-4'>
             <CardHeader className='bg-green-dark text-white pl-4 text-xl font-bold py-3'>RECOLECCIONES DEL DÍA</CardHeader>
             <Divider />
@@ -393,31 +580,16 @@ const redirectDetailPage = (rowData) => {
                   className='select h-14'
                   placeholder="Generador"
                   onChange={(e) => {
-                    setDailyFilters({...dailyFilters, generator: e.target.value})
+                    setFilters({...filters, generator: e.target.value})
                   }}>
                 </Input>
               <Select
                   className='select'
-                  placeholder="Tipo de Generador"
-                  value={dailyFilters.generatorType}
-                  options = {generatorTypes}
-                  selectionMode="multiple"
-                  onChange={(e) => {
-                    setDailyFilters({ ...dailyFilters, generatorType: e.target.value.split(',') }) }}
-                >
-                    {generatorTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                </Select>
-              <Select
-                  className='select'
                   placeholder="Zona"
-                  value={dailyFilters.zone}
+                  value={filters.zone}
                   options={zones}
                   selectionMode="multiple"
-                  onChange={(e) => setDailyFilters({ ...dailyFilters, zone: e.target.value.split(',') })}
+                  onChange={(e) => setFilters({ ...filters, zone: e.target.value.split(',') })}
                 >
                     {zones.map((zone) => (
                       <SelectItem key={zone.value} value={zone.value}>
@@ -427,25 +599,11 @@ const redirectDetailPage = (rowData) => {
                 </Select>
                 <Select
                   className='select'
-                  placeholder="Tipo"
-                  value={dailyFilters.wasteType}
-                  options={wasteTypes}
-                  selectionMode="multiple"
-                  onChange={(e) => setDailyFilters({ ...dailyFilters, wasteType: e.target.value.split(',')})}
-                >
-                    {wasteTypes.map((waste) => (
-                      <SelectItem key={waste.value} value={waste.value}>
-                        {waste.label}
-                      </SelectItem>
-                    ))}
-                </Select>
-                <Select
-                  className='select'
                   placeholder="Estado"
-                  value={dailyFilters.status}
+                  value={filters.status}
                   options={statuses}
                   selectionMode="multiple"
-                  onChange={(e) => setDailyFilters({ ...dailyFilters, status: e.target.value.split(',') })}
+                  onChange={(e) => setFilters({ ...filters, status: e.target.value.split(',') })}
                 >
                     {statuses.map((status) => (
                       <SelectItem key={status.value} value={status.value}>
@@ -457,38 +615,43 @@ const redirectDetailPage = (rowData) => {
               <Table
               bottomContent={
                 <div className="flex w-full justify-between items-center">
-                  <span className='flex 1 invisible'>{get_daily_orders.length} de {filteredDailyOrders.length} solicitudes</span>
+                  <span className='flex 1 invisible'>{get_orders.length} de {filteredRequests.length} solicitudes</span>
                   <Pagination
                     className='flex 1'
                     isCompact
                     showControls
                     showShadow
                     color="secondary"
-                    page={dailyPage}
-                    total={dailyPages}
-                    onChange={(page) => setDailyPage(page)}
+                    page={page}
+                    total={pages}
+                    onChange={(page) => setPage(page)}
                   />
-                  <span className='flex 1'>{get_daily_orders.length} de {filteredDailyOrders.length} solicitudes</span>
+                  <span className='flex 1'>{get_orders.length} de {filteredRequests.length} solicitudes</span>
                 </div>}>
                 <TableHeader>
-                  <TableColumn>Fecha de creación</TableColumn>
                   <TableColumn>Nombre generador</TableColumn>
-                  <TableColumn>Tipo de generador</TableColumn>
                   <TableColumn>Dirección</TableColumn>
                   <TableColumn>Zona</TableColumn>
-                  <TableColumn>Tipo de residuo</TableColumn>
                   <TableColumn>Estado</TableColumn>
+                  <TableColumn>Acciones</TableColumn>
                 </TableHeader>
                 <TableBody>
-                  {get_daily_orders.map((request, index) => (
-                    <TableRow key={index} onClick={() => redirectDetailPage(request)}>
-                      <TableCell>{formatDate(request.request_date)}</TableCell>
-                      <TableCell>{request.generator_name}</TableCell>
-                      <TableCell>{request.generator_type}</TableCell>
+                  {get_orders.map((request, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{request.generator.username}</TableCell>
                       <TableCell>{request.address? request.address.street : request.generator.address.street} {request.address? request.address.number : request.generator.address.number}</TableCell>
                       <TableCell>{request.address? request.address.zone : request.generator.address.zone}</TableCell>
-                      <TableCell>{formatWasteType(request.waste_types)}</TableCell>
-                      <TableCell>{request.status}</TableCell>
+                      <TableCell>{request.route_request_status}</TableCell>
+                      <TableCell>
+                        <div className='flex gap-3'>
+                          <Button className="" onClick={() => redirectDetailPage(request)}>Ver</Button>
+                          {request.route_request_status != "Completada" &&
+                          <Button className="bg-green-dark text-white" onClick={() => updateRouteRequest(request.route_request_id, routeActive, "COMPLETED")}>Completar</Button> }
+                          {(request.route_request_status == "Pendiente" || request.route_request_status == "En ruta") &&
+                          <Button className="bg-red-dark text-white" onClick={() => updateRouteRequest(request.route_request_id, routeActive, "REPROGRAMED")}>Reprogramar</Button>
+                          }
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -498,14 +661,12 @@ const redirectDetailPage = (rowData) => {
 }
       </div>
 
-      <Card>
-        <CardHeader>
-          <h2 className='text-xl font-bold'>Mapa de recolecciones</h2>
-        </CardHeader>
-        <CardBody>
-          <MapView />
-        </CardBody>
-      </Card>
+      {!loading && requests &&
+      <div className='p-2 mt-4'>
+          <h2 className='text-xl'>Recorrido</h2>
+          <MapView centerCoordinates={coords} zoom={14} markers={markers} routeCoordinates={routeCoords}/>
+      </div>
+      }
     </div>
   );
 };
