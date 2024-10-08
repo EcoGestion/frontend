@@ -15,6 +15,7 @@ import { getGeneratorOrdersById, getUserById } from "@api/apiService"
 import { useRouter } from 'next/navigation';
 import Spinner from "@components/Spinner"
 import { mapMaterialNameToLabel } from '@/constants/recyclables';
+import { formatDate, formatDateRange } from '@/utils/dateStringFormat';
 import "./style.css"
 
 export default function BasicFilterDemo() {
@@ -151,7 +152,7 @@ export default function BasicFilterDemo() {
         order.request_date = new Date(order.request_date)
         order.pickup_date_from = new Date(order.pickup_date_from)
         order.pickup_date_to = new Date(order.pickup_date_to)
-        order.pickup_date = formatDate(order.pickup_date_from) + " - " + formatDate(order.pickup_date_to)
+        order.pickup_date = formatDateRange(order.pickup_date_from, order.pickup_date_to)
         order.generator = response.username
         order.waste_types = order.waste_quantities.map(waste => waste.waste_type).sort()
         order.waste_quantities = getCombinations(order.waste_quantities.map(waste => waste.waste_type))
@@ -260,25 +261,6 @@ export default function BasicFilterDemo() {
                 style={{ minWidth: '6rem' }}
             />
         );
-    };
-
-    const formatDate = (value) => {
-        const dateOptions = {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-        };
-    
-        const timeOptions = {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false 
-        };
-    
-        const dateString = value.toLocaleDateString('en-GB', dateOptions);
-        const timeString = value.toLocaleTimeString('en-GB', timeOptions);
-    
-        return `${dateString} ${timeString}`;
     };
 
     const formatWasteType = (value) => {
