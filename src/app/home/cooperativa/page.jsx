@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { useUser } from "@state/userProvider";
+import { useSelector } from 'react-redux';
 import PieChart from '@/components/PieChart';
 import { Card, CardHeader, CardBody, Divider, CardFooter,
   Table, TableHeader, TableBody, TableRow, TableCell, Button,
@@ -12,10 +12,13 @@ import { getTrucksById, getOpenOrders, getCoopOrdersById, updateOrderById } from
 import Spinner from '../../../components/Spinner';
 import { useRouter } from 'next/navigation';
 import "./style.css"
+import { mapMaterialNameToLabel } from '@/constants/recyclables';
+import { ToastNotifier } from '@/components/ToastNotifier';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
 const HomeCooperativa = () => {
+  const userSession = useSelector((state) => state.userSession);
   const [page, setPage] = React.useState(1);
   const [pages, setPages] = React.useState(null);
   const [availableOrders, setAvailableOrders] = useState(null)
@@ -25,7 +28,7 @@ const HomeCooperativa = () => {
   const [dailyPages, setDailyPages] = React.useState(null);
   const [dailyOrders, setDailyOrders] = useState(null)
   const [dailyFilters, setDailyFilters] = useState({ zone: [], status: [], wasteType: [], generatorType: [], generator: '' });
-  const [points, setPoints] = useState(null)
+  const [points, setPoints] = useState([{position: [-34.5814551, -58.4211107], content: 'Cooperativa', popUp: 'Ubicación de la cooperativa'}])
 
   const [truckPage, setTruckPage] = React.useState(1);
   const [truckPages, setTruckPages] = React.useState(null);
@@ -33,13 +36,11 @@ const HomeCooperativa = () => {
   const [brands, setBrands] = useState(null)
   const [truckFilters, setTruckFilters] = useState({ brand: [], patent: '' });
   
-  const { user } = useUser();
+  const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(true);
   const rowsPerPage = 5;
   const router = useRouter();
   
-  console.log(user)
-
   const zones = [
     { value: "Abasto", label: "Abasto" },
     { value: "Almagro", label: "Almagro" },
@@ -88,277 +89,284 @@ const HomeCooperativa = () => {
     { value: 'Coordinada', label: 'Coordinada' }
   ];
 
-const generatorTypes = [
-  { value: "Restaurante", label: "Restaurante" },
-  { value: "Edificio", label: "Edificio" },
-  { value: "Empresa", label: "Empresa" },
-  { value: "Oficina", label: "Oficina" },
-  { value: "Hotel", label: "Hotel" },
-  { value: "Fábrica", label: "Fábrica" },
-  { value: "Club", label: "Club" },
-  { value: "Institución Educativa", label: "Institución Educativa" },
-  { value: "Hospital", label: "Hospital" },
-  { value: "Mercado", label: "Mercado" },
-  { value: "Otro", label: "Otro" }
-];
+  const generatorTypes = [
+    { value: "Restaurante", label: "Restaurante" },
+    { value: "Edificio", label: "Edificio" },
+    { value: "Empresa", label: "Empresa" },
+    { value: "Oficina", label: "Oficina" },
+    { value: "Hotel", label: "Hotel" },
+    { value: "Fábrica", label: "Fábrica" },
+    { value: "Club", label: "Club" },
+    { value: "Institución Educativa", label: "Institución Educativa" },
+    { value: "Hospital", label: "Hospital" },
+    { value: "Mercado", label: "Mercado" },
+    { value: "Otro", label: "Otro" }
+  ];
 
-const wasteTypes = [
-  { label: 'Papel', value: 'Papel' },
-  { label: 'Metal', value: 'Metal' },
-  { label: 'Vidrio', value: 'Vidrio' },
-  { label: 'Plástico', value: 'Plastico' },
-  { label: 'Cartón', value: 'Cartón' },
-  { label: 'Tetra Brik', value: 'Tetra Brik' },
-  { label: 'Telgopor', value: 'Telgopor' },
-  { label: 'Pilas', value: 'Pilas' },
-  { label: 'Aceite', value: 'Aceite' },
-  { label: 'Electrónicos', value: 'Electrónicos' }
-];
+  const wasteTypes = [
+    { label: 'Papel', value: 'Papel' },
+    { label: 'Metal', value: 'Metal' },
+    { label: 'Vidrio', value: 'Vidrio' },
+    { label: 'Plástico', value: 'Plastico' },
+    { label: 'Cartón', value: 'Cartón' },
+    { label: 'Tetra Brik', value: 'Tetra Brik' },
+    { label: 'Telgopor', value: 'Telgopor' },
+    { label: 'Pilas', value: 'Pilas' },
+    { label: 'Aceite', value: 'Aceite' },
+    { label: 'Electrónicos', value: 'Electrónicos' }
+  ];
 
-const filteredAvailableOrders = availableOrders?.filter(order => {
-  const zone = order.address? order.address.zone : order.generator.address.zone
-  return (
-    ((!availableFilters.date_from && !availableFilters.date_to) ||
-    (availableFilters.date_from && availableFilters.date_to && (order.pickup_date_to >= availableFilters.date_from && order.pickup_date_from <= availableFilters.date_to))) &&
-    (availableFilters.wasteType.length == 0 || (availableFilters.wasteType.length == 1 && !availableFilters.wasteType[0]) || availableFilters.wasteType.every(element => order.waste_types.includes(element))) &&
-    (availableFilters.zone.length == 0 || (availableFilters.zone.length == 1 && !availableFilters.zone[0]) || availableFilters.zone.includes(zone)) &&
-    (availableFilters.generatorType.length == 0 || (availableFilters.generatorType.length == 1 && !availableFilters.generatorType[0]) || availableFilters.generatorType.includes(order.generator_type))
-  );
-});
+  const filteredAvailableOrders = availableOrders?.filter(order => {
+    const zone = order.address? order.address.zone : order.generator.address.zone
+    return (
+      ((!availableFilters.date_from && !availableFilters.date_to) ||
+      (availableFilters.date_from && availableFilters.date_to && (order.pickup_date_to >= availableFilters.date_from && order.pickup_date_from <= availableFilters.date_to))) &&
+      (availableFilters.wasteType.length == 0 || (availableFilters.wasteType.length == 1 && !availableFilters.wasteType[0]) || availableFilters.wasteType.every(element => order.waste_types.includes(element))) &&
+      (availableFilters.zone.length == 0 || (availableFilters.zone.length == 1 && !availableFilters.zone[0]) || availableFilters.zone.includes(zone)) &&
+      (availableFilters.generatorType.length == 0 || (availableFilters.generatorType.length == 1 && !availableFilters.generatorType[0]) || availableFilters.generatorType.includes(order.generator_type))
+    );
+  });
 
-const filteredDailyOrders = dailyOrders?.filter(order => {
-  const zone = order.address? order.address.zone : order.generator.address.zone
-  return (
-    (!dailyFilters.generator || order.generator_name.toLowerCase().includes(dailyFilters.generator.toLowerCase())) &&
-    (dailyFilters.wasteType.length == 0 || (dailyFilters.wasteType.length == 1 && !dailyFilters.wasteType[0]) || dailyFilters.wasteType.every(element => order.waste_types.includes(element))) &&
-    (dailyFilters.zone.length == 0 || (dailyFilters.zone.length == 1 && !dailyFilters.zone[0]) || dailyFilters.zone.includes(zone)) &&
-    (dailyFilters.status.length == 0 || (dailyFilters.status.length == 1 && !dailyFilters.status[0])  || dailyFilters.status.includes(order.status)) &&
-    (dailyFilters.generatorType.length == 0 || (dailyFilters.generatorType.length == 1 && !dailyFilters.generatorType[0]) || dailyFilters.generatorType.includes(order.generator_type))
-  );
-});
+  const filteredDailyOrders = dailyOrders?.filter(order => {
+    const zone = order.address? order.address.zone : order.generator.address.zone
+    return (
+      (!dailyFilters.generator || order.generator_name.toLowerCase().includes(dailyFilters.generator.toLowerCase())) &&
+      (dailyFilters.wasteType.length == 0 || (dailyFilters.wasteType.length == 1 && !dailyFilters.wasteType[0]) || dailyFilters.wasteType.every(element => order.waste_types.includes(element))) &&
+      (dailyFilters.zone.length == 0 || (dailyFilters.zone.length == 1 && !dailyFilters.zone[0]) || dailyFilters.zone.includes(zone)) &&
+      (dailyFilters.status.length == 0 || (dailyFilters.status.length == 1 && !dailyFilters.status[0])  || dailyFilters.status.includes(order.status)) &&
+      (dailyFilters.generatorType.length == 0 || (dailyFilters.generatorType.length == 1 && !dailyFilters.generatorType[0]) || dailyFilters.generatorType.includes(order.generator_type))
+    );
+  });
 
-const filteredTrucks = trucks?.filter(truck => {
-  return (
-    (!truckFilters.patent || truck.patent.toLowerCase().includes(truckFilters.patent.toLowerCase())) &&
-    (truckFilters.brand.length == 0 || (truckFilters.brand.length == 1 && !truckFilters.brand[0]) || truckFilters.brand.includes(truck.brand))
-  );
-});
+  const filteredTrucks = trucks?.filter(truck => {
+    return (
+      (!truckFilters.patent || truck.patent.toLowerCase().includes(truckFilters.patent.toLowerCase())) &&
+      (truckFilters.brand.length == 0 || (truckFilters.brand.length == 1 && !truckFilters.brand[0]) || truckFilters.brand.includes(truck.brand))
+    );
+  });
 
-useEffect(() => {
-  if (filteredAvailableOrders) {
-    setPages(Math.ceil(filteredAvailableOrders.length / rowsPerPage)); 
-  } 
-}, [availableOrders, availableFilters]);
+  useEffect(() => {
+    if (filteredAvailableOrders) {
+      setPages(Math.ceil(filteredAvailableOrders.length / rowsPerPage)); 
+    } 
+  }, [availableOrders, availableFilters]);
 
-useEffect(() => {
-  if (filteredDailyOrders) {
-    setPages(Math.ceil(filteredDailyOrders.length / rowsPerPage)); 
-  } 
-}, [dailyOrders, dailyFilters]);
+  useEffect(() => {
+    if (filteredDailyOrders) {
+      setPages(Math.ceil(filteredDailyOrders.length / rowsPerPage)); 
+    } 
+  }, [dailyOrders, dailyFilters]);
 
-useEffect(() => {
-  if (filteredTrucks) {
-    setTruckPages(Math.ceil(filteredTrucks.length / rowsPerPage)); 
-  } 
-}, [trucks, truckFilters]);
+  useEffect(() => {
+    if (filteredTrucks) {
+      setTruckPages(Math.ceil(filteredTrucks.length / rowsPerPage)); 
+    } 
+  }, [trucks, truckFilters]);
 
-const get_available_orders = React.useMemo(() => {
-  if (filteredAvailableOrders) {
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
+  const get_available_orders = React.useMemo(() => {
+    if (filteredAvailableOrders) {
+      const start = (page - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
 
-    return filteredAvailableOrders.slice(start, end);
+      return filteredAvailableOrders.slice(start, end);
+    }
+    else
+      return []
+
+  }, [page, filteredAvailableOrders]);
+
+  const get_daily_orders = React.useMemo(() => {
+    if (filteredDailyOrders) {
+      const start = (dailyPage - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
+
+      return filteredDailyOrders.slice(start, end);
+    }
+    else
+      return []
+
+  }, [dailyPage, filteredDailyOrders]);
+
+  const get_trucks = React.useMemo(() => {
+    if (filteredTrucks) {
+      const start = (truckPage - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
+
+      return filteredTrucks.slice(start, end);
+    }
+    else
+      return []
+
+  }, [truckPage, filteredTrucks]);
+
+  const getStatus = (status) => {
+    switch (status) {
+        case 'REJECTED':
+            return 'Cancelada';
+
+        case 'COMPLETED':
+            return 'Completada';
+
+        case 'PENDING':
+            return 'En proceso';
+
+        case 'OPEN':
+            return 'Ingresada';
+
+        case 'ON_ROUTE':
+            return 'En ruta';
+    }
   }
-  else
-    return []
 
-}, [page, filteredAvailableOrders]);
+  const getGeneratorType = (type) => {
+    switch (type) {
+      case "GEN_RESTAURANT":
+          return 'Restaurante';
 
-const get_daily_orders = React.useMemo(() => {
-  if (filteredDailyOrders) {
-    const start = (dailyPage - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
+      case "GEN_BUILDING":
+          return 'Edificio';
 
-    return filteredDailyOrders.slice(start, end);
+      case "GEN_COMPANY":
+          return 'Empresa';
+
+      case "GEN_OFFICE":
+          return 'Oficina';
+
+      case "GEN_HOTEL":
+          return 'Hotel';
+
+      case "GEN_FACTORY":
+          return 'Fábrica';
+
+      case "GEN_CLUB":
+          return 'Club';
+
+      case "GEN_EDUCATIONAL_INSTITUTION":
+          return 'Institución Educativa';
+
+      case "GEN_HOSPITAL":
+          return 'Hospital';
+
+      case "GEN_MARKET":
+          return 'Mercado';
+
+      case "GEN_OTHER":
+          return 'Otro';
+    }
   }
-  else
-    return []
 
-}, [dailyPage, filteredDailyOrders]);
+  const formatDate = (value) => {
+    const dateOptions = {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    };
 
-const get_trucks = React.useMemo(() => {
-  if (filteredTrucks) {
-    const start = (truckPage - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
+    const timeOptions = {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false 
+    };
 
-    return filteredTrucks.slice(start, end);
-  }
-  else
-    return []
+    const dateString = value.toLocaleDateString('en-GB', dateOptions);
+    const timeString = value.toLocaleTimeString('en-GB', timeOptions);
 
-}, [truckPage, filteredTrucks]);
-
-const getStatus = (status) => {
-  switch (status) {
-      case 'REJECTED':
-          return 'Cancelada';
-
-      case 'COMPLETED':
-          return 'Completada';
-
-      case 'PENDING':
-          return 'En proceso';
-
-      case 'OPEN':
-          return 'Ingresada';
-
-      case 'ON_ROUTE':
-          return 'En ruta';
-  }
-}
-
-const getGeneratorType = (type) => {
-  switch (type) {
-    case "GEN_RESTAURANT":
-        return 'Restaurante';
-
-    case "GEN_BUILDING":
-        return 'Edificio';
-
-    case "GEN_COMPANY":
-        return 'Empresa';
-
-    case "GEN_OFFICE":
-        return 'Oficina';
-
-    case "GEN_HOTEL":
-        return 'Hotel';
-
-    case "GEN_FACTORY":
-        return 'Fábrica';
-
-    case "GEN_CLUB":
-        return 'Club';
-
-    case "GEN_EDUCATIONAL_INSTITUTION":
-        return 'Institución Educativa';
-
-    case "GEN_HOSPITAL":
-        return 'Hospital';
-
-    case "GEN_MARKET":
-        return 'Mercado';
-
-    case "GEN_OTHER":
-        return 'Otro';
-  }
-}
-
-const formatDate = (value) => {
-  const dateOptions = {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
+    return `${dateString} ${timeString}`;
   };
 
-  const timeOptions = {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false 
+  const formatWasteType = (value) => {
+    return value.join(", ");
   };
-
-  const dateString = value.toLocaleDateString('en-GB', dateOptions);
-  const timeString = value.toLocaleTimeString('en-GB', timeOptions);
-
-  return `${dateString} ${timeString}`;
-};
-
-const formatWasteType = (value) => {
-  return value.join(", ");
-};
 
   const transform_order_data = async (order) => {
+    console.log(order)
     order.request_date = new Date(order.request_date)
     order.pickup_date_from = new Date(order.pickup_date_from)
     order.pickup_date_to = new Date(order.pickup_date_to)
     order.pickup_date = formatDate(order.pickup_date_from) + " - " + formatDate(order.pickup_date_to)
     order.generator_type = getGeneratorType(order.generator.type)
     order.generator_name = order.generator.username
-    order.waste_types = order.waste_quantities.map(waste => waste.waste_type).sort()
+    order.waste_types = order.waste_quantities.map(waste => mapMaterialNameToLabel[waste.waste_type]).sort()
     order.status = getStatus(order.status)
     return order
-}
+  }
 
-const filter_available_orders = (orders) => {
-  console.log("ACAA")
-  console.log(orders)
-  return orders.filter(order => order.status == "Ingresada")
-}
+  const filter_available_orders = (orders) => {
+    return orders.filter(order => order.status == "Ingresada")
+  }
 
-const filter_daily_orders = (orders) => {
-  const today = new Date(Date.now())
-  return orders.filter(order => {
-    const date = new Date(order.pickup_date_from)
+  const filter_daily_orders = (orders) => {
+    const today = new Date(Date.now())
+    return orders.filter(order => {
+      const date = new Date(order.pickup_date_from)
 
-    return date.getFullYear() === today.getFullYear() &&
-    date.getMonth() === today.getMonth() &&
-    date.getDate() === today.getDate()
-  })
-}
+      return date.getFullYear() === today.getFullYear() &&
+      date.getMonth() === today.getMonth() &&
+      date.getDate() === today.getDate()
+    })
+  }
 
-const getPoints = (order, address) => {
-  return { position: [parseFloat(address.lat), parseFloat(address.lng)], content: order.generator.username, popUp: `${address.street} ${address.number}`}
-}
+  const getPoints = (order, address) => {
+    return { position: [parseFloat(address.lat), parseFloat(address.lng)], content: order.generator.username, popUp: `${address.street} ${address.number}`}
+  }
 
-useEffect(() => {
-  const fetchOrders = async () => {
-    if (user.userId) {
-      try {
-        await getCoopOrdersById(user.userId)
-        .then((response) => Promise.all(response.map(order => transform_order_data(order))))
-        .then((transformed_orders) => {
-          const filtered_orders = filter_daily_orders(transformed_orders)
-          setDailyOrders(filtered_orders)
-          setPoints(filtered_orders.map(order => getPoints(order, order.address? order.address : order.generator.address)))
-          setDailyPages(Math.ceil(filtered_orders.length / rowsPerPage))
-          })
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (userSession.userId) {
+        try {
+          setLoading(true);
+          await getCoopOrdersById(userSession.userId)
+          .then((response) => Promise.all(response.map(order => transform_order_data(order))))
+          .then((transformed_orders) => {
+            const filtered_orders = filter_daily_orders(transformed_orders)
+            setDailyOrders(filtered_orders)
+            setPoints(filtered_orders.map(order => getPoints(order, order.address? order.address : order.generator.address)))
+            setDailyPages(Math.ceil(filtered_orders.length / rowsPerPage))
+            })
 
-        await getOpenOrders()
-        .then((response) => Promise.all(response.map(order => transform_order_data(order))))
-        .then((transformed_orders) => {
-          const filtered_orders = filter_available_orders(transformed_orders)
-          setAvailableOrders(filtered_orders)
-          setPages(Math.ceil(filtered_orders.length / rowsPerPage))
-          })
+          await getOpenOrders()
+          .then((response) => Promise.all(response.map(order => transform_order_data(order))))
+          .then((transformed_orders) => {
+            const filtered_orders = filter_available_orders(transformed_orders)
+            setAvailableOrders(filtered_orders)
+            setPages(Math.ceil(filtered_orders.length / rowsPerPage))
+            })
 
-        await getTrucksById(user.userId)
-          .then((response) => {
-            setTrucks(response)
-            setTruckPages(Math.ceil(response.length / rowsPerPage))
-            setBrands([...new Set(response.map(truck => truck.brand))].map(brand => ({ value: brand, label: brand })))
-          })
-        
-      } catch (error) {
-        console.log("Error al obtener pedidos", error);
-      } finally {
-        setLoading(false)
+          await getTrucksById(userSession.userId)
+            .then((response) => {
+              setTrucks(response)
+              setTruckPages(Math.ceil(response.length / rowsPerPage))
+              setBrands([...new Set(response.map(truck => truck.brand))].map(brand => ({ value: brand, label: brand })))
+            })
+          
+        } catch (error) {
+          console.log("Error al obtener pedidos", error);
+        } finally {
+          setLoading(false)
+        }
+      } else {
+        setLoading(false);
       }
-    } else {
-      setLoading(false);
-    }
+    };
+
+    fetchOrders();
+  }, [userSession.userId, refresh]);
+
+  const redirectDetailPage = (rowData) => {
+    router.replace(`/home/cooperativa/pedidos/detalles/${rowData.id}`)
   };
 
-  fetchOrders();
-}, [user.userId]);
-
-const redirectDetailPage = (rowData) => {
-  router.replace(`/home/cooperativa/pedidos/detalles/${rowData.id}`)
-};
-
-const acceptRequest = async (rowData) => {
-  await updateOrderById(rowData.id, user.userId, "PENDING")
-  router.replace(`/home/cooperativa/`)
-};
+  const acceptRequest = async (rowData) => {
+    await updateOrderById(rowData.id, userSession.userId, "PENDING")
+      .then(() => {
+        ToastNotifier.success("Solicitud aceptada correctamente");
+        setRefresh(!refresh);
+      })
+      .catch(() => {
+        ToastNotifier.error("Error al aceptar la solicitud");
+        console.log("Error al aceptar la solicitud");
+      });
+  };
 
   const formatDateRange = (from, to) => {
     const fromDate = new Date(from);
@@ -373,8 +381,8 @@ const acceptRequest = async (rowData) => {
 
     return (
       <div className='flex flex-col p-4 gap-5 h-screen'>
-        {(loading || !availableOrders || !dailyOrders || !trucks) && <Spinner/>}
-        {!loading && availableOrders && dailyOrders && trucks &&
+        {loading  && <Spinner/>}
+        {!loading &&
         <div className='flex flex-col gap-2 w-full home-col'>
           {availableOrders &&
           <Card className='lg:mx-9 my-4'>
@@ -630,7 +638,7 @@ const acceptRequest = async (rowData) => {
                       total={truckPages}
                       onChange={(page) => setTruckPage(page)}
                     />
-                    <span className='flex 1'>{get_trucks.length} de {filteredTrucks.length} solicitudes</span>
+                    <span className='flex 1'>{get_trucks.length} de {filteredTrucks.length} camiones</span>
                   </div>}>
                 <TableHeader>
                   <TableColumn>Marca</TableColumn>
