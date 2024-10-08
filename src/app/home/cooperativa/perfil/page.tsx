@@ -8,7 +8,7 @@ import TimeSelector from '@/components/TimeSelector';
 import Spinner from '@/components/Spinner';
 import { Card, CardHeader, CardBody, Divider } from '@nextui-org/react';
 import { Day, Item, UserInfo } from '@/types';
-import materialsDefault from '@constants/recyclables';
+import {materialsDefault} from '@constants/recyclables';
 
 const nameSpanishMap: Record<string, string> = {
   MONDAY: 'Lunes',

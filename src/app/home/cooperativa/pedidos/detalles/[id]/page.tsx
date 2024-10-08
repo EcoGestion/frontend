@@ -14,7 +14,7 @@ import dynamic from 'next/dynamic'
 import "./style.css"
 import { Button } from "@nextui-org/react";
 import { useRouter } from 'next/navigation';
-import { Address, UserInfo, WasteQuantity, WasteQuantities, WasteCollectionRequest, WasteCollectionRequests } from '@/types';
+import { Address, UserInfo, WasteQuantities, WasteCollectionRequest } from '@/types';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
@@ -249,7 +249,7 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
                         <div className="lg:mx-9 my-4 h-80">
                         <MapView centerCoordinates={point.position} markers={point}/>
                         </div>
-                        }   
+                        }
 
                         {/* FECHA INSERTADO */}
                         <div className="flex flex-row gap-3 text-xl items-center mt-52 justify-between">

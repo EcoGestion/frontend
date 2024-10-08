@@ -1,5 +1,5 @@
 'use client'
-import { users } from '../../../../data';
+import { useSelector } from 'react-redux';
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import React, { useState, useEffect } from 'react';
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
@@ -11,15 +11,15 @@ import { InputIcon } from 'primereact/inputicon';
 import { MultiSelect } from 'primereact/multiselect';
 import { Tag } from 'primereact/tag';
 import { Calendar } from 'primereact/calendar';
-import { useUser } from '../../../../state/userProvider';
-import { getCoopOrdersById, getGeneratorOrdersById, getUserById } from "../../../../api/apiService";
+import { getGeneratorOrdersById, getUserById } from "@api/apiService"
 import { useRouter } from 'next/navigation';
-import Spinner from "../../../../components/Spinner"
+import Spinner from "@components/Spinner"
+import { mapMaterialNameToLabel } from '@/constants/recyclables';
 import "./style.css"
 
 export default function BasicFilterDemo() {
     const router = useRouter();
-    const {user} = useUser(); 
+    const userSession = useSelector((state) => state.userSession);
     const [orders, setOrders] = useState(null)
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -87,11 +87,9 @@ export default function BasicFilterDemo() {
 
     useEffect(() => {
         const fetchOrders = async () => {
-          if (user.userId) {
+          if (userSession) {
             try {
-              // Hay que cambiarlo por el Get Orders de generador.
-              // No esta funcionando
-              await getCoopOrdersById(user.userId)
+              await getGeneratorOrdersById(userSession.userId)
               .then((response) => Promise.all(response.map(order => transform_order_data(order))))
               .then((transformed_orders) => {
                 setOrders(transformed_orders)
@@ -99,17 +97,17 @@ export default function BasicFilterDemo() {
                 setZones([...new Set(transformed_orders.map(order => order.zone))].sort())
                 })
                 .then(() => setLoading(false))
-              
             } catch (error) {
               console.log("Error al obtener pedidos", error);
             } 
           } else {
+            console.log("User ID no disponible");
             setLoading(false);
           }
         };
     
         fetchOrders();
-    }, [user.userId]);
+    }, []);
 
     const getSeverity = (status) => {
         switch (status) {
@@ -124,12 +122,15 @@ export default function BasicFilterDemo() {
 
             case 'Coordinada':
                 return 'warning';
+            
+            case 'En camino':
+                return 'warning';
         }
     }
 
     const getStatus = (status) => {
         switch (status) {
-            case 'CANCELED':
+            case 'REJECTED':
                 return 'Cancelada';
 
             case 'COMPLETED':
@@ -138,8 +139,11 @@ export default function BasicFilterDemo() {
             case 'OPEN':
                 return 'Ingresada';
 
-            case 'Coordinada':
+            case 'PENDING':
                 return 'Coordinada';
+            
+            case 'ON_ROUTE':
+                return 'En camino';
         }
     }
     const transform_order_data = async (order) => {
@@ -278,7 +282,7 @@ export default function BasicFilterDemo() {
     };
 
     const formatWasteType = (value) => {
-        return value.join(", ");
+        return value.map((waste) => mapMaterialNameToLabel[waste]).join(', ');
     };
 
     const creationDateBodyTemplate = (rowData) => {
@@ -294,7 +298,7 @@ export default function BasicFilterDemo() {
     };
 
     const redirectDetailPage = (rowData) => {
-        router.replace(`/home/cooperativa/pedidos/detalles/${rowData.value.id}`)
+        router.replace(`/home/generador/pedidos/detalles/${rowData.value.id}`)
     };
 
     const header = renderHeader();
