@@ -14,6 +14,8 @@ import { useRouter } from 'next/navigation';
 import "./style.css"
 import { mapMaterialNameToLabel } from '@/constants/recyclables';
 import { ToastNotifier } from '@/components/ToastNotifier';
+import zones from '@/constants/zones';
+import { mapGenType } from '@/constants/userTypes';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
@@ -40,47 +42,6 @@ const HomeCooperativa = () => {
   const [loading, setLoading] = useState(true);
   const rowsPerPage = 5;
   const router = useRouter();
-  
-  const zones = [
-    { value: "Abasto", label: "Abasto" },
-    { value: "Almagro", label: "Almagro" },
-    { value: "Balvanera", label: "Balvanera" },
-    { value: "Barracas", label: "Barracas" },
-    { value: "Belgrano", label: "Belgrano" },
-    { value: "Boedo", label: "Boedo" },
-    { value: "Caballito", label: "Caballito" },
-    { value: "Centro", label: "Centro" },
-    { value: "Chacarita", label: "Chacarita" },
-    { value: "Coghlan", label: "Coghlan" },
-    { value: "Colegiales", label: "Colegiales" },
-    { value: "Constitución", label: "Constitución" },
-    { value: "Devoto", label: "Devoto" },
-    { value: "Flores", label: "Flores" },
-    { value: "Floresta", label: "Floresta" },
-    { value: "La Boca", label: "La Boca" },
-    { value: "La Paternal", label: "La Paternal" },
-    { value: "Liniers", label: "Liniers" },
-    { value: "Mataderos", label: "Mataderos" },
-    { value: "Monte Castro", label: "Monte Castro" },
-    { value: "Morón", label: "Morón" },
-    { value: "Núñez", label: "Núñez" },
-    { value: "Palermo", label: "Palermo" },
-    { value: "Paternal", label: "Paternal" },
-    { value: "Puerto Madero", label: "Puerto Madero" },
-    { value: "Recoleta", label: "Recoleta" },
-    { value: "Retiro", label: "Retiro" },
-    { value: "Saavedra", label: "Saavedra" },
-    { value: "San Cristóbal", label: "San Cristóbal" },
-    { value: "San Nicolás", label: "San Nicolás" },
-    { value: "San Telmo", label: "San Telmo" },
-    { value: "Villa Devoto", label: "Villa Devoto" },
-    { value: "Villa del Parque", label: "Villa del Parque" },
-    { value: "Villa Luro", label: "Villa Luro" },
-    { value: "Villa Ortúzar", label: "Villa Ortúzar" },
-    { value: "Villa Real", label: "Villa Real" },
-    { value: "Villa Santa Rita", label: "Villa Santa Rita" },
-    { value: "Villa Urquiza", label: "Villa Urquiza" }
-  ];
   
   const statuses = [
     { value: 'Ingresada', label: 'Ingresada' },
@@ -236,43 +197,6 @@ useEffect(() => {
     }
   }
 
-  const getGeneratorType = (type) => {
-    switch (type) {
-      case "GEN_RESTAURANT":
-          return 'Restaurante';
-
-      case "GEN_BUILDING":
-          return 'Edificio';
-
-      case "GEN_COMPANY":
-          return 'Empresa';
-
-      case "GEN_OFFICE":
-          return 'Oficina';
-
-      case "GEN_HOTEL":
-          return 'Hotel';
-
-      case "GEN_FACTORY":
-          return 'Fábrica';
-
-      case "GEN_CLUB":
-          return 'Club';
-
-      case "GEN_EDUCATIONAL_INSTITUTION":
-          return 'Institución Educativa';
-
-      case "GEN_HOSPITAL":
-          return 'Hospital';
-
-      case "GEN_MARKET":
-          return 'Mercado';
-
-      case "GEN_OTHER":
-          return 'Otro';
-    }
-  }
-
   const formatDate = (value) => {
     const dateOptions = {
         day: '2-digit',
@@ -302,7 +226,7 @@ useEffect(() => {
     order.pickup_date_from = new Date(order.pickup_date_from)
     order.pickup_date_to = new Date(order.pickup_date_to)
     order.pickup_date = formatDate(order.pickup_date_from) + " - " + formatDate(order.pickup_date_to)
-    order.generator_type = getGeneratorType(order.generator.type)
+    order.generator_type = mapGenType(order.generator.type)
     order.generator_name = order.generator.username
     order.waste_types = order.waste_quantities.map(waste => mapMaterialNameToLabel[waste.waste_type]).sort()
     order.status = getStatus(order.status)
@@ -419,7 +343,7 @@ useEffect(() => {
                   onChange={(e) => setAvailableFilters({ ...availableFilters, zone: e.target.value.split(',') })}
                 >
                     {zones.map((zone) => (
-                      <SelectItem key={zone.value} value={zone.value}>
+                      <SelectItem key={zone.key} value={zone.value}>
                         {zone.label}
                       </SelectItem>
                     ))}
@@ -537,7 +461,7 @@ useEffect(() => {
                   onChange={(e) => setDailyFilters({ ...dailyFilters, zone: e.target.value.split(',') })}
                 >
                     {zones.map((zone) => (
-                      <SelectItem key={zone.value} value={zone.value}>
+                      <SelectItem key={zone.key} value={zone.value}>
                         {zone.label}
                       </SelectItem>
                     ))}
