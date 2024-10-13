@@ -305,7 +305,7 @@ useEffect(() => {
                 </Select>
                 <Select
                   className='select'
-                  placeholder="Tipo"
+                  placeholder="Tipo de Reciclables"
                   value={availableFilters.wasteType}
                   options={wasteTypes}
                   selectionMode="multiple"
