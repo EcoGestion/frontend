@@ -6,8 +6,9 @@ import { Table, TableHeader, TableBody, TableRow, TableColumn, TableCell } from 
 import TruckModal from './components/truckModal';
 import DriverModal from './components/driverModal';
 import { getDriversByCoopId, getTrucksByCoopId, updateTruckStatus, deleteTruck, deleteUserById } from '@/api/apiService';
-import { TrucksResources, DriversResources } from '@/types';
+import { TrucksResources, DriversResources, Truck } from '@/types';
 import { mapTruckStatus } from '@constants/truck';
+import { FormatTruckCapacityToFront } from '@/utils/truckFormat';
 import { ToastContainer } from 'react-toastify';
 import { ToastNotifier } from '@/components/ToastNotifier';
 import { getAuth, deleteUser } from 'firebase/auth';
@@ -37,8 +38,10 @@ const recursosCooperativa = () => {
     try {
       setLoading(true);
       const camiones_response = await getTrucksByCoopId(userSession.userId);
+      const camiones_formatted = camiones_response.map((camion: Truck) => FormatTruckCapacityToFront(camion));
+      setCamiones(camiones_formatted);
+
       const conductores_response = await getDriversByCoopId(userSession.userId);
-      setCamiones(camiones_response);
       setConductores(conductores_response);
     } catch (error) {
       console.error('Error retrieving user data:', error);
@@ -164,7 +167,7 @@ const recursosCooperativa = () => {
                 <TableCell>{camion.patent}</TableCell>
                 <TableCell>{camion.model}</TableCell>
                 <TableCell>{camion.brand}</TableCell>
-                <TableCell>{camion.capacity}</TableCell>
+                <TableCell>{camion.capacity} tons</TableCell>
                 <TableCell>{mapTruckStatus[camion.status]}</TableCell>
                 <TableCell>
                   

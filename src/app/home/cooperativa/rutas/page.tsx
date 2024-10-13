@@ -10,7 +10,7 @@ import { ToastNotifier } from "@/components/ToastNotifier";
 import { getCoopRoutes, getCoopActiveRoutes } from "@/api/apiService";
 import { Route, Routes } from "@/types";
 import { formatDate } from "@/utils/dateStringFormat";
-import FormatTruck from "@/utils/truckFormat";
+import { FormatTruckString } from "@/utils/truckFormat";
 import { mapRouteStatus } from '@constants/route';
 
 
@@ -92,7 +92,7 @@ const rutasCooperativa = () => {
                     <TableCell>{route.id}</TableCell>
                     <TableCell>{formatDate(route.created_at)}</TableCell>
                     <TableCell>{route.driver.username}</TableCell>
-                    <TableCell>{FormatTruck(route.truck)}</TableCell>
+                    <TableCell>{FormatTruckString(route.truck)}</TableCell>
                     <TableCell>{route.total_weight} kg</TableCell>
                     <TableCell>{mapRouteStatus[route.status]}</TableCell>
                     <TableCell>
@@ -133,7 +133,7 @@ const rutasCooperativa = () => {
                     <TableCell>{route.id}</TableCell>
                     <TableCell>{formatDate(route.created_at)}</TableCell>
                     <TableCell>{route.driver.username}</TableCell>
-                    <TableCell>{FormatTruck(route.truck)}</TableCell>
+                    <TableCell>{FormatTruckString(route.truck)}</TableCell>
                     <TableCell>{route.total_weight} kg</TableCell>
                     <TableCell>{mapRouteStatus[route.status]}</TableCell>
                     <TableCell>

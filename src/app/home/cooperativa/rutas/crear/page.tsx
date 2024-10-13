@@ -13,6 +13,7 @@ import { ToastNotifier } from '@/components/ToastNotifier';
 import { ToastContainer } from 'react-toastify';
 import { mapTruckStatus } from '@constants/truck';
 import { useRouter } from 'next/navigation';
+import { FormatTruckCapacityToFront } from '@utils/truckFormat';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
@@ -47,13 +48,14 @@ const crearRuta = () => {
       setLoading(true);
       const coop_info_response = await getUserById(userSession.userId);
       const camiones_response = await getTrucksByCoopId(userSession.userId);
+      const camiones_formatted = camiones_response.map((truck:Truck) => (FormatTruckCapacityToFront(truck)));
       const conductores_response = await getDriversByCoopId(userSession.userId);
       const requests_response = await getCoopPendingRequests(userSession.userId);
       setCoopCoords([
         parseFloat(coop_info_response.address.lat), 
         parseFloat(coop_info_response.address.lng)
       ]);
-      setTrucks(camiones_response);
+      setTrucks(camiones_formatted);
       setDrivers(conductores_response);
       setRequests(requests_response);
       setMarkersFromRequests(requests_response);

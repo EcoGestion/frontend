@@ -19,6 +19,8 @@ import { mapGenType } from '@/constants/userTypes';
 import { formatDate, formatDateRange } from '@/utils/dateStringFormat';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import AcceptConfirmationModal from '@components/AcceptConfirmationModal';
+import { FormatTruckCapacityToFront } from '@/utils/truckFormat';
+import { mapTruckStatus } from '@/constants/truck';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
@@ -230,7 +232,8 @@ useEffect(() => {
 
           await getTrucksById(userSession.userId)
             .then((response) => {
-              setTrucks(response)
+              const formattedTrucks = response.map(truck => FormatTruckCapacityToFront(truck))
+              setTrucks(formattedTrucks)
               setTruckPages(Math.ceil(response.length / rowsPerPage))
             })
           
@@ -526,6 +529,7 @@ useEffect(() => {
                   <TableColumn>Modelo</TableColumn>
                   <TableColumn>Patente</TableColumn>
                   <TableColumn>Capacidad</TableColumn>
+                  <TableColumn>Estado</TableColumn>
                 </TableHeader>
                 <TableBody>
                   {get_trucks.map((truck, index) => (
@@ -533,7 +537,8 @@ useEffect(() => {
                       <TableCell>{truck.brand}</TableCell>
                       <TableCell>{truck.model}</TableCell>
                       <TableCell>{truck.patent}</TableCell>
-                      <TableCell>{truck.capacity}</TableCell>
+                      <TableCell>{truck.capacity} tons.</TableCell>
+                      <TableCell>{mapTruckStatus[truck.status]}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import { TruckStatus } from '@constants/truck';
 import { ToastContainer } from 'react-toastify';
 import { ToastNotifier } from '@/components/ToastNotifier';
+import { FormatTruckCapacityToBack } from '@/utils/truckFormat';
 
 const styles = {
   modal: {
@@ -68,8 +69,10 @@ const TruckModal = ({ isOpen, onRequestClose }) => {
     }
     setLoading(true);
 
+    const truck = FormatTruckCapacityToBack(formData);
+
     const payload = {
-      ...formData,
+      ...truck,
       coop_id: userSession.userId
     };
 
