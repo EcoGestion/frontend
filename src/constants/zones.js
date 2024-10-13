@@ -55,5 +55,4 @@ const zones = [
   { key: 54, value: 'Vélez Sarsfield', label: 'Vélez Sarsfield' }
 ];
 
-
 export default zones;

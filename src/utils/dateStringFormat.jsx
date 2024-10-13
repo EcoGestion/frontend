@@ -1,6 +1,13 @@
+function convertToBuenosAiresTime(date) {
+    const utcDate = new Date(date);
+    const buenosAiresOffset = -3 * 60;
+    const localDate = new Date(utcDate.getTime() + buenosAiresOffset * 60 * 1000);
+    return localDate;
+}
+
 function formatDateRange(date_from, date_to) {
-    const fromDate = new Date(date_from);
-    const toDate = new Date(date_to);
+    const fromDate = convertToBuenosAiresTime(date_from);
+    const toDate = convertToBuenosAiresTime(date_to);
 
     const day = fromDate.getDate().toString().padStart(2, '0');
     const month = (fromDate.getMonth() + 1).toString().padStart(2, '0');
@@ -16,7 +23,7 @@ function formatDateRange(date_from, date_to) {
 }
 
 function formatDate(date) {
-    const newDate = new Date(date);
+    const newDate = convertToBuenosAiresTime(date);
     const day = newDate.getDate().toString().padStart(2, '0');
     const month = (newDate.getMonth() + 1).toString().padStart(2, '0');
     const year = newDate.getFullYear();

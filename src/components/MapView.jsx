@@ -26,7 +26,7 @@ const MapView = ({
 
   useEffect(() => {
     setLoading(false);
-  }, []);
+  }, [centerCoordinates]);
 
   const customIcon = new Icon({
       iconUrl: "https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678111-map-marker-512.png",

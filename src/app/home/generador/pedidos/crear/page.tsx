@@ -138,7 +138,7 @@ const CreacionPedido = () => {
     }
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     const body: WasteCollectionRequest = {
       request_date: now(getLocalTimeZone()).toDate(),
       generator_id: userSession.userId,
@@ -150,13 +150,19 @@ const CreacionPedido = () => {
     };
     
     if (!useUserProfileAddress) {
+      userNewAddress.lat = coordinates ? coordinates[0].toString() : '';
+      userNewAddress.lng = coordinates ? coordinates[1].toString() : '';
       body.address = userNewAddress;
+      
     }
 
     console.log(body);
     setLoading(true);
     try {
-      const response = createRequest(body);
+      const response = await createRequest(body);
+      if (response.status !== 200) {
+        throw new Error('Error creating request');
+      }
       ToastNotifier.success('Pedido creado exitosamente');
       setTimeout(() => {
         router.push('/home/generador/pedidos');

@@ -55,13 +55,13 @@ const AddressForm = ({
         </label>
         <div className="mt-2">
           <Autocomplete
-            onSelectionChange={(value) => setAddress({ ...address, zone: value })}
+            onSelectionChange={(key) => setAddress({ ...address, zone: key })}
             placeholder="Seleccione un barrio"
             isDisabled={isDisabled}
             scrollShadowProps={{ isEnabled: false }}
           >
             {zones.map((barrio) => (
-              <AutocompleteItem key={barrio.key} value={barrio.value}>
+              <AutocompleteItem key={barrio.value} value={barrio.value}>
                 {barrio.label}
               </AutocompleteItem>
             ))}

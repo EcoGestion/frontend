@@ -109,7 +109,7 @@ const NavBarCooperativa = () => {
 
         <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
             <NavbarItem key={`Reportes-1`}>
-            <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/reportes" >
+            <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/reportes">
               Reportes
             </Link>
             </NavbarItem>
