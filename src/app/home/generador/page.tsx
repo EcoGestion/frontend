@@ -4,15 +4,20 @@ import { RootState } from '@/state/store';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardBody, CardFooter, Divider } from '@nextui-org/react'
-import { getGeneratorHomeStats } from '@api/apiService';
-import { GenHomeStats } from '@/types';
+import { getGeneratorHomeStats, getGeneratorNotifications } from '@api/apiService';
+import { GenHomeStats, Notifications } from '@/types';
 import Spinner from '@/components/Spinner';
+import { formatDate, formatTime } from '@/utils/dateStringFormat';
 import 'dotenv/config'
 
 const HomeGenerador = () => {
   const [loadingStats, setLoadingStats] = useState(true);
+  const [loadingNotifications, setLoadingNotifications] = useState(true);
+  
   const userSession = useSelector((state: RootState) => state.userSession);
+
   const [homeStats, setHomeStats] = useState<GenHomeStats | null>(null);
+  const [notifications, setNotifications] = useState<Notifications | null>(null);
 
   useEffect(() => {
     const getHomeStats = async () => {
@@ -23,52 +28,50 @@ const HomeGenerador = () => {
     getHomeStats();
   }, [])
 
+  useEffect(() => {
+    const getNotifications = async () => {
+      const response = await getGeneratorNotifications(userSession.userId);
+      setNotifications(response);
+      setLoadingNotifications(false);
+    }
+    getNotifications();
+  }, [])
+
   return (
     <div className='flex flex-col p-4 gap-5 h-screen'>
       {loadingStats && <Spinner />}
       {!loadingStats &&
         <div className='flex flex-row items-start gap-2'>
         <Card className='flex-1'>
-          <CardHeader className='bg-green-dark text-white min-h-16'>Solicitudes no coordinadas: {homeStats?.open}</CardHeader>
+          <CardHeader className='bg-green-dark text-white min-h-16 font-semibold'>Solicitudes no coordinadas: {homeStats?.open}</CardHeader>
         </Card>
         
         <Card className='flex-1'>
-          <CardHeader className='bg-green-dark text-white min-h-16'>Solicitudes pendientes de recolección: {homeStats?.pending}</CardHeader>
+          <CardHeader className='bg-green-dark text-white min-h-16 font-semibold'>Solicitudes pendientes de recolección: {homeStats?.pending}</CardHeader>
         </Card>
         
         <Card className='flex-1 p-0'>
-          <CardHeader className='bg-green-dark text-white min-h-16'>Solicitudes  completadas: {homeStats?.completed}</CardHeader>
+          <CardHeader className='bg-green-dark text-white min-h-16 font-semibold'>Solicitudes  completadas: {homeStats?.completed}</CardHeader>
         </Card>
       </div>
       }
       
-      <div className='flex flex-col justify-center gap-3 w-full'>
+      <div className='flex flex-col justify-center gap-3 mb-2 w-full'>
         <h1 className='text-2xl justify-start'>Novedades</h1>
+        {loadingNotifications && <Spinner />}
+
+        {!loadingNotifications &&
         <div className='flex flex-col gap-2'>
-        <Card className='flex flex-col justify-between items-center flex-1'>
-          <CardBody>¡Su recolección se realizará el dia de hoy!</CardBody>
-          <Divider/>
-          <CardFooter>Fecha: 10-09-2024 | Hora: 08:00</CardFooter>
-        </Card>
-
-        <Card className='flex flex-col justify-between items-center flex-1'>
-          <CardBody>¡Su recolección se realizó con exito!</CardBody>
-          <Divider/>
-          <CardFooter>Fecha: 20-08-2024 | Hora: 13:36</CardFooter>
-        </Card>
-
-        <Card className='flex flex-col justify-between items-center flex-1'>
-          <CardBody>¡Usted es el proximo destino de la cooperativa!</CardBody>
-          <Divider/>
-          <CardFooter>Fecha: 20-08-2024 | Hora: 13:02</CardFooter>
-        </Card>
-
-        <Card className='flex flex-col justify-between items-center flex-1'>
-        <CardBody>¡Su recolección se realizará el dia de hoy!</CardBody>
-          <Divider/>
-          <CardFooter>Fecha: 20-08-2024 | Hora: 08:00</CardFooter>
-        </Card>
+          {notifications?.map((notification, index) => (
+          <Card className='flex flex-col justify-between items-center flex-1' key={notification.id}>
+            <CardBody>{notification.details}</CardBody>
+            <Divider/>
+            <CardFooter>Fecha: {formatDate(notification.created_at)} | Hora: {formatTime(notification.created_at)}</CardFooter> {/* TODO Cambiar a fecha real */}
+          </Card>
+          ))}
         </div>
+        }
+
       </div>
     </div>
   );

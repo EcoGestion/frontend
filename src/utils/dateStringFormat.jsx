@@ -31,4 +31,12 @@ function formatDate(date) {
     return `${day}/${month}/${year}`;
 }
 
-export { formatDate, formatDateRange };
+function formatTime(date) {
+    const newDate = convertToBuenosAiresTime(date);
+    const hours = newDate.getHours().toString().padStart(2, '0');
+    const minutes = newDate.getMinutes().toString().padStart(2, '0');
+
+    return `${hours}:${minutes}`;
+}
+
+export { formatDate, formatDateRange, formatTime };

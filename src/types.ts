@@ -123,3 +123,13 @@ export interface GenHomeStats {
   pending: number;
   completed: number;
 }
+
+export interface Notification {
+  id: number;
+  generator_id: number;
+  event_id: number;
+  details: string;
+  created_at: Date;
+}
+
+export type Notifications = Notification[];

@@ -193,3 +193,8 @@ export const getGeneratorHomeStats = async (userId) => {
   const response = await axios.get(`${API_BASE_URL}/generator/${userId}/home_stats`);
   return response.data;
 }
+
+export const getGeneratorNotifications = async (userId) => {
+  const response = await axios.get(`${API_BASE_URL}/notifications/${userId}`);
+  return response.data;
+}
