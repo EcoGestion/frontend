@@ -188,3 +188,8 @@ export const updateRouteRequestById = async (routeRequestId, routeId, status) =>
   const response = await axios.put(`${API_BASE_URL}/route_requests/${routeRequestId}/route/${routeId}?status=${status}`);
   return response.data;
 }
+
+export const getGeneratorHomeStats = async (userId) => {
+  const response = await axios.get(`${API_BASE_URL}/generator/${userId}/home_stats`);
+  return response.data;
+}

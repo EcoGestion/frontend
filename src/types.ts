@@ -117,3 +117,9 @@ export interface Route {
 }
 
 export type Routes = Route[];
+
+export interface GenHomeStats {
+  open: number;
+  pending: number;
+  completed: number;
+}
