@@ -284,12 +284,16 @@ useEffect(() => {
         {!loading &&
         <div className='flex flex-col gap-2 w-full home-col'>
           {availableOrders &&
-          <Card className='lg:mx-9 my-4'>
-            <CardHeader className='bg-green-dark text-white pl-4 text-lg font-semibold py-3'>SOLICITUDES DISPONIBLES</CardHeader>
-            <CardBody>Mira las solicitudes de los generadores y elige cuál realizar</CardBody>
-            <Divider />
-            <CardBody className='p-0'>
-            <div className="flex gap-4 m-4">
+          <div className='flex justify-between items-center mx-4'>
+          <p className='text-start text-xl font-bold ml-2'>Solicitudes de disponibles</p>
+          </div>
+          }
+
+          {availableOrders &&
+          <div className='flex flex-col my-2 gap-2'>
+            <Card className='rounded-md'>
+            <CardBody>
+            <div className="flex gap-4 items-center">
               <DateRangePicker label="Rango de fechas" className="" onChange={(e) => 
                 setAvailableFilters({ ...availableFilters, date_from: new Date(e.start.year, e.start.month - 1, e.start.day, 0,0,0,0), date_to: new Date(e.end.year, e.end.month - 1, e.end.day,23,59,59,999) })} />
               <Select
@@ -340,6 +344,9 @@ useEffect(() => {
                   <p className='text-center'>Limpiar filtros</p>
                 </div>
               </div>
+              </CardBody>
+              </Card>
+
               <Table
                    bottomContent={
                     <div className="flex w-full justify-between items-center">
@@ -362,7 +369,7 @@ useEffect(() => {
                   <TableColumn className='text-small'>Zona</TableColumn>
                   <TableColumn className='text-small'>Tipo de residuo</TableColumn>
                   <TableColumn className='text-small'>Tipo de generador</TableColumn>
-                  <TableColumn className='text-small'>Fecha de solicitud</TableColumn>
+                  <TableColumn className='text-small'>Fecha de creación</TableColumn>
                   <TableColumn className='text-small'>Acciones</TableColumn>
                 </TableHeader>
                 <TableBody>
@@ -383,15 +390,19 @@ useEffect(() => {
                   ))}
                 </TableBody>
               </Table>
-            </CardBody>
-          </Card>
-  }
+            </div>
+          }
+
           {dailyOrders &&
-          <Card className='lg:mx-9 my-4'>
-            <CardHeader className='bg-green-dark text-white pl-4 text-lg font-semibold py-3'>SOLICITUDES A REALIZAR HOY</CardHeader>
-            <Divider />
-            <CardBody className='p-0'>
-              <div className="flex gap-4 m-4">
+          <div className='flex justify-between items-center mx-4 mt-3'>
+          < p className='text-start text-xl font-bold ml-2'>Recolecciónes del dia</p>
+          </div>
+          }
+          {dailyOrders &&
+          <div className='flex flex-col my-2 gap-2'>
+            <Card className='rounded-md'>
+            <CardBody>
+            <div className="flex gap-4 items-center">
                 <Input
                   className='select'
                   placeholder="Generador"
@@ -461,6 +472,9 @@ useEffect(() => {
                   <p className='text-center'>Limpiar filtros</p>
                 </div>
                 </div>
+                </CardBody>
+              </Card>
+
               <Table
               bottomContent={
                 <div className="flex w-full justify-between items-center">
@@ -500,58 +514,62 @@ useEffect(() => {
                   ))}
                 </TableBody>
               </Table>
-            </CardBody>
-          </Card>
-}
-    {trucks &&
-          <Card className='lg:mx-9 my-4'>
-            <CardHeader className='bg-green-dark text-white pl-4 text-lg font-semibold py-3'>CAMIONES ACTIVOS</CardHeader>
-            <Divider />
-            <CardBody className='p-0'>
-              <Table
-                bottomContent={
-                  <div className="flex w-full justify-between items-center">
-                    <span className='flex 1 invisible'>{get_trucks.length} de {trucks.length} solicitudes</span>
-                    <Pagination
-                      className='flex 1'
-                      isCompact
-                      showControls
-                      showShadow
-                      color="secondary"
-                      page={truckPage}
-                      total={truckPages}
-                      onChange={(page) => setTruckPage(page)}
-                    />
-                    <span className='flex 1'>{get_trucks.length} de {trucks.length} camiones</span>
-                  </div>}>
-                <TableHeader>
-                  <TableColumn>Marca</TableColumn>
-                  <TableColumn>Modelo</TableColumn>
-                  <TableColumn>Patente</TableColumn>
-                  <TableColumn>Capacidad</TableColumn>
-                  <TableColumn>Estado</TableColumn>
-                </TableHeader>
-                <TableBody>
-                  {get_trucks.map((truck, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{truck.brand}</TableCell>
-                      <TableCell>{truck.model}</TableCell>
-                      <TableCell>{truck.patent}</TableCell>
-                      <TableCell>{truck.capacity} tons.</TableCell>
-                      <TableCell>{mapTruckStatus[truck.status]}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardBody>
-          </Card>
+            </div>
+            }
+
+          {trucks &&
+          <div className='flex justify-between items-center mx-4 mt-3'>
+            < p className='text-start text-xl font-bold ml-2'>Camiones de la cooperativa</p>
+          </div>
+          }
+
+          {trucks &&
+          <div className='flex flex-col my-2 gap-2'>
+            <Table
+              bottomContent={
+                <div className="flex w-full justify-between items-center">
+                  <span className='flex 1 invisible'>{get_trucks.length} de {trucks.length} solicitudes</span>
+                  <Pagination
+                    className='flex 1'
+                    isCompact
+                    showControls
+                    showShadow
+                    color="secondary"
+                    page={truckPage}
+                    total={truckPages}
+                    onChange={(page) => setTruckPage(page)}
+                  />
+                  <span className='flex 1'>{get_trucks.length} de {trucks.length} camiones</span>
+                </div>}>
+              <TableHeader>
+                <TableColumn>Marca</TableColumn>
+                <TableColumn>Modelo</TableColumn>
+                <TableColumn>Patente</TableColumn>
+                <TableColumn>Capacidad</TableColumn>
+                <TableColumn>Estado</TableColumn>
+              </TableHeader>
+              <TableBody>
+                {get_trucks.map((truck, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{truck.brand}</TableCell>
+                    <TableCell>{truck.model}</TableCell>
+                    <TableCell>{truck.patent}</TableCell>
+                    <TableCell>{truck.capacity} tons.</TableCell>
+                    <TableCell>{mapTruckStatus[truck.status]}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            </div>
         }
+
+        {/*
         <Card className='lg:mx-9 my-4'>
           <CardHeader className='bg-green-dark text-white pl-4 text-lg font-semibold py-3'>UBICACIÓN DE LAS SOLICITUDES A REALIZAR HOY</CardHeader>
           <CardBody className='p-0'>
             <MapView className='w-max h-max' markers={points}/>
           </CardBody>
-        </Card>
+        </Card>*/}
         </div>
         }
       </div>
