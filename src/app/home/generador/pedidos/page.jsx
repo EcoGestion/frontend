@@ -1,11 +1,11 @@
 'use client'
 import { useSelector } from 'react-redux';
+import { Card, CardHeader, CardBody, Divider, CardFooter,
+    Table, TableHeader, TableBody, TableRow, TableCell, Button,
+    TableColumn, Pagination, Select, SelectItem, Input, DateRangePicker
+} from '@nextui-org/react';
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import React, { useState, useEffect } from 'react';
-import { FilterMatchMode, FilterOperator } from 'primereact/api';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Button } from 'primereact/button';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 import { MultiSelect } from 'primereact/multiselect';
@@ -16,25 +16,31 @@ import { useRouter } from 'next/navigation';
 import Spinner from "@components/Spinner"
 import { mapMaterialNameToLabel } from '@/constants/recyclables';
 import { formatDate, formatDateRange } from '@/utils/dateStringFormat';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import "./style.css"
 
 export default function BasicFilterDemo() {
     const router = useRouter();
     const userSession = useSelector((state) => state.userSession);
+
     const [orders, setOrders] = useState(null)
-    const [filters, setFilters] = useState({
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        generator: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        status: { value: null, matchMode: FilterMatchMode.IN },
-        waste_quantities: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        zone: { value: null, matchMode: FilterMatchMode.IN },
-        creation_date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
-        pickup_date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] } ,
-    });
+    const [filters, setFilters] = useState({ zone: [], wasteType: [], generatorType: [], date_from: '', date_to: '', status: []});
+    
     const [waste_types, setWasteTypes] = useState([])
     const [zones, setZones] = useState([])
     const [loading, setLoading] = useState(true);
-    const statuses = ['Completada', 'Coordinada', 'Cancelada', 'Ingresada'];
+
+    const rowsPerPage = 5;
+    const [page, setPage] = React.useState(1);
+    const [pages, setPages] = React.useState(null); 
+    
+    const statuses = [
+        { value: 'Ingresada', label: 'Ingresada' },
+        { value: 'Completada', label: 'Completada' },
+        { value: 'Cancelada', label: 'Cancelada' },
+        { value: 'En ruta', label: 'En ruta' },
+        { value: 'En proceso', label: 'En proceso' }
+    ];
 
     const cols = [
         { field: 'generator', header: 'Generador' },
@@ -45,6 +51,25 @@ export default function BasicFilterDemo() {
         { field: 'zone', header: 'Barrio' },
         { field: 'status', header: 'Estado' },
     ];
+
+    const filteredOrders = orders?.filter(order => {
+        const zone = order.address? order.address.zone : order.generator.address.zone
+        return (
+          ((!filters.date_from && !filters.date_to) ||
+          (filters.date_from && filters.date_to && (order.pickup_date_to >= filters.date_from && order.pickup_date_from <= filters.date_to))) &&
+          (!filters.generator || order.generator_name.toLowerCase().includes(filters.generator.toLowerCase())) &&
+          (filters.status.length == 0 || (filters.status.length == 1 && !filters.status[0])  || filters.status.includes(order.status)) &&
+          (filters.wasteType.length == 0 || (filters.wasteType.length == 1 && !filters.wasteType[0]) || filters.wasteType.every(element => order.waste_types.includes(element))) &&
+          (filters.zone.length == 0 || (filters.zone.length == 1 && !filters.zone[0]) || filters.zone.includes(zone)) &&
+          (filters.generatorType.length == 0 || (filters.generatorType.length == 1 && !filters.generatorType[0]) || filters.generatorType.includes(order.generator_type))
+        );
+    });
+
+    useEffect(() => {
+        if (filteredOrders) {
+          setPages(Math.ceil(filteredOrders.length / rowsPerPage)); 
+        } 
+      }, [orders, filters]);
 
     const exportColumns = cols.map((col) => ({ title: col.header, dataKey: col.field }));
 
@@ -85,6 +110,18 @@ export default function BasicFilterDemo() {
             }
         });
     };
+
+    const get_orders = React.useMemo(() => {
+        if (filteredOrders) {
+          const start = (page - 1) * rowsPerPage;
+          const end = start + rowsPerPage;
+      
+          return filteredOrders.slice(start, end);
+        }
+        else
+          return []
+      
+      }, [page, filteredOrders]);
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -147,6 +184,21 @@ export default function BasicFilterDemo() {
                 return 'En camino';
         }
     }
+
+    const wasteTypes = [
+        { label: 'Papel', value: 'Papel' },
+        { label: 'Metal', value: 'Metal' },
+        { label: 'Vidrio', value: 'Vidrio' },
+        { label: 'Plástico', value: 'Plastico' },
+        { label: 'Cartón', value: 'Cartón' },
+        { label: 'Tetra Brik', value: 'Tetra Brik' },
+        { label: 'Telgopor', value: 'Telgopor' },
+        { label: 'Pilas', value: 'Pilas' },
+        { label: 'Aceite', value: 'Aceite' },
+        { label: 'Electrónicos', value: 'Electrónicos' }
+      ];
+
+
     const transform_order_data = async (order) => {
         const response = await getUserById(order.generator_id);
         order.request_date = new Date(order.request_date)
@@ -191,142 +243,123 @@ export default function BasicFilterDemo() {
         );
     };
 
-    const statusBodyTemplate = (rowData) => {
-        return <Tag value={rowData.status} severity={getSeverity(rowData.status)} />;
-    };
-
-    const statusItemTemplate = (option) => {
-        return <Tag className="p-1 small-font" value={option} severity={getSeverity(option)} />;
-    };
-
-    const statusRowFilterTemplate = (options) => {
-        return (
-            <MultiSelect
-                value={options.value}
-                options={statuses}
-                itemTemplate={statusItemTemplate}
-                onChange={(e) => options.filterApplyCallback(e.value)}
-                optionLabel=""
-                placeholder="Estado"
-                className="p-column-filter"
-                maxSelectedLabels={1}
-                style={{ minWidth: '6rem' }}
-            />
-        );
-    };
-
-    const wasteTypeBodyTemplate = (rowData) => {
-        console.log(rowData.waste_quantities)
-        return formatWasteType(rowData.waste_types);
-    };
-
-    const wasteTypeItemTemplate = (option) => {
-        return option;
-    };
-
-    const wasteTypeRowFilterTemplate = (options) => {
-        return (
-            <MultiSelect
-                value={options.value? options.value.sort() : options.value}
-                options={waste_types}
-                itemTemplate={wasteTypeItemTemplate}
-                onChange={(e) => options.filterApplyCallback(e.value)}
-                optionLabel=""
-                placeholder="Tipo"
-                className="p-column-filter"
-                maxSelectedLabels={1}
-                style={{ minWidth: '4rem' }}
-            />
-        );
-    };
-
-    const zoneBodyTemplate = (rowData) => {
-        return rowData.zone;
-    };
-
-    const zoneItemTemplate = (option) => {
-        return option;
-    };
-
-    const zoneRowFilterTemplate = (options) => {
-        return (
-            <MultiSelect
-                value={options.value}
-                options={zones}
-                itemTemplate={zoneItemTemplate}
-                onChange={(e) => options.filterApplyCallback(e.value)}
-                placeholder="Barrio"
-                className="p-column-filter"
-                maxSelectedLabels={1}
-                style={{ minWidth: '6rem' }}
-            />
-        );
-    };
-
     const formatWasteType = (value) => {
         return value.map((waste) => mapMaterialNameToLabel[waste]).join(', ');
-    };
-
-    const creationDateBodyTemplate = (rowData) => {
-        return formatDate(rowData.request_date);
-    };
-
-    const recolectionDateBodyTemplate = (rowData) => {
-        return rowData.pickup_date;
-    };
-
-    const dateFilterTemplate = (options) => {
-        return <Calendar value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} dateFormat="dd/mm/yy" placeholder="dd/mm/yyyy" mask="99/99/9999" />;
     };
 
     const redirectDetailPage = (rowData) => {
         router.replace(`/home/generador/pedidos/detalles/${rowData.value.id}`)
     };
 
-    const header = renderHeader();
+    const clearFilters = () => {
+        setFilters({ zone: [], wasteType: [], generatorType: [], date_from: '', date_to: '', status: [] });
+    }
 
     return (
-        <div className="overflow-x-auto max-w-full w-full text-2xs md:text-sm min-h-full flex  flex-col">
+        <div className="overflow-x-auto max-w-full w-full text-2xs md:text-sm min-h-full flex flex-col">
             {loading && <Spinner/>}
             {!loading && orders &&
-            <div className='flex gap-3 justify-end mt-3 mr-3 md:mr-12 md:mt-7'>
-                <Button type="button" severity="success" rounded onClick={exportExcel} data-pr-tooltip="XLS">
-                <img src="/excel.svg" alt="box" className="w-7 md:w-10" />
+            <div className='flex justify-between items-center mt-4 mx-4'>
+                <p className='text-start text-xl font-bold ml-2'>Solicitudes de recolección</p>
+                <Button type="button" className='bg-white' onClick={exportExcel} data-pr-tooltip="XLS">
+                    <img src="/excel.svg" alt="box" className="w-7 md:w-10" />
                 </Button> 
                 {/*<Button type="button" severity="warning" rounded onClick={exportPdf} data-pr-tooltip="PDF">
                 <img src="/pdf.svg" alt="box" className="w-7 md:w-10" />
             </Button>  */}
             </div>
             }
-            {!loading && orders && (document.documentElement.clientWidth > 750) &&
-            <DataTable value={orders} removableSort selectionMode="single" onSelectionChange={(e) => redirectDetailPage(e)} paginator rows={10} dataKey="id" filters={filters} filterDisplay="row" loading={loading}
-                    globalFilterFields={['generator', 'waste_quantities', 'zone', 'status', 'request_date']} header={header} emptyMessage="No se han encontrado solicitudes." rowsPerPageOptions={[5, 10, 25]}
-                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} solicitudes">
-                <Column filterMatchMode='contains' field="generator" header="GENERADOR" filter filterPlaceholder="Buscar" showFilterMenu={false} style={{ minWidth: '8rem' }} />
-                <Column field="request_date" header="FECHA CREACIÓN" dataType="date"   style={{ minWidth: '4rem' }} body={creationDateBodyTemplate} filterElement={dateFilterTemplate} sortable />
-                <Column field="pickup_date" header="FECHA RECOLECCIÓN" dataType="date"  style={{ minWidth: '4rem' }} body={recolectionDateBodyTemplate} filterElement={dateFilterTemplate} sortable/>
-                <Column header="TIPO" filterField="waste_quantities" showFilterMenu={false} filterMenuStyle={{ width: '4rem' }} style={{ minWidth: '4rem' }}
-                    body={wasteTypeBodyTemplate} filter filterElement={wasteTypeRowFilterTemplate} />
-                <Column header="BARRIO" filterField="zone" showFilterMenu={false} filterMenuStyle={{ width: '6rem' }} style={{ minWidth: '6rem' }}
-                    body={zoneBodyTemplate} filter filterElement={zoneRowFilterTemplate} />
-                <Column header="ESTADO" filterField="status" showFilterMenu={false} filterMenuStyle={{ width: '6rem' }} style={{ minWidth: '6rem' }}
-                    body={statusBodyTemplate} filter filterElement={statusRowFilterTemplate} />
-            </DataTable>
+            
+            {!loading && orders &&
+            <div className='flex flex-col mx-4 my-4 gap-2'>
+                <Card className='rounded-md'>
+                <CardBody>
+                <div className="flex gap-4 items-center">
+                <DateRangePicker label="Fecha" className="max-w-[284px]" onChange={(e) => 
+                    setFilters({ ...filters, date_from: new Date(e.start.year, e.start.month - 1, e.start.day, 0,0,0,0), date_to: new Date(e.end.year, e.end.month - 1, e.end.day,23,59,59,999) })}
+                />
+
+                <Select
+                    className='select'
+                    placeholder="Tipo de Reciclables"
+                    value={filters.wasteType}
+                    options={wasteTypes}
+                    selectionMode="multiple"
+                    onChange={(e) => setFilters({ ...filters, wasteType: e.target.value.split(',')})}
+                    >
+                        {wasteTypes.map((waste) => (
+                        <SelectItem key={waste.value} value={waste.value}>
+                            {waste.label}
+                        </SelectItem>
+                        ))}
+                </Select>
+                
+                <Select
+                  className='select'
+                  placeholder="Estado de la solicitud"
+                  value={filters.status}
+                  options={statuses}
+                  selectionMode="multiple"
+                  onChange={(e) => setFilters({ ...filters, status: e.target.value.split(',') })}>
+
+                    {statuses.map((status) => (
+                      <SelectItem key={status.value} value={status.value}>
+                        {status.label}
+                      </SelectItem>
+                    ))}
+                </Select>
+                
+                <div className='flex flex-col items-center justify-center'>
+                  <FilterAltOffIcon className='cursor-pointer' onClick={clearFilters}/>
+                  <p className='text-center'>Limpiar filtros</p>
+                </div>
+                </div>
+                </CardBody>
+                </Card>
+
+                <Table
+                        bottomContent={
+                        <div className="flex w-full justify-between items-center">
+                        <span className='flex 1 invisible'>{get_orders.length} de {filteredOrders.length} solicitudes</span>
+                        <Pagination
+                        className='flex 1'
+                        isCompact
+                        showControls
+                        showShadow
+                        color="secondary"
+                        page={page}
+                        total={pages}
+                        onChange={(page) => setPage(page)}
+                        />
+                        <span className='flex 1'>{get_orders.length} de {filteredOrders.length} solicitudes</span>
+                    </div>}
+                >
+                    <TableHeader>
+                    <TableColumn className='text-small'>Fecha de recolección</TableColumn>
+                    <TableColumn className='text-small'>Zona</TableColumn>
+                    <TableColumn className='text-small'>Tipo de residuo</TableColumn>
+                    <TableColumn className='text-small'>Fecha de creación</TableColumn>
+                    <TableColumn className='text-small'>Estado</TableColumn>
+                    <TableColumn className='text-small'>Acciones</TableColumn>
+                    </TableHeader>
+                    <TableBody>
+                    {get_orders.map((request, index) => (
+                        <TableRow key={index} className='cursor-pointer hover:bg-green-dark hover:text-white'>
+                        <TableCell>{formatDateRange(request.pickup_date_from, request.pickup_date_to)}</TableCell>
+                        <TableCell>{request.address? request.address.zone : request.generator.address.zone}</TableCell>
+                        <TableCell>{formatWasteType(request.waste_types)}</TableCell>
+                        <TableCell>{formatDate(request.request_date)}</TableCell>
+                        <TableCell>{request.status}</TableCell>
+                        <TableCell>
+                            <Button className="rounded-full" onClick={() => redirectDetailPage(request)}>Ver</Button>
+                        </TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+            </div>
             }
-            {!loading && orders && (document.documentElement.clientWidth <= 750) &&
-            <DataTable value={orders} removableSort selectionMode="single" onSelectionChange={(e) => redirectDetailPage(e)} paginator rows={20} dataKey="id" filters={filters} filterDisplay="row" loading={loading}
-                    globalFilterFields={['generator', 'zone', 'status']} header={header} emptyMessage="No se han encontrado solicitudes." rowsPerPageOptions={[5, 10, 25]}
-                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} solicitudes">
-                <Column field="generator" header="GENERADOR" filter filterPlaceholder="Buscar"  showFilterMenu={false} style={{ minWidth: '6.5rem' }} />
-                <Column field="pickup_date" header="FECHA RECOLECCIÓN" dataType="date"  style={{ minWidth: '4rem' }} body={recolectionDateBodyTemplate} filterElement={dateFilterTemplate} sortable/>
-                <Column header="BARRIO" filterField="zone" showFilterMenu={false} filterMenuStyle={{ width: '6rem' }} style={{ minWidth: '6rem' }}
-                    body={zoneBodyTemplate} filter filterElement={zoneRowFilterTemplate} />
-                <Column header="ESTADO" filterField="status" showFilterMenu={false} filterMenuStyle={{ width: '6rem' }} style={{ minWidth: '6rem' }}
-                    body={statusBodyTemplate} filter filterElement={statusRowFilterTemplate} />
-            </DataTable>
-            }
+
         </div>
     );
 }
