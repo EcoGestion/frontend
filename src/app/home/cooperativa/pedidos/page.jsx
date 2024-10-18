@@ -210,21 +210,25 @@ export default function Orders() {
     }
 
     return (
-        <div className="overflow-x-auto max-w-full w-full text-2xs md:text-sm min-h-full flex  flex-col">
+        <div className="overflow-x-auto max-w-full w-full text-2xs md:text-sm min-h-full flex flex-col">
             {(loading || !orders) && <Spinner/>}
             {!loading && orders &&
-            <div className='flex gap-3 justify-end mt-3 mr-3 md:mr-12 md:mt-7'>
-                <Button type="button" className="bg-white" severity="success" rounded onClick={exportExcel} data-pr-tooltip="XLS">
-                <img src="/excel.svg" alt="box" className="w-7 md:w-10 bg-white" />
+            <div className='flex justify-between items-center mt-4 mx-4'>
+                <p className='text-start text-xl font-bold ml-2'>Solicitudes de recolección</p>
+                <Button type="button" className='bg-white' onClick={exportExcel} data-pr-tooltip="XLS">
+                    <img src="/excel.svg" alt="box" className="w-7 md:w-10" />
                 </Button> 
+                {/*<Button type="button" severity="warning" rounded onClick={exportPdf} data-pr-tooltip="PDF">
+                    <img src="/pdf.svg" alt="box" className="w-7 md:w-10" />
+                </Button>  */}
             </div>
             }
-            {!loading && orders && (document.documentElement.clientWidth > 750) &&
-                <Card className='lg:mx-9 my-4 mx-4'>
-                <CardHeader className='bg-green-dark text-white pl-4 text-lg font-semibold py-3'>SOLICITUDES</CardHeader>
-                <Divider />
-                <CardBody className='p-0'>
-                <div className="flex gap-4 m-4">
+
+            {!loading && orders &&
+            <div className='flex flex-col mx-4 my-4 gap-2'>
+                <Card className='rounded-md'>
+                <CardBody>
+                <div className="flex gap-4 items-center">
                 <DateRangePicker label="Fecha" className="max-w-[284px]" onChange={(e) => 
                     setFilters({ ...filters, date_from: new Date(e.start.year, e.start.month - 1, e.start.day, 0,0,0,0), date_to: new Date(e.end.year, e.end.month - 1, e.end.day,23,59,59,999) })} />
 
@@ -297,6 +301,9 @@ export default function Orders() {
                   <p className='text-center'>Limpiar filtros</p>
                 </div>
                 </div>
+                </CardBody>
+                </Card>
+                
                 <Table
                         bottomContent={
                         <div className="flex w-full justify-between items-center">
@@ -341,93 +348,7 @@ export default function Orders() {
                     ))}
                     </TableBody>
                 </Table>
-                </CardBody>
-                </Card>
-            }
-
-                {!loading && orders && (document.documentElement.clientWidth <= 750) &&
-                <Card className='lg:mx-9 my-4 mx-4'>
-                <CardHeader className='bg-green-dark text-white pl-4 text-xl font-bold py-3'>SOLICITUDES</CardHeader>
-                <Divider />
-                <CardBody className='p-0'>
-                <div className="flex gap-4 m-4">
-                <DateRangePicker label="Fecha" className="max-w-[284px]" placeholder="" onChange={(e) => 
-                    setFilters({ ...filters, date_from: new Date(e.start.year, e.start.month - 1, e.start.day, 0,0,0,0), date_to: new Date(e.end.year, e.end.month - 1, e.end.day,23,59,59,999) })} />
-
-                <Input
-                  className='select h-14'
-                  placeholder="Generador"
-                  onChange={(e) => {
-                    setFilters({...filters, generator: e.target.value})
-                  }}>
-                </Input>                   
-                <Select
-                    className='select'
-                    placeholder="Zona"
-                    value={filters.zone}
-                    options={zones}
-                    selectionMode="multiple"
-                    onChange={(e) => setFilters({ ...filters, zone: e.target.value.split(',') })}
-                    >
-                        {zones.map((zone) => (
-                        <SelectItem key={zone.value} value={zone.value}>
-                            {zone.label}
-                        </SelectItem>
-                        ))}
-                    </Select>
-                    <Select
-                  className='select'
-                  placeholder="Estado"
-                  value={filters.status}
-                  options={statuses}
-                  selectionMode="multiple"
-                  onChange={(e) => setFilters({ ...filters, status: e.target.value.split(',') })}
-                >
-                    {statuses.map((status) => (
-                      <SelectItem key={status.value} value={status.value}>
-                        {status.label}
-                      </SelectItem>
-                    ))}
-                </Select>
-                </div>
-                <Table
-                        bottomContent={
-                        <div className="flex w-full justify-between items-center">
-                        <span className='flex 1 invisible'>{get_orders.length} de {filteredOrders.length} solicitudes</span>
-                        <Pagination
-                        className='flex 1'
-                        isCompact
-                        showControls
-                        showShadow
-                        color="secondary"
-                        page={page}
-                        total={pages}
-                        onChange={(page) => setPage(page)}
-                        />
-                        <span className='flex 1'>{get_orders.length} de {filteredOrders.length} solicitudes</span>
-                    </div>}
-                >
-                    <TableHeader>
-                    <TableColumn>Fecha de recolección</TableColumn>
-                    <TableColumn>Nombre generador</TableColumn>
-                    <TableColumn>Zona</TableColumn>
-                    <TableColumn>Estado</TableColumn>
-                    <TableColumn></TableColumn>
-                    </TableHeader>
-                    <TableBody>
-                    {get_orders.map((request, index) => (
-                        <TableRow key={index} className='cursor-pointer hover:bg-green-dark hover:text-white'>
-                        <TableCell>{formatDateRange(request.pickup_date_from, request.pickup_date_to)}</TableCell>
-                        <TableCell>{request.generator_name}</TableCell>
-                        <TableCell>{request.address? request.address.zone : request.generator.address.zone}</TableCell>
-                        <TableCell>{request.status}</TableCell>
-                        <TableCell><Button onClick={() => redirectDetailPage(request)}>Ver</Button></TableCell>
-                        </TableRow>
-                    ))}
-                    </TableBody>
-                </Table>
-                </CardBody>
-            </Card>
+            </div>
             }
         </div>
     );
