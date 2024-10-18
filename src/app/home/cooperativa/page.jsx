@@ -372,7 +372,7 @@ useEffect(() => {
                   <TableColumn className='text-small'>Fecha de creación</TableColumn>
                   <TableColumn className='text-small'>Acciones</TableColumn>
                 </TableHeader>
-                <TableBody>
+                <TableBody emptyContent="No hay solicitudes sin aceptar">
                   {get_available_orders.map((request, index) => (
                     <TableRow key={index}>
                       <TableCell>{formatDateRange(request.pickup_date_from, request.pickup_date_to)}</TableCell>
@@ -382,8 +382,8 @@ useEffect(() => {
                       <TableCell>{formatDate(request.request_date)}</TableCell>
                       <TableCell>
                         <div className='flex gap-3'>
-                          <Button className="rounded-full" onClick={() => redirectDetailPage(request)}>Ver</Button>
-                          <Button className='bg-white text-green-dark px-3 py-2 rounded-full border-medium border-green-dark' onClick={() => {setAcceptedOrder(request); setModalIsOpen(true)}}>Aceptar</Button>
+                          <Button className="rounded-medium" onClick={() => redirectDetailPage(request)}>Ver</Button>
+                          <Button className='bg-white text-green-dark px-3 py-2 rounded-medium border-medium border-green-dark' onClick={() => {setAcceptedOrder(request); setModalIsOpen(true)}}>Aceptar</Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -500,7 +500,7 @@ useEffect(() => {
                   <TableColumn className='text-small'>Tipo de residuo</TableColumn>
                   <TableColumn className='text-small'>Estado</TableColumn>
                 </TableHeader>
-                <TableBody>
+                <TableBody emptyContent="No hay recolecciones para el dia de hoy">
                   {get_daily_orders.map((request, index) => (
                     <TableRow key={index} onClick={() => redirectDetailPage(request)}>
                       <TableCell>{formatDate(request.request_date)}</TableCell>
@@ -548,7 +548,7 @@ useEffect(() => {
                 <TableColumn>Capacidad</TableColumn>
                 <TableColumn>Estado</TableColumn>
               </TableHeader>
-              <TableBody>
+              <TableBody emptyContent="No hay camiones para mostrar">
                 {get_trucks.map((truck, index) => (
                   <TableRow key={index}>
                     <TableCell>{truck.brand}</TableCell>
@@ -563,13 +563,12 @@ useEffect(() => {
             </div>
         }
 
-        {/*
         <Card className='lg:mx-9 my-4'>
           <CardHeader className='bg-green-dark text-white pl-4 text-lg font-semibold py-3'>UBICACIÓN DE LAS SOLICITUDES A REALIZAR HOY</CardHeader>
           <CardBody className='p-0'>
             <MapView className='w-max h-max' markers={points}/>
           </CardBody>
-        </Card>*/}
+        </Card>
         </div>
         }
       </div>

@@ -146,7 +146,7 @@ const recursosCooperativa = () => {
       <div className='w-full'>
       <div className='flex justify-between items-center'>
         <h2 className='text-xl font-bold'>Camiones</h2>
-        <button onClick={handleAgregarCamion} className='bg-white text-green-dark px-4 py-2 rounded-full border-medium border-green-800'>
+        <button onClick={handleAgregarCamion} className='bg-white text-green-dark px-4 py-2 rounded-medium border-medium border-green-800'>
           Agregar camión
         </button>
       </div>
@@ -174,7 +174,7 @@ const recursosCooperativa = () => {
                 {camion.status === 'ENABLED' && (
                   <button
                     onClick={() => handleDisableCamion(camion.id)}
-                    className='bg-white text-yellow-dark px-3 py-2 rounded-full border-medium border-yellow-light mr-2'
+                    className='bg-white text-yellow-dark px-3 py-2 rounded-medium border-medium border-yellow-light mr-2'
                   >
                     Deshabilitar
                   </button>
@@ -183,7 +183,7 @@ const recursosCooperativa = () => {
                 {camion.status === 'DISABLE' && (
                   <button
                     onClick={() => handleEnableCamion(camion.id)}
-                    className='bg-white text-green-dark px-3 py-2 rounded-full border-medium border-green-dark mr-2'
+                    className='bg-white text-green-dark px-3 py-2 rounded-medium border-medium border-green-dark mr-2'
                   >
                     Habilitar
                   </button>
@@ -192,13 +192,13 @@ const recursosCooperativa = () => {
                 {camion.status === 'ON_ROUTE' && (
                   <button
                     disabled
-                    className='bg-white text-gray-400 px-3 py-2 rounded-full border-medium border-gray-300 mr-2'
+                    className='bg-white text-gray-400 px-3 py-2 rounded-medium border-medium border-gray-300 mr-2'
                   >
                     En Ruta
                   </button>
                 )}
 
-                  <button onClick={() => {setDeletedTruckId(camion.id); setModalDeleteTruckIsOpen(true)}} className='bg-white text-red-dark px-3 py-2 rounded-full border-medium border-red-800 mr-2'>
+                  <button onClick={() => {setDeletedTruckId(camion.id); setModalDeleteTruckIsOpen(true)}} className='bg-white text-red-dark px-3 py-2 rounded-medium border-medium border-red-800 mr-2'>
                     Eliminar
                   </button>
                 </TableCell>
@@ -210,7 +210,7 @@ const recursosCooperativa = () => {
       <div className='w-full'>
         <div className='flex justify-between items-center'>
           <h2 className='text-xl font-bold'>Conductores</h2>
-          <button onClick={handleAgregarConductor} className='bg-white text-green-dark px-4 py-2 rounded-full border-medium border-green-800'>
+          <button onClick={handleAgregarConductor} className='bg-white text-green-dark px-4 py-2 rounded-medium border-medium border-green-800'>
             Agregar conductor
           </button>
         </div>
@@ -232,10 +232,10 @@ const recursosCooperativa = () => {
                 <TableCell>{conductor.phone}</TableCell>
                 <TableCell>{conductor.email}</TableCell>
                 <TableCell>
-                  <button onClick={() => handleDisableConductor(conductor.id)} className='bg-white text-yellow-dark px-3 py-2 rounded-full border-medium border-yellow-light'>
+                  <button onClick={() => handleDisableConductor(conductor.id)} className='bg-white text-yellow-dark px-1 py-1 rounded-medium border-medium border-yellow-light'>
                     Deshabilitar
                   </button>
-                  <button onClick={() => {setDeletedDriverId(conductor.id); setModalDeleteDriverIsOpen(true)}} className='bg-white text-red-dark px-3 py-2 rounded-full border-medium border-red-800'>
+                  <button onClick={() => {setDeletedDriverId(conductor.id); setModalDeleteDriverIsOpen(true)}} className='bg-white text-red-dark px-3 py-2 rounded-medium border-medium border-red-800'>
                     Eliminar
                   </button>
                 </TableCell>

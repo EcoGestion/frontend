@@ -331,7 +331,7 @@ export default function Orders() {
                     <TableColumn className='text-small'>Estado</TableColumn>
                     <TableColumn className='text-small'>Acciones</TableColumn>
                     </TableHeader>
-                    <TableBody>
+                    <TableBody emptyContent="No hay solicitudes para mostrar">
                     {get_orders.map((request, index) => (
                         <TableRow key={index} className='cursor-pointer hover:bg-green-dark hover:text-white'>
                         <TableCell>{formatDateRange(request.pickup_date_from, request.pickup_date_to)}</TableCell>
@@ -342,7 +342,7 @@ export default function Orders() {
                         <TableCell>{formatDate(request.request_date)}</TableCell>
                         <TableCell>{request.status}</TableCell>
                         <TableCell>
-                            <Button className="rounded-full" onClick={() => redirectDetailPage(request)}>Ver</Button>
+                            <Button className="rounded--medium" onClick={() => redirectDetailPage(request)}>Ver</Button>
                         </TableCell>
                         </TableRow>
                     ))}

@@ -155,7 +155,7 @@ const crearRuta = () => {
           </TableBody>
         </Table>
       </div>
-      <div className='flex flex-row w-full'>
+      <div className='flex flex-row w-full mt-2'>
         <div className='flex-1 flex-col'>
           <h2 className='text-xl font-semibold'>Camiones disponibles</h2>
           <select className='w-full p-2 rounded-md border border-gray-300' onChange={(e) => setSelectedTruck(e.target.value)}>
@@ -181,12 +181,12 @@ const crearRuta = () => {
         </div>
       </div>
       <div className='mt-4'>
-        <button className='bg-white text-green-dark px-4 py-2 rounded-full border border-green-800' onClick={generarRuta}>
+        <button className='bg-white text-green-dark px-4 py-2 rounded-medium border border-green-800' onClick={generarRuta}>
           Generar ruta
         </button>
       </div>
       <div className='p-2 mt-4'>
-        <h2 className='text-xl'>Aqui puedes ver todas las solicitudes que tienes pendientes</h2>
+        <h2 className='text-lg'>Aqui puedes ver todas las solicitudes que tienes pendientes</h2>
         <MapView centerCoordinates={coopCoords} zoom={12} markers={markers}/>
       </div>
       </div>
