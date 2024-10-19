@@ -14,15 +14,6 @@ const PerfilGenerador = () => {
     const userSession = useSelector((state: RootState) => state.userSession);
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
     const [typeLabel, setTypeLabel] = useState<string | undefined>(undefined);
-    const [coords, setCoords] = useState<[number, number] | undefined>();
-    
-    interface Marker {
-      position: number[];
-      content: string;
-      popUp: string;
-    }
-    
-    const [markers, setMarkers] = useState<Marker[] | null>([]);
     const [loading, setLoading] = useState(true);
     
     useEffect(() => {
@@ -33,7 +24,6 @@ const PerfilGenerador = () => {
       try {
           const response = await getUserById(userSession.userId);
           setTypeLabel(mapGenType(response.type));
-          setCoords([response.address.lat, response.address.lng]);
           setUserInfo(response);
       } catch (error) {
           console.error('Error retrieving user data:', error);
@@ -41,20 +31,6 @@ const PerfilGenerador = () => {
           setLoading(false);
       }
     };
-
-    useEffect(() => {
-      if (userInfo) {
-        setMarker(Number(userInfo.address.lat), Number(userInfo.address.lng));
-      }
-    }, [userInfo]);
-
-    const setMarker = (lat: number, lng: number) => {
-      setMarkers([{
-        position: [lat, lng],
-        content: userInfo ? userInfo.username : 'Generador',
-        popUp: 'Tu ubicacion',
-      }]);
-    }
 
     return (
       <div className="flex items-start justify-center bg-white">
@@ -90,10 +66,6 @@ const PerfilGenerador = () => {
                   <p>{typeLabel}</p>
                 </CardBody>
               </Card>
-
-              <div className="flex-1">
-                <MapView centerCoordinates={coords} markers={markers} zoom={15} />
-              </div>
             </div>
           </div>
         )}

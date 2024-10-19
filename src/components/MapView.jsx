@@ -25,6 +25,7 @@ const MapView = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     setLoading(false);
   }, [centerCoordinates, zoom, markers]);
 
