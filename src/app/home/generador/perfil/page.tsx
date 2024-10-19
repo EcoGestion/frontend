@@ -5,33 +5,24 @@ import { useSelector } from 'react-redux';
 import { getUserById } from "@/api/apiService";
 import Spinner from '@/components/Spinner';
 import { Card, CardHeader, CardBody, Divider } from '@nextui-org/react';
-import { Day, Item, UserInfo } from '@/types';
-import { get } from 'http';
-
-const generador_types = [
-  { value: "GEN_BUILDING", label: "Consorcios de edificios" },
-  { value: "GEN_OFFICE", label: "Oficinas y edificios corporativos" },
-  { value: "GEN_HOTEL", label: "Hoteles" },
-  { value: "GEN_RESTAURANT", label: "Restaurantes" },
-  { value: "GEN_MARKET", label: "Supermercados" },
-  { value: "GEN_COMPANY", label: "Empresas" },
-  { value: "GEN_CLUB", label: "Clubes" },
-  { value: "GEN_HOSPITAL", label: "Hospitales y clinicas" },
-  { value: "GEN_EDUCATIONAL_INSTITUTION", label: "Instituciones educativas" },
-  { value: "GEN_FACTORY", label: "Fabricas y plantas de producción" },
-  { value: "GEN_OTHER", label: "Otros" }
-];
-
-function getLabelByValue(type: string|undefined) {
-  const option = generador_types.find(option => option.value === type);
-  return option ? option.label : 'Generador - Otros';
-}
+import { UserInfo } from '@/types';
+import { mapGenType } from '@/constants/userTypes';
+import MapView from '@/components/MapView';
 
 
 const PerfilGenerador = () => {
     const userSession = useSelector((state: RootState) => state.userSession);
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
     const [typeLabel, setTypeLabel] = useState<string | undefined>(undefined);
+    const [coords, setCoords] = useState<[number, number] | undefined>();
+    
+    interface Marker {
+      position: number[];
+      content: string;
+      popUp: string;
+    }
+    
+    const [markers, setMarkers] = useState<Marker[] | null>([]);
     const [loading, setLoading] = useState(true);
     
     useEffect(() => {
@@ -41,7 +32,8 @@ const PerfilGenerador = () => {
     const retrieveData = async () => {
       try {
           const response = await getUserById(userSession.userId);
-          setTypeLabel(getLabelByValue(response.type));
+          setTypeLabel(mapGenType(response.type));
+          setCoords([response.address.lat, response.address.lng]);
           setUserInfo(response);
       } catch (error) {
           console.error('Error retrieving user data:', error);
@@ -50,14 +42,30 @@ const PerfilGenerador = () => {
       }
     };
 
+    useEffect(() => {
+      if (userInfo) {
+        setMarker(Number(userInfo.address.lat), Number(userInfo.address.lng));
+      }
+    }, [userInfo]);
+
+    const setMarker = (lat: number, lng: number) => {
+      setMarkers([{
+        position: [lat, lng],
+        content: userInfo ? userInfo.username : 'Generador',
+        popUp: 'Tu ubicacion',
+      }]);
+    }
+
     return (
-      <div className="flex items-start justify-center bg-white min-h-screen">
+      <div className="flex items-start justify-center bg-white">
         {loading ? (
           <Spinner />
         ) : (
-          <div className="flex flex-col items-center justify-items-start p-4 w-full h-full">
-            <h1 className="text-4xl font-bold mb-6 pt-4">Perfil de usuario</h1>
-              <Card className="md:col-span-1 max-w-lg">
+          <div className="flex flex-col items-center justify-items-start p-3 w-full h-full">
+            <h1 className='text-2xl font-bold text-center my-3'>Perfil de usuario</h1>
+
+            <div className="flex flex-col md:flex-row flex-wrap w-full px-10 justify-center gap-10">
+              <Card className="flex-1">
                 <CardHeader>
                   <div className="flex flex-col items-start">
                     <p className="text-md">{userInfo?.username}</p>
@@ -82,6 +90,11 @@ const PerfilGenerador = () => {
                   <p>{typeLabel}</p>
                 </CardBody>
               </Card>
+
+              <div className="flex-1">
+                <MapView centerCoordinates={coords} markers={markers} zoom={15} />
+              </div>
+            </div>
           </div>
         )}
       </div>
