@@ -14,6 +14,7 @@ import Spinner from '../../../components/Spinner';
 import { getRequestsByRouteId, getRoutesByDriverId, startRouteById, getRouteById, updateRouteRequestById, getUserById} from '../../../api/apiService';
 import "./style.css"
 import Route from "../conductor/components/Route"
+import { RequestStatus } from '@/constants/request';
 
 const MapView = dynamic(() => import('@/components/MapWithRouteView'), { ssr: false });
 
@@ -56,13 +57,6 @@ const zones = [
   { value: "Villa Real", label: "Villa Real" },
   { value: "Villa Santa Rita", label: "Villa Santa Rita" },
   { value: "Villa Urquiza", label: "Villa Urquiza" }
-];
-
-const statuses = [
-  { value: 'Pendiente', label: 'Pendiente' },
-  { value: 'Completada', label: 'Completada' },
-  { value: 'Reprogramada', label: 'Reprogramada' },
-  { value: 'En ruta', label: 'En ruta' }
 ];
 
 const generatorTypes = [
@@ -601,11 +595,11 @@ function formatDateRange(date_from, date_to) {
                   className='select'
                   placeholder="Estado"
                   value={filters.status}
-                  options={statuses}
+                  options={RequestStatus}
                   selectionMode="multiple"
                   onChange={(e) => setFilters({ ...filters, status: e.target.value.split(',') })}
                 >
-                    {statuses.map((status) => (
+                    {RequestStatus.map((status) => (
                       <SelectItem key={status.value} value={status.value}>
                         {status.label}
                       </SelectItem>

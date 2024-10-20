@@ -21,6 +21,10 @@ import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import AcceptConfirmationModal from '@components/AcceptConfirmationModal';
 import { FormatTruckCapacityToFront } from '@/utils/truckFormat';
 import { mapTruckStatus } from '@/constants/truck';
+import { ToastContainer } from 'react-toastify';
+import { generatorTypes } from '@/constants/userTypes';
+import { wasteTypesDefault } from '@/constants/recyclables';
+import { RequestStatus, mapRequestStatusToKey, mapRequestStatus } from '@/constants/request';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
@@ -48,41 +52,6 @@ const HomeCooperativa = () => {
   const [loading, setLoading] = useState(true);
   const rowsPerPage = 5;
   const router = useRouter();
-  
-  const statuses = [
-    { value: 'Ingresada', label: 'Ingresada' },
-    { value: 'En proceso', label: 'En proceso' },
-    { value: 'Completada', label: 'Completada' },
-    { value: 'Cancelada', label: 'Cancelada' },
-    { value: 'Coordinada', label: 'Coordinada' }
-  ];
-
-const generatorTypes = [
-  { value: "Restaurante", label: "Restaurante" },
-  { value: "Edificio", label: "Edificio" },
-  { value: "Empresa", label: "Empresa" },
-  { value: "Oficina", label: "Oficina" },
-  { value: "Hotel", label: "Hotel" },
-  { value: "Fábrica", label: "Fábrica" },
-  { value: "Club", label: "Club" },
-  { value: "Institución Educativa", label: "Institución Educativa" },
-  { value: "Hospital", label: "Hospital" },
-  { value: "Mercado", label: "Mercado" },
-  { value: "Otro", label: "Otro" }
-];
-
-const wasteTypes = [
-  { label: 'Papel', value: 'Papel' },
-  { label: 'Metal', value: 'Metal' },
-  { label: 'Vidrio', value: 'Vidrio' },
-  { label: 'Plástico', value: 'Plastico' },
-  { label: 'Cartón', value: 'Cartón' },
-  { label: 'Tetra Brik', value: 'Tetra Brik' },
-  { label: 'Telgopor', value: 'Telgopor' },
-  { label: 'Pilas', value: 'Pilas' },
-  { label: 'Aceite', value: 'Aceite' },
-  { label: 'Electrónicos', value: 'Electrónicos' }
-];
 
 const filteredAvailableOrders = availableOrders?.filter(order => {
   const zone = order.address? order.address.zone : order.generator.address.zone
@@ -101,7 +70,7 @@ const filteredDailyOrders = dailyOrders?.filter(order => {
     (!dailyFilters.generator || order.generator_name.toLowerCase().includes(dailyFilters.generator.toLowerCase())) &&
     (dailyFilters.wasteType.length == 0 || (dailyFilters.wasteType.length == 1 && !dailyFilters.wasteType[0]) || dailyFilters.wasteType.every(element => order.waste_types.includes(element))) &&
     (dailyFilters.zone.length == 0 || (dailyFilters.zone.length == 1 && !dailyFilters.zone[0]) || dailyFilters.zone.includes(zone)) &&
-    (dailyFilters.status.length == 0 || (dailyFilters.status.length == 1 && !dailyFilters.status[0])  || dailyFilters.status.includes(order.status)) &&
+    (dailyFilters.status.length == 0 || (dailyFilters.status.length == 1 && !dailyFilters.status[0])  || dailyFilters.status.includes(mapRequestStatusToKey[order.status])) &&
     (dailyFilters.generatorType.length == 0 || (dailyFilters.generatorType.length == 1 && !dailyFilters.generatorType[0]) || dailyFilters.generatorType.includes(order.generator_type))
   );
 });
@@ -154,25 +123,6 @@ useEffect(() => {
 
   }, [trucks, truckPage]);
 
-  const getStatus = (status) => {
-    switch (status) {
-        case 'REJECTED':
-            return 'Cancelada';
-
-        case 'COMPLETED':
-            return 'Completada';
-
-        case 'PENDING':
-            return 'En proceso';
-
-        case 'OPEN':
-            return 'Ingresada';
-
-        case 'ON_ROUTE':
-            return 'En ruta';
-    }
-  }
-
   const formatWasteType = (value) => {
     return value.join(", ");
   };
@@ -185,7 +135,7 @@ useEffect(() => {
     order.generator_type = mapGenType(order.generator.type)
     order.generator_name = order.generator.username
     order.waste_types = order.waste_quantities.map(waste => mapMaterialNameToLabel[waste.waste_type]).sort()
-    order.status = getStatus(order.status)
+    order.status = mapRequestStatus[order.status]
     return order
   }
 
@@ -209,7 +159,7 @@ useEffect(() => {
   }
 
   useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchDailyOrders = async () => {
       if (userSession.userId) {
         try {
           setLoading(true);
@@ -221,7 +171,24 @@ useEffect(() => {
             setPoints(filtered_orders.map(order => getPoints(order, order.address? order.address : order.generator.address)))
             setDailyPages(Math.ceil(filtered_orders.length / rowsPerPage))
             })
+        } catch (error) {
+          console.log("Error al obtener pedidos", error);
+          ToastNotifier.error("Error al obtener pedidos del dia")
+        } finally {
+          setLoading(false)
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+    fetchDailyOrders();
+  }, [userSession.userId, refresh]);
 
+  useEffect(() => {
+    const fetchAvailableOrders = async () => {
+      if (userSession.userId) {
+        try {
+          setLoading(true);
           await getOpenOrders()
           .then((response) => Promise.all(response.map(order => transform_order_data(order))))
           .then((transformed_orders) => {
@@ -229,7 +196,25 @@ useEffect(() => {
             setAvailableOrders(transformed_orders)
             setPages(Math.ceil(transformed_orders.length / rowsPerPage))
             })
+        } catch (error) {
+          console.log("Error al obtener pedidos", error);
+          ToastNotifier.error("Error al obtener pedidos disponibles")
+        } finally {
+          setLoading(false)
+        }
+      } else {
+        setLoading(false);
+      }
+    };
 
+    fetchAvailableOrders();
+  }, [userSession.userId, refresh]);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (userSession.userId) {
+        try {
+          setLoading(true);
           await getTrucksById(userSession.userId)
             .then((response) => {
               const formattedTrucks = response.map(truck => FormatTruckCapacityToFront(truck))
@@ -238,7 +223,8 @@ useEffect(() => {
             })
           
         } catch (error) {
-          console.log("Error al obtener pedidos", error);
+          console.log("Error al obtener camiones", error);
+          ToastNotifier.error("Error al obtener camiones")
         } finally {
           setLoading(false)
         }
@@ -279,6 +265,7 @@ useEffect(() => {
 
     return (
       <div className='flex flex-col p-4 gap-5 h-screen'>
+        <ToastContainer/>
         <AcceptConfirmationModal isOpen={modalIsOpen} onRequestClose={() => setModalIsOpen(false)} onConfirm={acceptRequest} title='Deseas aceptar esta solicitud?' />
         {loading  && <Spinner/>}
         {!loading &&
@@ -314,11 +301,11 @@ useEffect(() => {
                   className='select'
                   placeholder="Tipo de Reciclables"
                   value={availableFilters.wasteType}
-                  options={wasteTypes}
+                  options={wasteTypesDefault}
                   selectionMode="multiple"
                   onChange={(e) => setAvailableFilters({ ...availableFilters, wasteType: e.target.value.split(',')})}
                 >
-                    {wasteTypes.map((waste) => (
+                    {wasteTypesDefault.map((waste) => (
                       <SelectItem key={waste.value} value={waste.value}>
                         {waste.label}
                       </SelectItem>
@@ -443,11 +430,11 @@ useEffect(() => {
                   className='select'
                   placeholder="Tipo de material"
                   value={dailyFilters.wasteType}
-                  options={wasteTypes}
+                  options={wasteTypesDefault}
                   selectionMode="multiple"
                   onChange={(e) => setDailyFilters({ ...dailyFilters, wasteType: e.target.value.split(',')})}
                 >
-                    {wasteTypes.map((waste) => (
+                    {wasteTypesDefault.map((waste) => (
                       <SelectItem key={waste.value} value={waste.value}>
                         {waste.label}
                       </SelectItem>
@@ -457,11 +444,11 @@ useEffect(() => {
                   className='select'
                   placeholder="Estado de la solicitud"
                   value={dailyFilters.status}
-                  options={statuses}
+                  options={RequestStatus}
                   selectionMode="multiple"
                   onChange={(e) => setDailyFilters({ ...dailyFilters, status: e.target.value.split(',') })}
                 >
-                    {statuses.map((status) => (
+                    {RequestStatus.map((status) => (
                       <SelectItem key={status.value} value={status.value}>
                         {status.label}
                       </SelectItem>

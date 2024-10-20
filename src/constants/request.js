@@ -16,7 +16,17 @@ const mapRequestStatus = {
     REPROGRAMED: 'Reprogramada',
 }
 
+const mapRequestStatusToKey = {
+    'Abierta': 'OPEN',
+    'Pendiente': 'PENDING',
+    'En ruta': 'ON_ROUTE',
+    'Completada': 'COMPLETED',
+    'Cancelada': 'CANCELLED',
+    'Reprogramada': 'REPROGRAMED',
+}
+
 export {
     RequestStatus,
     mapRequestStatus,
+    mapRequestStatusToKey
 }

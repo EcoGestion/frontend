@@ -40,8 +40,8 @@ const PerfilGenerador = () => {
           <div className="flex flex-col items-center justify-items-start p-3 w-full h-full">
             <h1 className='text-2xl font-bold text-center my-3'>Perfil de usuario</h1>
 
-            <div className="flex flex-col md:flex-row flex-wrap w-full px-10 justify-center gap-10">
-              <Card className="flex-1">
+            <div className="w-1/2 px-10 justify-center">
+              <Card>
                 <CardHeader>
                   <div className="flex flex-col items-start">
                     <p className="text-md">{userInfo?.username}</p>

@@ -51,13 +51,6 @@ const zones = [
     { value: "Villa Urquiza", label: "Villa Urquiza" }
   ];
   
-  const statuses = [
-    { value: 'Ingresada', label: 'Ingresada' },
-    { value: 'Completada', label: 'Completada' },
-    { value: 'Cancelada', label: 'Cancelada' },
-    { value: 'Coordinada', label: 'Coordinada' }
-  ];
-  
   const generatorTypes = [
   { value: "Restaurante", label: "Restaurante" },
   { value: "Edificio", label: "Edificio" },

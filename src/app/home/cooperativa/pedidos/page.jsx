@@ -1,7 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { useUser } from '../../../../state/userProvider';
-import { Card, CardHeader, CardBody, Divider, CardFooter,
+import { Card, CardBody,
     Table, TableHeader, TableBody, TableRow, TableCell, Button,
     TableColumn, Pagination, Select, SelectItem, Input, DateRangePicker
    } from '@nextui-org/react';
@@ -14,6 +13,8 @@ import { mapGenType } from '@/constants/userTypes';
 import { formatDate, formatDateRange } from '@/utils/dateStringFormat';
 import { mapMaterialNameToLabel } from '@/constants/recyclables';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+import { RequestStatus, mapRequestStatus, mapRequestStatusToKey } from '@/constants/request';
+import { wasteTypesDefault } from '@/constants/recyclables';
 import "./style.css"
 
 export default function Orders() {
@@ -25,14 +26,6 @@ export default function Orders() {
     const [filters, setFilters] = useState({ zone: [], wasteType: [], generatorType: [], date_from: '', date_to: '', status: []});
     const rowsPerPage = 5;
     const [loading, setLoading] = useState(true);
-
-    const statuses = [
-        { value: 'Ingresada', label: 'Ingresada' },
-        { value: 'Completada', label: 'Completada' },
-        { value: 'Cancelada', label: 'Cancelada' },
-        { value: 'En ruta', label: 'En ruta' },
-        { value: 'En proceso', label: 'En proceso' }
-      ];
 
       const generatorTypes = [
         { value: "Restaurante", label: "Restaurante" },
@@ -48,19 +41,6 @@ export default function Orders() {
         { value: "Otro", label: "Otro" }
       ];
       
-      const wasteTypes = [
-        { label: 'Papel', value: 'Papel' },
-        { label: 'Metal', value: 'Metal' },
-        { label: 'Vidrio', value: 'Vidrio' },
-        { label: 'Plástico', value: 'Plastico' },
-        { label: 'Cartón', value: 'Cartón' },
-        { label: 'Tetra Brik', value: 'Tetra Brik' },
-        { label: 'Telgopor', value: 'Telgopor' },
-        { label: 'Pilas', value: 'Pilas' },
-        { label: 'Aceite', value: 'Aceite' },
-        { label: 'Electrónicos', value: 'Electrónicos' }
-      ];
-
     const cols = [
         { field: 'generator', header: 'Generador' },
         { field: 'request_date', header: 'Fecha creación' },
@@ -77,7 +57,7 @@ export default function Orders() {
           ((!filters.date_from && !filters.date_to) ||
           (filters.date_from && filters.date_to && (order.pickup_date_to >= filters.date_from && order.pickup_date_from <= filters.date_to))) &&
           (!filters.generator || order.generator_name.toLowerCase().includes(filters.generator.toLowerCase())) &&
-          (filters.status.length == 0 || (filters.status.length == 1 && !filters.status[0])  || filters.status.includes(order.status)) &&
+          (filters.status.length == 0 || (filters.status.length == 1 && !filters.status[0])  || filters.status.includes(mapRequestStatusToKey[order.status])) &&
           (filters.wasteType.length == 0 || (filters.wasteType.length == 1 && !filters.wasteType[0]) || filters.wasteType.every(element => order.waste_types.includes(element))) &&
           (filters.zone.length == 0 || (filters.zone.length == 1 && !filters.zone[0]) || filters.zone.includes(zone)) &&
           (filters.generatorType.length == 0 || (filters.generatorType.length == 1 && !filters.generatorType[0]) || filters.generatorType.includes(order.generator_type))
@@ -165,25 +145,6 @@ export default function Orders() {
         fetchOrders();
     }, []);
 
-    const getStatus = (status) => {
-        switch (status) {
-            case 'REJECTED':
-                return 'Cancelada';
-    
-            case 'COMPLETED':
-                return 'Completada';
-    
-            case 'PENDING':
-                return 'En proceso';
-    
-            case 'OPEN':
-                return 'Ingresada';
-    
-            case 'ON_ROUTE':
-                return 'En ruta';
-        }
-    }
-
     const formatWasteType = (value) => {
       return value.join(", ");
     };
@@ -196,7 +157,7 @@ export default function Orders() {
         order.generator_type = mapGenType(order.generator.type)
         order.generator_name = order.generator.username
         order.waste_types = order.waste_quantities.map(waste => mapMaterialNameToLabel[waste.waste_type]).sort()
-        order.status = getStatus(order.status)
+        order.status = mapRequestStatus[order.status]
         return order
     }
 
@@ -257,11 +218,11 @@ export default function Orders() {
                     className='select'
                     placeholder="Tipo de Reciclables"
                     value={filters.wasteType}
-                    options={wasteTypes}
+                    options={wasteTypesDefault}
                     selectionMode="multiple"
                     onChange={(e) => setFilters({ ...filters, wasteType: e.target.value.split(',')})}
                     >
-                        {wasteTypes.map((waste) => (
+                        {wasteTypesDefault.map((waste) => (
                         <SelectItem key={waste.value} value={waste.value}>
                             {waste.label}
                         </SelectItem>
@@ -286,11 +247,11 @@ export default function Orders() {
                   className='select'
                   placeholder="Estado de la solicitud"
                   value={filters.status}
-                  options={statuses}
+                  options={RequestStatus}
                   selectionMode="multiple"
                   onChange={(e) => setFilters({ ...filters, status: e.target.value.split(',') })}
                 >
-                    {statuses.map((status) => (
+                    {RequestStatus.map((status) => (
                       <SelectItem key={status.value} value={status.value}>
                         {status.label}
                       </SelectItem>

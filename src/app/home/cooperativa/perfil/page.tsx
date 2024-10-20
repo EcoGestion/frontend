@@ -8,7 +8,7 @@ import TimeSelector from '@/components/TimeSelector';
 import Spinner from '@/components/Spinner';
 import { Card, CardHeader, CardBody, Divider } from '@nextui-org/react';
 import { Day, Item, UserInfo } from '@/types';
-import {materialsDefault} from '@constants/recyclables';
+import {wasteTypesDefault} from '@constants/recyclables';
 import { daysOptions } from '@constants/dateAndTime';
 import { ToastNotifier } from '@/components/ToastNotifier';
 import { ToastContainer } from 'react-toastify';
@@ -31,7 +31,7 @@ const Perfil = () => {
     const [days, setDays] = useState<Day[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const [items, setItems] = useState(materialsDefault);
+    const [items, setItems] = useState(wasteTypesDefault);
     
     const updateItems = (newItems: Item[]) => {
       const wasteTypeMap = new Map(newItems.map(item => [item.name, true]));

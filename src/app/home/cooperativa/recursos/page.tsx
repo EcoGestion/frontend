@@ -232,10 +232,10 @@ const recursosCooperativa = () => {
                 <TableCell>{conductor.phone}</TableCell>
                 <TableCell>{conductor.email}</TableCell>
                 <TableCell>
-                  <button onClick={() => handleDisableConductor(conductor.id)} className='bg-white text-yellow-dark px-1 py-1 rounded-medium border-medium border-yellow-light'>
+                  <button onClick={() => handleDisableConductor(conductor.id)} className='bg-white text-yellow-dark px-3 py-2 rounded-medium border-medium border-yellow-light mr-2'>
                     Deshabilitar
                   </button>
-                  <button onClick={() => {setDeletedDriverId(conductor.id); setModalDeleteDriverIsOpen(true)}} className='bg-white text-red-dark px-3 py-2 rounded-medium border-medium border-red-800'>
+                  <button onClick={() => {setDeletedDriverId(conductor.id); setModalDeleteDriverIsOpen(true)}} className='bg-white text-red-dark px-3 py-2 rounded-medium border-medium border-red-800 mr-2'>
                     Eliminar
                   </button>
                 </TableCell>

@@ -15,7 +15,7 @@ import { getUserById, createRequest } from "@/api/apiService";
 import { UserInfo, WasteCollectionRequest } from '@/types';
 import { useRouter } from "next/navigation";
 import Spinner from "@/components/Spinner";
-import {materialsDefault} from "@/constants/recyclables";
+import {wasteTypesDefault} from "@/constants/recyclables";
 import AddressForm from "@components/AddressForm";
 import { ToastNotifier } from "@/components/ToastNotifier";
 import { ToastContainer } from "react-toastify";
@@ -78,7 +78,7 @@ const CreacionPedido = () => {
     }
   }, [userInfo]);
 
-  const [items, setItems] = useState(materialsDefault);
+  const [items, setItems] = useState(wasteTypesDefault);
 
   const handleRequestDateChange = (date: DateValue) => {
     const { year, month, day } = date;
