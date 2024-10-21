@@ -36,10 +36,6 @@ const InitialPage = () => {
               onClick={() => handleLogInTypeSelection('cooperativa')}
               buttonTitle='Cooperativa'
             />
-            <BlueRoundedButton
-              onClick={() => handleLogInTypeSelection('generador')}
-              buttonTitle='Generador'
-            />
           </div>
           <div className='flex justify-center'>
             <button className="bg-cyan-800 hover:bg-cyan-300 text-white font-bold py-2 px-4 rounded"
