@@ -198,3 +198,8 @@ export const getGeneratorNotifications = async (userId) => {
   const response = await axios.get(`${API_BASE_URL}/notifications/${userId}`);
   return response.data;
 }
+
+export const verifyGeneratorCode = async (routeRequestId, code) => {
+  const response = await axios.post(`${API_BASE_URL}/route_request/${routeRequestId}/code/${code}`);
+  return response.data;
+}

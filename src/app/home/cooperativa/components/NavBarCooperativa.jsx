@@ -109,15 +109,15 @@ const NavBarCooperativa = () => {
 
         <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
             <NavbarItem key={`Reportes-1`}>
-            <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/reportes">
-              Reportes
-            </Link>
+              <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/reportes" onClick={() => setIsMenuOpen(false)}>
+                Reportes
+              </Link>
             </NavbarItem>
 
             <NavbarItem key={`Recursos-2`}>
-            <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/recursos">
-            Recursos
-            </Link>
+              <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/recursos" onClick={() => setIsMenuOpen(false)}>
+              Recursos
+              </Link>
             </NavbarItem>
 
           <NavbarMenuItem key={`Cerrar Sesión-3`} className='mt-2'>

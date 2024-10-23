@@ -80,6 +80,7 @@ const NavBarMobileConductor = () => {
               color={"foreground"}
               href="#"
               size="lg"
+              onClick={() => setIsMenuOpen(false)}
             >
               {item}
             </Link>

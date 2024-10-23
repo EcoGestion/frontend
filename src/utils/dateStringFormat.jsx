@@ -22,6 +22,19 @@ function formatDateRange(date_from, date_to) {
     return `${day}/${month}/${year} ${fromHours}:${fromMinutes} - ${toHours}:${toMinutes}`;
 }
 
+function formatTimeRange(date_from, date_to) {
+    const fromDate = convertToBuenosAiresTime(date_from);
+    const toDate = convertToBuenosAiresTime(date_to);
+
+    const fromHours = fromDate.getHours().toString().padStart(2, '0');
+    const fromMinutes = fromDate.getMinutes().toString().padStart(2, '0');
+
+    const toHours = toDate.getHours().toString().padStart(2, '0');
+    const toMinutes = toDate.getMinutes().toString().padStart(2, '0');
+
+    return `${fromHours}:${fromMinutes} - ${toHours}:${toMinutes}`;
+}
+
 function formatDate(date) {
     const newDate = convertToBuenosAiresTime(date);
     const day = newDate.getDate().toString().padStart(2, '0');
@@ -39,4 +52,4 @@ function formatTime(date) {
     return `${hours}:${minutes}`;
 }
 
-export { formatDate, formatDateRange, formatTime };
+export { formatDate, formatDateRange, formatTime, formatTimeRange };

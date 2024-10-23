@@ -108,6 +108,7 @@ const NavBarConductor = () => {
               color={"foreground"}
               href={item.route}
               size="lg"
+              onClick={() => setIsMenuOpen(false)}
             >
               {item.name}
             </Link>

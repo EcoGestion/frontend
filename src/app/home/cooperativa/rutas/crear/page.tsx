@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import { Table, TableHeader, TableBody, TableRow, TableColumn, TableCell } from '@nextui-org/react';
 import { getCoopPendingRequests, getTrucksByCoopId, getDriversByCoopId, getUserById, createRoute } from "@api/apiService";
 import { WasteCollectionRequests, Truck, TrucksResources, Driver, DriversResources, UserInfo } from '@/types';
-import {formatDateRange, formatDate} from '@utils/dateStringFormat';
+import {formatDateRange, formatDate, formatTimeRange } from '@utils/dateStringFormat';
 import AddressFormat from '@utils/addressFormat';
 import Spinner from '@/components/Spinner';
 import { ToastNotifier } from '@/components/ToastNotifier';
@@ -107,17 +107,19 @@ const crearRuta = () => {
       driver_id: selectedDriver
     }
     console.log('Request body:', request_body);
+    setLoading(true);
     createRoute(request_body).then((response) => {
       if (response) {
         ToastNotifier.success('Ruta generada correctamente');
-        
         router.push('/home/cooperativa/rutas');
       } else {
         ToastNotifier.error('Error al generar la ruta');
+        setLoading(false);
       }
     }).catch((error) => {
       console.error('Error creating route:', error);
       ToastNotifier.error('Error al generar la ruta');
+      setLoading(false);
     });
   }
 
@@ -137,6 +139,7 @@ const crearRuta = () => {
             <TableColumn>ID</TableColumn>
             <TableColumn>Fecha de solicitud</TableColumn>
             <TableColumn>Fecha de retiro</TableColumn>
+            <TableColumn>Horario de retiro</TableColumn>
             <TableColumn>Zona</TableColumn>
             <TableColumn>Direccion</TableColumn>
             <TableColumn>Estado</TableColumn>
@@ -146,7 +149,8 @@ const crearRuta = () => {
               <TableRow key={request.id}>
                 <TableCell>{request.id}</TableCell>
                 <TableCell>{formatDate(request.request_date)}</TableCell>
-                <TableCell>{formatDateRange(request.pickup_date_from, request.pickup_date_to)}</TableCell>
+                <TableCell>{formatDate(request.pickup_date_from)}</TableCell>
+                <TableCell>{formatTimeRange(request.pickup_date_from, request.pickup_date_to)}</TableCell>
                 <TableCell>{request.address ? request.address.zone : ""}</TableCell>
                 <TableCell>{request.address ? AddressFormat(request.address) : ""}</TableCell>
                 <TableCell>{request.status}</TableCell>
