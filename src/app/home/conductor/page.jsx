@@ -10,17 +10,40 @@ import dynamic from 'next/dynamic';
 import 'dotenv/config';
 import AddressFormat from '@utils/addressFormat';
 import Spinner from '../../../components/Spinner';
-import { getRequestsByRouteId, getRoutesByDriverId, startRouteById, getRouteById, updateRouteRequestById, getUserById, verifyGeneratorCode} from '@api/apiService';
+import { getRequestsByRouteId, getRoutesByDriverId, startRouteById, getRouteById, updateRouteRequestById, getUserById, verifyGeneratorCode, getDriverHomeRoutes} from '@api/apiService';
 import "./style.css"
 import Route from "../conductor/components/Route"
-import { RequestStatus } from '@/constants/request';
 import { ToastNotifier } from '@/components/ToastNotifier';
 import zones from '@/constants/zones';
 import AcceptConfirmationModal from '@components/AcceptConfirmationModal';
 import CodeConfirmationModal from '@components/CodeConfirmationModal';
 import { ToastContainer } from 'react-toastify';
+import { RouteStatus, mapRouteStatus, mapRouteStatusToKey } from '@/constants/route';
+import { RequestStatus, mapRequestStatus, mapRequestStatusToKey } from '@/constants/request';
+import { RouteRequestStatus, mapRouteRequestStatus, mapRouteRequestStatusToKey} from '@/constants/routeRequest';
+import ClearIcon from '@mui/icons-material/Clear';
 
 const MapView = dynamic(() => import('@/components/MapWithRouteView'), { ssr: false });
+
+const noRutesComponent = () => {
+  return (
+  <Card className="rounded-md mt-6 shadow-lg bg-gray-50 border border-gray-200">
+    <CardBody className="flex flex-col items-center py-8 px-4">
+      <div className="flex flex-col items-center">
+        <div className="mb-4 text-gray-400">
+          <ClearIcon fontSize='large' color='error' />
+        </div>
+        <p className="text-center text-gray-700 font-medium text-lg mb-2">
+          No hay rutas asignadas para el conductor
+        </p>
+        <p className="text-center text-gray-500 text-sm mb-4">
+          Cuando la cooperativa asigne rutas, aparecerán aquí
+        </p>
+      </div>
+    </CardBody>
+  </Card>
+  );
+};
 
 const HomeConductor = () => {
   const userSession = useSelector((state) => state.userSession);
@@ -42,15 +65,24 @@ const HomeConductor = () => {
 
   const [routeToStart, setRouteToStart] = useState(null);
   const [requestToConfirm, setRequestToConfirm] = useState(null);
+  const [indexToConfirm, setIndexToConfirm] = useState(null);
+  const [requestToReprogram, setRequestToReprogram] = useState(null);
 
   const [isModalStartRouteOpen, setIsModalStartRouteOpen] = useState(false);
   const [isModalConfirmRequestOpen, setIsModalConfirmRequestOpen] = useState(false);
+  const [isModalReprogramRequestOpen, setIsModalReprogramRequestOpen] = useState(false);
+
+  const [refreshValue, setRefreshValue] = useState(false);
+
+  const refresh = () => {
+    setRefreshValue(!refreshValue)
+  }
 
   const filteredRequests = requests?.filter(request => {
     return (
       (!filters.generator || request.generator.username.toLowerCase().includes(filters.generator.toLowerCase())) &&
       (filters.zone.length == 0 || (filters.zone.length == 1 && !filters.zone[0]) || filters.zone.includes(request.address.zone)) &&
-      (filters.status.length == 0 || (filters.status.length == 1 && !filters.status[0])  || filters.status.includes(request.route_request_status))
+      (filters.status.length == 0 || (filters.status.length == 1 && !filters.status[0])  || filters.status.includes(mapRouteRequestStatusToKey[request.route_request_status]))
     );
   });
 
@@ -72,53 +104,16 @@ const HomeConductor = () => {
   
   }, [page, filteredRequests]);
 
-  const getRouteStatus = (status) => {
-    switch (status) {
-        case 'CANCELED':
-            return 'Cancelada';
-  
-        case 'COMPLETED':
-            return 'Completada';
-  
-        case 'IN_PROGRESS':
-            return 'En proceso';
-  
-        case 'CREATED':
-            return 'Creada';
-    }
-  }
-
-  const getRouteRequestStatus = (status) => {
-    switch (status) {
-        case 'REPROGRAMED':
-            return 'Reprogramada';
-  
-        case 'COMPLETED':
-            return 'Completada';
-  
-        case 'ON_ROUTE':
-            return 'En ruta';
-  
-        case 'PENDING':
-            return 'Pendiente';
-    }
-  }
-
-  const transform_requests = async (request) => {
-    request.route_request_status = getRouteRequestStatus(getRequestStatus(request.id))
+  const transform_requests = (request) => {
+    const status = getRequestStatus(request.id);
+    request.route_request_status = mapRouteRequestStatus[status];
     request.route_request_id = getRequestId(request.id)
     return request
   }
 
-  const transform_route_data = async (route) => {
-    route.status = getRouteStatus(route.status)
+  const transform_route_data = (route) => {
+    route.status = mapRouteStatus[route.status]
     return route
-  }
-
-  const filter_canceled = (routes) => {
-    return routes.filter(route => {
-      return route.status != "Cancelada"
-    })
   }
 
   const getRequestStatus = (requestId) => {
@@ -178,7 +173,6 @@ const HomeConductor = () => {
   }, [routeActive])
 
   const setMarkersFromRequests = (requests, coopInfo) => {
-    console.log("Requests en page: ", requests);
     const genMarkers = requests
       .map((request) => ({
         position: [
@@ -207,21 +201,18 @@ const HomeConductor = () => {
     setRouteCoords(updatedRouteCoords);
   }
 
-
   useEffect(() => {
     const fetchRoutes = async () => {
       try {
         setLoading(true)
-        await getRoutesByDriverId(userSession.userId)
+        await getDriverHomeRoutes(userSession.userId)
         .then((response) => Promise.all(response.map(route => transform_route_data(route))))
         .then((transformed_routes) => {
-          //const filtered_routes = filter_daily_routes(transformed_routes)
-          const filtered_routes = filter_canceled(transformed_routes)
-          const activeRoute = filtered_routes.find(route => route.status === "En proceso")
+          const activeRoute = transformed_routes.find(route => route.status === "En proceso")
           if(activeRoute) {
             setRouteActive(activeRoute.id)
           }
-          setRoutes(filtered_routes)
+          setRoutes(transformed_routes)
         })
       } catch (error) {
         console.log("Error al obtener pedidos", error);
@@ -251,8 +242,9 @@ const HomeConductor = () => {
     setIsModalStartRouteOpen(false);
   };
 
-  const confirmRequest = (id) => {
-    setRequestToConfirm(id);
+  const confirmRequest = (route_request_id, index) => {
+    setRequestToConfirm(route_request_id);
+    setIndexToConfirm(index);
     setIsModalConfirmRequestOpen(true);
   };
 
@@ -260,7 +252,7 @@ const HomeConductor = () => {
     try {
       const verification = await verifyGeneratorCode(requestToConfirm, code);
       if (verification.passed) {
-        await updateRouteRequest(requestToConfirm, routeActive, "COMPLETED");
+        await updateRouteRequest(indexToConfirm, routeActive, "COMPLETED");
         ToastNotifier.success("Solicitud completada");
       } else {
         ToastNotifier.warning("Código incorrecto");
@@ -273,6 +265,22 @@ const HomeConductor = () => {
     }
   };
 
+  const reprogramRequest = (id) => {
+    setRequestToReprogram(id);
+    setIsModalReprogramRequestOpen(true);
+  };
+
+  const handleReprogramRequest = async () => {
+    try {
+      await updateRouteRequest(requestToReprogram, routeActive, "REPROGRAMED");
+      ToastNotifier.success("Solicitud reprogramada");
+    } catch (error) {
+      console.log("Error al reprogramar solicitud", error);
+      ToastNotifier.error("Error al reprogramar solicitud\nPor favor, intente nuevamente")
+    } finally {
+      setIsModalReprogramRequestOpen(false);
+    }
+  };
 
   const cancelRoute = (rowData) => {
     // Cancelar ruta
@@ -282,7 +290,7 @@ const HomeConductor = () => {
     setLoading(true)
     await updateRouteRequestById(id, routeId, status)
     .then((response) => {
-      if(response.route_status == "COMPLETED"){
+      if(response.route_status == "COMPLETED" || response.route_status == "PARTIALLY_COMPLETED") {
         setRouteActive(null)
         setWastes(null)
         setRequests(null)
@@ -296,25 +304,32 @@ const HomeConductor = () => {
       else{
         setRequests(prevRequests => 
           prevRequests.map(request => 
-            request.route_request_id === id ? { ...request, route_request_status: getRouteRequestStatus(status) } : request
+            request.route_request_id === id ? { ...request, route_request_status: mapRouteRequestStatus[status] } : request
           )
         );
         setLoading(false)
       }  
     }).catch((error) => {
-      console.log("Error al actualizar solicitud", error);
-      ToastNotifier.error("Error al actualizar solicitud\nPor favor, intente nuevamente")
-      setLoading(false)
+      console.log("Error al actualizar solicitud:", error);
+      setLoading(false);
+      throw error;
     })
   };
 
   return (
-    <div className="overflow-x-auto max-w-full w-full text-2xs md:text-sm min-h-full flex flex-col">
+    <div className="overflow-x-auto max-w-full w-full h-full text-2xs md:text-sm min-h-full flex flex-col">
       <ToastContainer />
       <AcceptConfirmationModal isOpen={isModalStartRouteOpen} onRequestClose={() => setIsModalStartRouteOpen(false)} onConfirm={handleStartRoute} title="¿Seguro que desea comenzar la ruta?" />
       <CodeConfirmationModal isOpen={isModalConfirmRequestOpen} onRequestClose={() => setIsModalConfirmRequestOpen(false)} onConfirm={handleConfirmRequest} />
-      <div className='mt-4 mx-4 mb-2'>
+      <AcceptConfirmationModal isOpen={isModalReprogramRequestOpen} onRequestClose={() => setIsModalReprogramRequestOpen(false)} onConfirm={handleReprogramRequest} title="¿Seguro que desea reprogramar la solicitud?" />
+      <div className='mt-4 mx-4'>
         <h1 className='text-2xl font-bold text-center'>Bienvenido</h1>
+        <h2 className='text-xl font-semibold text-start mt-2'>Aqui puede ver las rutas que la cooperativa le asignó y se encuentran en progreso o pendientes de iniciar</h2>
+        {routes && routes.length == 0 && 
+          <div className='flex justify-center items-center mt-10'>
+            {noRutesComponent()}
+          </div>
+        }
       </div>
       {(loading || !routes) && <Spinner/>}
 
@@ -362,11 +377,11 @@ const HomeConductor = () => {
               className='select'
               placeholder="Estado"
               value={filters.status}
-              options={RequestStatus}
+              options={RouteRequestStatus}
               selectionMode="multiple"
               onChange={(e) => setFilters({ ...filters, status: e.target.value.split(',') })}
             >
-            {RequestStatus.map((status) => (
+            {RouteRequestStatus.map((status) => (
               <SelectItem key={status.value} value={status.value}>
                 {status.label}
               </SelectItem>
@@ -392,6 +407,7 @@ const HomeConductor = () => {
               <span className='flex 1'>{get_orders.length} de {filteredRequests.length} solicitudes</span>
             </div>}>
             <TableHeader>
+              <TableColumn>Id</TableColumn>
               <TableColumn>Nombre generador</TableColumn>
               <TableColumn>Dirección</TableColumn>
               <TableColumn>Zona</TableColumn>
@@ -401,6 +417,7 @@ const HomeConductor = () => {
             <TableBody>
               {get_orders.map((request, index) => (
                 <TableRow key={index}>
+                  <TableCell>{request.id}</TableCell>
                   <TableCell>{request.generator.username}</TableCell>
                   <TableCell>{request.address? request.address.street : request.generator.address.street} {request.address? request.address.number : request.generator.address.number}</TableCell>
                   <TableCell>{request.address? request.address.zone : request.generator.address.zone}</TableCell>
@@ -408,10 +425,10 @@ const HomeConductor = () => {
                   <TableCell>
                     <div className='flex gap-3'>
                       <Button className="" onClick={() => redirectDetailPage(request)}>Ver</Button>
-                      {request.route_request_status != "Completada" &&
-                      <Button className='bg-white text-green-dark px-3 py-2 rounded-medium border-medium border-green-dark' onClick={() => confirmRequest(request.route_request_id)}>Completar</Button> }
+                      {request.route_request_status != "Completada" & request.route_request_status != "Reprogramada" &&
+                      <Button className='bg-white text-green-dark px-3 py-2 rounded-medium border-medium border-green-dark' onClick={() => confirmRequest(request.route_request_id, index + 1)}>Completar</Button> }
                       {(request.route_request_status == "Pendiente" || request.route_request_status == "En ruta") &&
-                      <Button className='bg-white text-red-dark px-3 py-2 rounded-medium border-medium border-red-dark' onClick={() => updateRouteRequest(request.route_request_id, routeActive, "REPROGRAMED")}>Reprogramar</Button>
+                      <Button className='bg-white text-red-dark px-3 py-2 rounded-medium border-medium border-red-dark' onClick={() => reprogramRequest(index + 1)}>Reprogramar</Button>
                       }
                     </div>
                   </TableCell>

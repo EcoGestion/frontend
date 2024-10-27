@@ -1,4 +1,3 @@
-import zIndex from '@mui/material/styles/zIndex';
 import React from 'react';
 import Modal from 'react-modal';
 
@@ -36,7 +35,7 @@ const AcceptConfirmationModal = ({
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
         <button 
           type='button'
-          className="bg-gray-dark hover:bg-gray-light text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 mt-4" 
+          className="bg-gray-dark border-medium border-gray-dark hover:bg-gray-light text-white font-semibold py-2 px-3 rounded-medium mt-4" 
           onClick={onRequestClose}
           style={{ flex: 1, marginRight: '10px' }}
         >
@@ -44,7 +43,7 @@ const AcceptConfirmationModal = ({
         </button>
         <button
           type='button'
-          className="bg-green-dark hover:bg-green-light text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 mt-4"
+          className='bg-white text-green-dark px-3 py-2 rounded-medium border-medium border-green-dark mt-4 hover:border-green-light'
           onClick={onConfirm}
           style={{ flex: 1, marginLeft: '10px' }}
         >

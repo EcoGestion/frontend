@@ -169,6 +169,17 @@ export const getCoopActiveRoutes = async (coopId) => {
   return response;
 }
 
+export const getDriverHomeRoutes = async (driverId) => {
+  const requests_filters = {
+    "operations": [
+    {"op": "EQ", "attribute": "driver_id", "value": driverId, "model": "Route"},
+    {"op": "IN", "attribute": "status", "value": ["CREATED", "IN_PROGRESS"], "model": "Route"}
+    ]
+  };
+  const response = await getRoutesWithFilter(requests_filters);
+  return response;
+}
+
 export const getRouteById = async (routeId) => {
   const response = await axios.get(`${API_BASE_URL}/route/${routeId}`);
   return response.data;

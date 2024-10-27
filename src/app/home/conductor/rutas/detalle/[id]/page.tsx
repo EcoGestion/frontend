@@ -7,12 +7,10 @@ import dynamic from 'next/dynamic';
 import { Table, TableHeader, TableBody, TableRow, TableColumn, TableCell, Card, CardHeader, CardBody, Divider } from '@nextui-org/react';
 import { getRouteById, getUserById, getRequestsByRouteId } from "@api/apiService";
 import { WasteCollectionRequests, WasteQuantities, Route, RouteRequests, Address, UserInfo } from '@/types';
-import {formatDateRange, formatDate} from '@utils/dateStringFormat';
+import { formatDate} from '@utils/dateStringFormat';
 import AddressFormat from '@utils/addressFormat';
 import Spinner from '@/components/Spinner';
-import { ToastContainer } from 'react-toastify';
 import { mapTruckStatus } from '@constants/truck';
-import { mapRequestStatus } from '@constants/request';
 import { mapRouteStatus } from '@constants/route';
 import { mapRouteRequestStatus } from '@/constants/routeRequest';
 
@@ -92,10 +90,6 @@ const detallesRuta = (props: {params?: { id?: string } }) => {
     setRouteCoords(updatedRouteCoords);
   }
 
-  const formatWasteQuantities = (wasteQuantities: WasteQuantities): string => {
-    return wasteQuantities.map(waste => `${waste.waste_type}: ${waste.quantity} kg`).join(', ');
-  };
-
   const getGeneratorTextFromRequestId = (requestId: number) => {
     const request = wasteRequests.find((request) => request.id === requestId);
     return request ? request.generator?.username : 'Generador';
@@ -107,7 +101,7 @@ const detallesRuta = (props: {params?: { id?: string } }) => {
   }
 
   const handleRequestDetails = (requestId: number) => {
-    router.push(`/home/cooperativa/pedidos/detalles/${requestId}`);
+    router.push(`/home/conductor/rutas/recoleccion/detalles/${requestId}`);
   }
 
   return (
@@ -191,7 +185,6 @@ const detallesRuta = (props: {params?: { id?: string } }) => {
         </div>
       </div>
       )}
-      <ToastContainer />
     </div>
   );
 };

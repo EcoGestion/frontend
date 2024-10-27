@@ -53,7 +53,7 @@ const CodeConfirmationModal = ({
         <div className='flex-1 pt-4'>
           <button 
             type='button'
-            className="bg-gray-dark hover:bg-gray-light text-white font-semibold py-2 px-3 rounded-medium shadow-md transition duration-300 mt-4" 
+            className="bg-gray-dark border-medium border-gray-dark hover:bg-gray-light text-white font-semibold py-2 px-3 rounded-medium mt-4" 
             onClick={onRequestClose}
             style={{ flex: 1, marginRight: '10px' }}
           >
