@@ -6,6 +6,10 @@ import dynamic from 'next/dynamic';
 import { Card, CardHeader, CardBody, Divider, CardFooter } from '@nextui-org/react';
 import BlueRoundedButton from '@/components/blueRoundedButton';
 import AddressForm from '@/components/AddressForm';
+import { ToastNotifier } from '@/components/ToastNotifier';
+import { ToastContainer } from 'react-toastify';
+import ClearIcon from '@mui/icons-material/Clear';
+import DoneIcon from '@mui/icons-material/Done';
 
 // Dynamic import to avoid Window not defined error
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
@@ -16,10 +20,24 @@ const OnboardingCooperativaFormStep1 = ({
   setAddress
   }) => {
   
-  const [coordinates, setCoordinates] = useState();
+  const [coordinates, setCoordinates] = useState(undefined);
   const [markers, setMarkers] = useState([]);
 
+  const [isFormValid, setIsFormValid] = useState(false);
+  
+  useEffect(() => {
+    if (address.street != '' && address.number != '' && address.city != '' && address.zip_code != 0 && address.province != '') {
+      setIsFormValid(true);
+    } else {
+      setIsFormValid(false);
+    }
+  }, [address]);
+
   const updateCoordinates = async () => {
+    if (!isFormValid) {
+      ToastNotifier.error('Por favor complete todos los campos para continuar');
+      return;
+    }
     const addressObj = {
       street: address.street,
       number: address.number,
@@ -42,7 +60,8 @@ const OnboardingCooperativaFormStep1 = ({
 
   const nextForm = async () => {
     if (!coordinates) {
-      await updateCoordinates();
+      ToastNotifier.error('Por favor verifique la dirección antes de continuar');
+      return;
     }
     nextStep();
   }
@@ -53,6 +72,7 @@ const OnboardingCooperativaFormStep1 = ({
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-white overflow-auto">
+      <ToastContainer />
       <Card className="border border-gray-900/10 rounded-lg p-6 top-4">
         <CardHeader className="text-base font-semibold leading-7 text-gray-900">
           Información de la cooperativa
@@ -79,12 +99,28 @@ const OnboardingCooperativaFormStep1 = ({
           />
         </CardBody>
         <Divider />
-        <CardFooter className='mt-2 justify-center gap-6'>
-          <div className="mt-6 flex">
-            <BlueRoundedButton onClick={updateCoordinates} buttonTitle='Verificar la direccion'/>
+        <CardFooter className='flex flex-col mt-2 justify-center'>
+          <div className="flex justify-center">
+          {!coordinates &&
+              <div className="flex justify-center">
+                <ClearIcon fontSize='small' color='error'/>
+                <p className="text-sm text-red-500">Dirección no verificada</p>
+              </div>
+            }
+            {coordinates &&
+              <div className="flex justify-center">
+                <DoneIcon fontSize='small' color='success'/>
+                <p className="text-sm text-green-500">Dirección verificada</p>
+              </div>
+            }
           </div>
-          <div className="mt-6 flex">
-            <GreenRoundedButton onClick={nextForm} buttonTitle='Siguiente'/>
+          <div className="flex flex-row gap-6">
+            <div className="mt-2 flex">
+              <BlueRoundedButton onClick={updateCoordinates} buttonTitle='Verificar la direccion'/>
+            </div>
+            <div className="mt-2 flex">
+              <GreenRoundedButton onClick={nextForm} buttonTitle='Siguiente'/>
+            </div>
           </div>
         </CardFooter>
       </Card>

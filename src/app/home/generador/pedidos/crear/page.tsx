@@ -42,10 +42,20 @@ const CreacionPedido = () => {
   const [comments, setComments] = useState("");
   
   const [useUserProfileAddress, setUseUserProfileAddress] = useState(true);
-  const [userNewAddress, setUserAddress] = useState({} as UserInfo['address']);
+  const [userNewAddress, setUserAddress] = useState({
+    street: '',
+    number: '',
+    city: '',
+    province: '',
+    zip_code: 0,
+    lat: '',
+    lng: ''
+  } as UserInfo['address']);
 
   const [coordinates, setCoordinates] = useState<[number, number] | undefined>(undefined);
   const [markers, setMarkers] = useState<Marker[]>([]);
+
+  const [isAddressValid, setIsAddressValid] = useState(false);
 
   const retrieveData = async () => {
     try {
@@ -77,6 +87,15 @@ const CreacionPedido = () => {
 
     }
   }, [userInfo]);
+
+  useEffect(() => {
+
+    if (userNewAddress.street != '' && userNewAddress.number != '' && userNewAddress.city != '' && userNewAddress.province != '' && userNewAddress.zip_code != 0) {
+      setIsAddressValid(true);
+    } else {
+      setIsAddressValid(false);
+    }
+  }, [userNewAddress, useUserProfileAddress]);
 
   const [items, setItems] = useState(wasteTypesDefault);
 
@@ -115,6 +134,10 @@ const CreacionPedido = () => {
   };
 
   const updateCoordinates = async () => {
+    if (!isAddressValid) {
+      ToastNotifier.error('Por favor complete todos los campos de la dirección para vericiarla');
+      return;
+    }
     const requestObj = {
       street: userNewAddress.street,
       number: userNewAddress.number,
@@ -139,6 +162,14 @@ const CreacionPedido = () => {
   };
 
   const handleConfirm = async () => {
+    if (selectedRecyclables.length === 0) {
+      ToastNotifier.error('Por favor seleccione al menos un material para recolectar');
+      return;
+    }
+    if (!useUserProfileAddress && !isAddressValid) {
+      ToastNotifier.error('Por favor verifique la dirección ingresada');
+      return;
+    }
     const body: WasteCollectionRequest = {
       request_date: now(getLocalTimeZone()).toDate(),
       generator_id: userSession.userId,
@@ -274,10 +305,10 @@ const CreacionPedido = () => {
               </div>
 
               <button
-              className={`bg-blue-dark text-white font-bold py-2 px-4 rounded mt-2 ${useUserProfileAddress ? 'disabled-button' : 'hover:bg-blue-light'}`}
-              disabled={useUserProfileAddress}
-              onClick={updateCoordinates}>
-                Buscar dirección
+                className={`bg-blue-dark text-white font-bold py-2 px-4 rounded mt-2 ${useUserProfileAddress ? 'disabled-button' : 'hover:bg-blue-light'}`}
+                disabled={useUserProfileAddress}
+                onClick={updateCoordinates}>
+                  Buscar dirección
               </button>
               {/* TODO: Cambiar a la direccion del usuario */}
               <MapView centerCoordinates={coordinates} zoom={15} markers={markers} />

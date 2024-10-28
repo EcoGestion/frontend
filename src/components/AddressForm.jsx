@@ -10,7 +10,6 @@ const AddressForm = ({
 
   return (
     <div>
-
     <form className="form-container">
       <div>
         <label htmlFor="street">Calle</label>
@@ -22,6 +21,7 @@ const AddressForm = ({
           onChange={(e) => setAddress({ ...address, street: e.target.value })}
           disabled={isDisabled}
           className={isDisabled ? 'disabled-input' : ''}
+          required
         />
       </div>
       <div>
