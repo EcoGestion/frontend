@@ -256,15 +256,19 @@ const CreacionPedido = () => {
             </CardHeader>
             <CardBody>
               <CheckboxGroup label="Selecciona materiales" defaultValue={selectedRecyclables} onValueChange={setSelectedRecyclables}>
-                <p>Las unidades que se detallan a continuacion son expresadas en kilogramos</p>
+                <div className="bg-white shadow-md p-2">
+                  <p className="text-center">Las unidades que se detallan a continuacion son expresadas en kilogramos.</p>
+                  <p className="text-center">En caso de no saber las cantidades con exactitud seleccione un valor estimado.</p>
+                </div>
+                <div>
                 {items.map(item => (
-                  <div key={item.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                    <Checkbox value={item.name}>
+                  <div key={item.id} style={{ display: 'flex', alignItems: 'between', marginBottom: '10px' }}>
+                    <Checkbox value={item.name} color="success">
                       {item.label}
                     </Checkbox>
                     <input 
                       type="number" 
-                      min="0" 
+                      min={"0"} 
                       defaultValue={item.quantity}
                       style={{ 
                         marginLeft: '10px', 
@@ -278,6 +282,7 @@ const CreacionPedido = () => {
                     />
                   </div>
                 ))}
+                </div>
               </CheckboxGroup>
             </CardBody>
           </Card>

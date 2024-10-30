@@ -248,7 +248,7 @@ export default function BasicFilterDemo() {
     };
 
     const redirectDetailPage = (rowData) => {
-        router.replace(`/home/generador/pedidos/detalles/${rowData.value.id}`)
+        router.replace(`/home/generador/pedidos/detalles/${rowData.id}`)
     };
 
     const clearFilters = () => {

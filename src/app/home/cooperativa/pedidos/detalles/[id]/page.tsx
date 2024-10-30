@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react';
 import Spinner from "@components/Spinner";
-import { getOrderById, updateOrderById, getUserById } from "@api/apiService";
+import { getOrderById, updateOrderById, getUserById, release_waste_request } from "@api/apiService";
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -15,115 +15,109 @@ import { useRouter } from 'next/navigation';
 import { Address, UserInfo, WasteQuantities, WasteCollectionRequest } from '@/types';
 import { RootState } from '@/state/store';
 import { useSelector } from 'react-redux';
+import { mapRequestStatus } from '@/constants/request';
+import { formatDate, formatDateRange, formatTime } from '@/utils/dateStringFormat';
+import { ToastNotifier } from '@/components/ToastNotifier';
+import { ToastContainer } from 'react-toastify';
+import AcceptConfirmationModal from '@/components/AcceptConfirmationModal';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
-
-const getStatus = (status : any) => {
-    switch (status) {
-        case 'REJECTED':
-            return 'Cancelada';
-
-        case 'COMPLETED':
-            return 'Completada';
-
-        case 'PENDING':
-            return 'En proceso';
-
-        case 'OPEN':
-            return 'Ingresada';
-
-        case 'ON_ROUTE':
-            return 'En ruta';
-    }
-}
-
-const formatDate = (value: any) => {
-    const dateOptions = {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-    };
-
-    const timeOptions = {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false 
-    };
-
-    const dateString = value.toLocaleDateString('en-GB', dateOptions);
-    const timeString = value.toLocaleTimeString('en-GB', timeOptions);
-
-    return `${dateString} ${timeString}`;
-};
-
 const OrderDetails = (props: {params?: { id?: string } }) => {
-    const userSession = useSelector((state: RootState) => state.userSession);
-    const orderId = props.params?.id
-    
-    const [loading, setLoading] = useState(true);
-    const [update, setUpdate] = useState<string | null>(null);
-    const [userId, setUserId] = useState<string | null>(null);
-    const [generator, setGenerator] = useState<UserInfo | null>(null);
-    const [order, setOrder] = useState<WasteCollectionRequest | null>(null);
-    const [isCollapsedItems, setIsCollapsedItems] = useState(false);
-    const [isCollapsedObservations, setIsCollapsedObservations] = useState(false);
-    const router = useRouter();
+  const userSession = useSelector((state: RootState) => state.userSession);
+  const orderId = props.params?.id
+  
+  const [loading, setLoading] = useState(true);
+  const [update, setUpdate] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [generator, setGenerator] = useState<UserInfo | null>(null);
+  const [order, setOrder] = useState<WasteCollectionRequest | null>(null);
+  const [isCollapsedItems, setIsCollapsedItems] = useState(false);
+  const [isCollapsedObservations, setIsCollapsedObservations] = useState(false);
+  const router = useRouter();
 
-    const toggleCollapseItems = () => {
-        setIsCollapsedItems(!isCollapsedItems);
+  const [isModalReleaseOpen, setIsModalReleaseOpen] = useState(false);
+
+  const toggleCollapseItems = () => {
+      setIsCollapsedItems(!isCollapsedItems);
+  };
+
+  const toggleCollapseObservations = () => {
+      setIsCollapsedObservations(!isCollapsedObservations);
+  };
+
+  useEffect(() => {
+      const fetchUser = async () => {
+          try {
+              const responseOrder = await getOrderById(orderId);
+              const responseGenerator = await getUserById(responseOrder.generator_id);
+              setOrder(responseOrder);
+              setGenerator(responseGenerator);
+
+              setDateTimeRange(formatDateRange(responseOrder.pickup_date_from, responseOrder.pickup_date_to));
+              setInserted_date(responseOrder.request_date);
+              setStatus(mapRequestStatus[responseOrder.status as keyof typeof mapRequestStatus]);
+              setProducts(responseOrder.waste_quantities);
+              setAddress(responseOrder.address);
+              setPoint([{position: [parseFloat(responseOrder.address.lat), parseFloat(responseOrder.address.lng)], content: responseOrder.generator.username, popUp: `${responseOrder.address.street} ${responseOrder.address.number}`}])
+
+              setLoading(false);
+              setUserId(userSession? userSession.userId : null)
+          } catch (error) {
+              console.log("Error al obtener usuario", error);
+          } 
+      }
+      fetchUser();
+  }, [props, update]);
+
+  const [dateTimeRange, setDateTimeRange] = useState<string | null>(null);
+  const [inserted_date, setInserted_date] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null | undefined>(null);
+  const [products, setProducts] = useState<WasteQuantities | null>(null);
+  const [address, setAddress] = useState<Address | null>(null);
+  const [point, setPoint] = useState<any | null>(null);
+  
+  const acceptRequest = async (rowData: any) => {
+      setLoading(true);
+      updateOrderById(rowData.id, userId, "PENDING")
+      .then(() => getOrderById(orderId))
+      .then((response) => {
+          setOrder(response);
+          setLoading(false);
+      })
     };
-
-    const toggleCollapseObservations = () => {
-        setIsCollapsedObservations(!isCollapsedObservations);
-    };
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const responseOrder = await getOrderById(orderId);
-                const responseGenerator = await getUserById(responseOrder.generator_id);
-                setOrder(responseOrder);
-                setGenerator(responseGenerator);
-
-                setDate_from(formatDate(new Date(responseOrder.pickup_date_from)));
-                setDate_to(formatDate(new Date(responseOrder.pickup_date_to)));
-                setInserted_date(formatDate(new Date(responseOrder.request_date)));
-                setStatus(getStatus(responseOrder.status));
-                setProducts(responseOrder.waste_quantities);
-                setAddress(responseOrder.address);
-                setPoint([{position: [parseFloat(responseOrder.address.lat), parseFloat(responseOrder.address.lng)], content: responseOrder.generator.username, popUp: `${responseOrder.address.street} ${responseOrder.address.number}`}])
-
-                setLoading(false);
-                setUserId(userSession? userSession.userId : null)
-            } catch (error) {
-                console.log("Error al obtener usuario", error);
-            } 
-        }
-        fetchUser();
-    }, [props, update]);
-
-    const [date_from, setDate_from] = useState<string | null>(null);
-    const [date_to, setDate_to] = useState<string | null>(null);
-    const [inserted_date, setInserted_date] = useState<string | null>(null);
-    const [status, setStatus] = useState<string | null | undefined>(null);
-    const [products, setProducts] = useState<WasteQuantities | null>(null);
-    const [address, setAddress] = useState<Address | null>(null);
-    const [point, setPoint] = useState<any | null>(null);
     
-    const acceptRequest = async (rowData: any) => {
-        setLoading(true);
-        updateOrderById(rowData.id, userId, "PENDING")
-        .then(() => getOrderById(orderId))
-        .then((response) => {
-            setOrder(response);
-            setLoading(false);
-        })
-      };
+
+
+  const confirmReleaseOrder = () => {
+      setIsModalReleaseOpen(true);
+  }
       
+
+  const releaseOrder = async () => {
+    if (order) {
+      setLoading(true);
+      setIsModalReleaseOpen(false);
+      try {
+        await release_waste_request(orderId, order.coop_id)
+        .then((r) => {
+          router.replace("/home/cooperativa/pedidos")
+        })
+      } catch (error) {
+        console.log("Error al liberar solicitud", error)
+        ToastNotifier.error("Error al liberar solicitud\nPor favor, intente nuevamente")
+        setLoading(false);
+      } 
+    } else {
+      ToastNotifier.error("No hay solicitud para liberar");
+    }
+  }
+
 
     return (
         <div className="items-center flex justify-center">
+          <ToastContainer />
+          <AcceptConfirmationModal isOpen={isModalReleaseOpen} onRequestClose={() => setIsModalReleaseOpen(false)} onConfirm={releaseOrder} title='Desea liberar la solicitud?' />
             {!loading && (
                         // INICIO CARD
                         <div className="card mx-3 my-4 md:m-3 w-100 px-1 md:px-3 py-1 md:py-3">
@@ -137,7 +131,7 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
                                 <div className="flex flex-row gap-3 text-xl items-center">
                                     <LocalShippingIcon className="ml-1"/>
                                     <div className="flex flex-col">
-                                    <p className="card-text"><small className="text-body-secondary">{date_from} - {date_to}</small></p>
+                                    <p className="card-text"><small className="text-body-secondary">{dateTimeRange}</small></p>
                                     </div>
                                 </div>
 
@@ -216,8 +210,12 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
 
                         {/* FECHA INSERTADO */}
                         <div className="flex flex-row gap-3 text-xl items-center mt-52 justify-between">
-                            <p className="card-text"><small className="text-body-secondary text-md">Ingresado el {inserted_date}</small></p>
+                            <p className="card-text"><small className="text-body-secondary text-md">Ingresado el {formatDate(inserted_date)} {formatTime(inserted_date)}</small></p>
                             {order && order.status == "OPEN" && <Button className="bg-green-dark text-white w-32" onClick={() => acceptRequest(order)}>Aceptar</Button>}
+                            {status =="Pendiente" &&
+                                <div>
+                                    <Button className='bg-white text-red-dark px-3 py-2 rounded-medium border-medium border-red-dark' onClick={confirmReleaseOrder}>Liberar</Button>
+                              </div>}
                         </div>
 
                         </div>

@@ -87,6 +87,7 @@ export interface WasteCollectionRequest {
   status: 'OPEN' | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED';
   generator?: UserInfo;
   coop?: UserInfo;
+  delivery_code?: string;
 }
 
 export type WasteCollectionRequests = WasteCollectionRequest[];

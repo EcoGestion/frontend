@@ -8,6 +8,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
+import PinIcon from '@mui/icons-material/Pin';
 import { Address, UserInfo, WasteQuantities, WasteCollectionRequest } from '@/types';
 import { formatDateRange, formatDate } from "@/utils/dateStringFormat";
 import dynamic from 'next/dynamic'
@@ -149,6 +150,10 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
                                     <div className="flex flex-row gap-3 text-xl items-center">
                                         <LocalPhoneIcon className="ml-1"/>
                                         {generator && <p className="card-text"><small className="text-body-secondary text-md">{generator.phone} </small></p>}
+                                    </div>
+                                    <div className="flex flex-row gap-3 text-xl items-center">
+                                        <PinIcon className="ml-1"/>
+                                        {order && order.delivery_code && <p className="card-text"><small className="text-body-secondary text-md">Código de entrega: {order.delivery_code} </small></p>}
                                     </div>
                                     <div className="flex flex-col gap-0 text-lg justify-normal">
                                         <span className="ml-1 font-semibold">Observaciones</span>

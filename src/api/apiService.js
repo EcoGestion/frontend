@@ -214,3 +214,8 @@ export const verifyGeneratorCode = async (routeRequestId, code) => {
   const response = await axios.post(`${API_BASE_URL}/route_request/${routeRequestId}/code/${code}`);
   return response.data;
 }
+
+export const release_waste_request = async (routeRequestId, coopId) => {
+  const response = await axios.put(`${API_BASE_URL}/waste_request/${routeRequestId}/coop/${coopId}`);
+  return response.data;
+};

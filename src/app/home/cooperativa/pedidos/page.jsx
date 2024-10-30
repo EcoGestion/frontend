@@ -4,9 +4,9 @@ import { Card, CardBody,
     Table, TableHeader, TableBody, TableRow, TableCell, Button,
     TableColumn, Pagination, Select, SelectItem, Input, DateRangePicker
    } from '@nextui-org/react';
-import { getCoopOrdersById } from "../../../../api/apiService";
+import { getCoopOrdersById, release_waste_request } from "@api/apiService";
 import { useRouter } from 'next/navigation';
-import Spinner from "../../../../components/Spinner"
+import Spinner from "@components/Spinner";
 import { useSelector } from 'react-redux';
 import zones from '@/constants/zones';
 import { mapGenType } from '@/constants/userTypes';
@@ -16,6 +16,9 @@ import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import { RequestStatus, mapRequestStatus, mapRequestStatusToKey } from '@/constants/request';
 import { wasteTypesDefault } from '@/constants/recyclables';
 import "./style.css"
+import { ToastNotifier } from '@/components/ToastNotifier';
+import { ToastContainer } from 'react-toastify';
+import AcceptConfirmationModal from '@/components/AcceptConfirmationModal';
 
 export default function Orders() {
     const router = useRouter();
@@ -26,6 +29,9 @@ export default function Orders() {
     const [filters, setFilters] = useState({ zone: [], wasteType: [], generatorType: [], date_from: '', date_to: '', status: []});
     const rowsPerPage = 5;
     const [loading, setLoading] = useState(true);
+
+    const [orderToRelease, setOrderToRelease] = useState(null);
+    const [isModalReleaseOpen, setIsModalReleaseOpen] = useState(false);
 
       const generatorTypes = [
         { value: "Restaurante", label: "Restaurante" },
@@ -170,8 +176,30 @@ export default function Orders() {
         setFilters({ zone: [], wasteType: [], generatorType: [], date_from: '', date_to: '', status: [] });
     }
 
+    const confirmReleaseOrder = (order) => {
+      setOrderToRelease(order);
+      setIsModalReleaseOpen(true);
+    }
+      
+
+    const releaseOrder = async () => {
+      try {
+        setLoading(true);
+        setIsModalReleaseOpen(false);
+        await release_waste_request(orderToRelease.id, orderToRelease.coop_id)
+        .then((r) => {
+          ToastNotifier.success("Solicitud liberada exitosamente")
+        })
+      } catch (error) {
+        console.log("Error al liberar solicitud", error)
+        ToastNotifier.error("Error al liberar solicitud\nPor favor, intente nuevamente")
+      } 
+    }
+
     return (
         <div className="overflow-x-auto max-w-full w-full text-2xs md:text-sm min-h-full flex flex-col">
+          <ToastContainer />
+          <AcceptConfirmationModal isOpen={isModalReleaseOpen} onRequestClose={() => setIsModalReleaseOpen(false)} onConfirm={releaseOrder} title='Desea liberar la solicitud?' />
             {(loading || !orders) && <Spinner/>}
             {!loading && orders &&
             <div className='flex justify-between items-center mt-4 mx-4'>
@@ -303,7 +331,10 @@ export default function Orders() {
                         <TableCell>{formatDate(request.request_date)}</TableCell>
                         <TableCell>{request.status}</TableCell>
                         <TableCell>
-                            <Button className="rounded--medium" onClick={() => redirectDetailPage(request)}>Ver</Button>
+                          <div className='flex gap-2'>
+                            <Button className="rounded-medium" onClick={() => redirectDetailPage(request)}>Ver</Button>
+                            {request.status == "Pendiente" && <Button className='bg-white text-red-dark px-3 py-2 rounded-medium border-medium border-red-dark' onClick={() => confirmReleaseOrder(request)}>Liberar</Button>}
+                          </div>
                         </TableCell>
                         </TableRow>
                     ))}
