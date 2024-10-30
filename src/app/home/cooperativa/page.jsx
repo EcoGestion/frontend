@@ -241,16 +241,17 @@ useEffect(() => {
   };
 
   const acceptRequest = async () => {
+    setLoading(true);
+    setModalIsOpen(false);
     await acceptOrderById(acceptedOrder.id, userSession.userId)
       .then(() => {
-        setModalIsOpen(false);
         ToastNotifier.success("Solicitud aceptada correctamente");
         setRefresh(!refresh);
       })
       .catch(() => {
         setModalIsOpen(false);
+        setLoading(false);
         ToastNotifier.error("Error al aceptar la solicitud");
-        console.log("Error al aceptar la solicitud");
       });
   };
 

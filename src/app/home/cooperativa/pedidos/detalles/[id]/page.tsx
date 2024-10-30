@@ -117,7 +117,7 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
     return (
         <div className="items-center flex justify-center">
           <ToastContainer />
-          <AcceptConfirmationModal isOpen={isModalReleaseOpen} onRequestClose={() => setIsModalReleaseOpen(false)} onConfirm={releaseOrder} title='Desea liberar la solicitud?' />
+          <AcceptConfirmationModal isOpen={isModalReleaseOpen} onRequestClose={() => setIsModalReleaseOpen(false)} onConfirm={releaseOrder} title='Desea liberar la solicitud?' message="Una vez liberada, la solicitud estará nuevamente disponible para todas las cooperativas." />
             {!loading && (
                         // INICIO CARD
                         <div className="card mx-3 my-4 md:m-3 w-100 px-1 md:px-3 py-1 md:py-3">

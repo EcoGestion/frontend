@@ -189,6 +189,7 @@ export default function Orders() {
         await release_waste_request(orderToRelease.id, orderToRelease.coop_id)
         .then((r) => {
           ToastNotifier.success("Solicitud liberada exitosamente")
+          setLoading(false);
         })
       } catch (error) {
         console.log("Error al liberar solicitud", error)
@@ -199,7 +200,7 @@ export default function Orders() {
     return (
         <div className="overflow-x-auto max-w-full w-full text-2xs md:text-sm min-h-full flex flex-col">
           <ToastContainer />
-          <AcceptConfirmationModal isOpen={isModalReleaseOpen} onRequestClose={() => setIsModalReleaseOpen(false)} onConfirm={releaseOrder} title='Desea liberar la solicitud?' />
+          <AcceptConfirmationModal isOpen={isModalReleaseOpen} onRequestClose={() => setIsModalReleaseOpen(false)} onConfirm={releaseOrder} title='Desea liberar la solicitud?' message="Una vez liberada, la solicitud estará nuevamente disponible para todas las cooperativas." />
             {(loading || !orders) && <Spinner/>}
             {!loading && orders &&
             <div className='flex justify-between items-center mt-4 mx-4'>
