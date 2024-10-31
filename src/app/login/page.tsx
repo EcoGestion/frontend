@@ -14,7 +14,8 @@ const InitialPage = () => {
 
   const handleBack = () => {
     // Redirigir a la página anterior
-    router.back();
+    //router.back();
+    router.push('/');
   };
 
   useEffect(() => {
