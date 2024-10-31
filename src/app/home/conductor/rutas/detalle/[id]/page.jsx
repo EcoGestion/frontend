@@ -1,12 +1,9 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { RootState } from '@/state/store';
-import { useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { Table, TableHeader, TableBody, TableRow, TableColumn, TableCell, Card, CardHeader, CardBody, Divider } from '@nextui-org/react';
 import { getRouteById, getUserById, getRequestsByRouteId } from "@api/apiService";
-import { WasteCollectionRequests, WasteQuantities, Route, RouteRequests, Address, UserInfo } from '@/types';
 import { formatDate} from '@utils/dateStringFormat';
 import AddressFormat from '@utils/addressFormat';
 import Spinner from '@/components/Spinner';

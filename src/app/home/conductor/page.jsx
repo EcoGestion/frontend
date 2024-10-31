@@ -18,8 +18,7 @@ import zones from '@/constants/zones';
 import AcceptConfirmationModal from '@components/AcceptConfirmationModal';
 import CodeConfirmationModal from '@components/CodeConfirmationModal';
 import { ToastContainer } from 'react-toastify';
-import { RouteStatus, mapRouteStatus, mapRouteStatusToKey } from '@/constants/route';
-import { RequestStatus, mapRequestStatus, mapRequestStatusToKey } from '@/constants/request';
+import { mapRouteStatus } from '@/constants/route';
 import { RouteRequestStatus, mapRouteRequestStatus, mapRouteRequestStatusToKey} from '@/constants/routeRequest';
 import ClearIcon from '@mui/icons-material/Clear';
 
@@ -56,7 +55,6 @@ const HomeConductor = () => {
   const [markers, setMarkers] = useState(null);
   const [routeCoords, setRouteCoords] = useState(null);
   const [filters, setFilters] = useState({ zone: [], status: [], generator: '' });
-  const [points, setPoints] = useState(null)
 
   const [loading, setLoading] = useState(true);
   const [routeActive, setRouteActive] = useState(null);
@@ -230,6 +228,10 @@ const HomeConductor = () => {
   };
 
   const startRoute = async (id) => {
+    if (routeActive) {
+      ToastNotifier.warning("Ya tienes una ruta en progreso");
+      return;
+    }
     setRouteToStart(id);
     setIsModalStartRouteOpen(true);
   };
