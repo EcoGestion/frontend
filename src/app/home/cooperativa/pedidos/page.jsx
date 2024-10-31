@@ -32,6 +32,8 @@ export default function Orders() {
 
     const [orderToRelease, setOrderToRelease] = useState(null);
     const [isModalReleaseOpen, setIsModalReleaseOpen] = useState(false);
+    
+    const [reload, setReload] = useState(false);
 
       const generatorTypes = [
         { value: "Restaurante", label: "Restaurante" },
@@ -149,7 +151,7 @@ export default function Orders() {
         };
     
         fetchOrders();
-    }, []);
+    }, [reload]);
 
     const formatWasteType = (value) => {
       return value.join(", ");
@@ -189,6 +191,7 @@ export default function Orders() {
         await release_waste_request(orderToRelease.id, orderToRelease.coop_id)
         .then((r) => {
           ToastNotifier.success("Solicitud liberada exitosamente")
+          setReload(!reload);
           setLoading(false);
         })
       } catch (error) {
