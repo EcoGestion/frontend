@@ -23,22 +23,16 @@ import { ToastContainer } from "react-toastify";
 // Dynamic import to avoid Window not defined error
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
-interface Marker {
-  position: number[];
-  content: string;
-  popUp: string;
-}
-
 const CreacionPedido = () => {
   const router = useRouter();
   const current_date = new Date();
-  const userSession = useSelector((state: RootState) => state.userSession);
+  const userSession = useSelector((state) => state.userSession);
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [request_from, setRequestFrom] = useState(now("America/Argentina/Buenos_Aires"));
   const [request_to, setRequestTo] = useState(now("America/Argentina/Buenos_Aires"));
-  const [selectedRecyclables, setSelectedRecyclables] = useState<string[]>([]);
-  const [quantities, setQuantities] = useState<{ waste_type: string, quantity: number }[]>([]);
+  const [selectedRecyclables, setSelectedRecyclables] = useState([]);
+  const [quantities, setQuantities] = useState([]);
   const [comments, setComments] = useState("");
   
   const [useUserProfileAddress, setUseUserProfileAddress] = useState(true);
@@ -50,10 +44,10 @@ const CreacionPedido = () => {
     zip_code: 0,
     lat: '',
     lng: ''
-  } as UserInfo['address']);
+  });
 
-  const [coordinates, setCoordinates] = useState<[number, number] | undefined>(undefined);
-  const [markers, setMarkers] = useState<Marker[]>([]);
+  const [coordinates, setCoordinates] = useState(undefined);
+  const [markers, setMarkers] = useState([]);
 
   const [isAddressValid, setIsAddressValid] = useState(false);
   const [isAddressValidated, setIsAddressValidated] = useState(false);
@@ -100,7 +94,7 @@ const CreacionPedido = () => {
 
   const [items, setItems] = useState(wasteTypesDefault);
 
-  const handleRequestDateChange = (date: DateValue) => {
+  const handleRequestDateChange = (date) => {
     const { year, month, day } = date;
     const updated_from = request_from.set({ year, month, day });
     const updated_to = request_to.set({ year, month, day });
@@ -108,19 +102,19 @@ const CreacionPedido = () => {
     setRequestTo(updated_to);
   };
 
-  const handleRequestTimeChangeFrom = (time : Time) => {
+  const handleRequestTimeChangeFrom = (time) => {
       const {hour, minute, second, millisecond} = time;
       const updated_from = request_from.set({hour, minute, second, millisecond});
       setRequestFrom(updated_from);
   }
 
-  const handleRequestTimeChangeTo = (time : Time) => {
+  const handleRequestTimeChangeTo = (time) => {
     const {hour, minute, second, millisecond} = time;
     const updated_to = request_to.set({hour, minute, second, millisecond});
     setRequestTo(updated_to);
   }
 
-  const handleQuantityChange = (waste_type: string, quantity: number) => {
+  const handleQuantityChange = (waste_type, quantity) => {
     setQuantities((prevQuantities) => {
       const existingIndex = prevQuantities.findIndex(item => item.waste_type === waste_type);
   
@@ -172,7 +166,7 @@ const CreacionPedido = () => {
       ToastNotifier.error('Por favor verifique la dirección ingresada');
       return;
     }
-    const body: WasteCollectionRequest = {
+    const body = {
       request_date: now(getLocalTimeZone()).toDate(),
       generator_id: userSession.userId,
       details: comments,
