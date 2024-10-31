@@ -1,0 +1,68 @@
+html {
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
+  .about-card{
+    background: linear-gradient(160deg, #139b4e,  #057455 );
+  }
+
+  .dots {
+    position: absolute;
+    width: 50vw;
+    max-width: none;
+    bottom: 0%;
+    left: 0%;
+    z-index: 0;
+  }
+  
+  .dots.right{
+    left: auto;
+    right: 0%;
+    bottom: auto;
+    top: 0%;
+    transform: rotate(180deg);
+    transform-origin: center;
+  }
+
+  @screen lg {
+    .dots {
+      width: 40vw;
+    }
+  }
+
+  @keyframes gradient-anim {
+    0% {
+      background-position: 0% 88%;
+    }
+    50% {
+      background-position: 100% 88%;
+    }
+    100% {
+      background-position: 0% 88%;
+    }
+  }
+
+  .hightlighted {
+    position: relative;
+    background-image: linear-gradient(90deg, #064e3b, #24d3a4, #064e3b, #41d0a9);
+    background-repeat: no-repeat;
+    background-size: 100% 0.2em;
+    background-position: 0 88%;
+    background-size: 400% 0.2em;
+    animation: gradient-anim 10s ease-in-out infinite alternate;
+  }
+  
+  .hightlighted.hightlighted-white {
+    background-image:  linear-gradient(90deg, #064e3b, #24d3a4, #064e3b, #41d0a9);
+  }
+
+  #intro .right {
+    background: url(/images/landing-bg-dark.jpg);
+    background-position: top left;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+
+.text-secondary-green{
+    color: #064e3b 
+}
