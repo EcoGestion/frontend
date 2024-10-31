@@ -265,7 +265,7 @@ useEffect(() => {
 
 
     return (
-      <div className='flex flex-col p-4 gap-5 h-screen'>
+      <div className='flex flex-col py-1 px-2 lg:p-4 h-screen'>
         <ToastContainer/>
         <AcceptConfirmationModal isOpen={modalIsOpen} onRequestClose={() => setModalIsOpen(false)} onConfirm={acceptRequest} title='Deseas aceptar esta solicitud?' />
         {loading  && <Spinner/>}
@@ -273,7 +273,7 @@ useEffect(() => {
         <div className='flex flex-col gap-2 w-full home-col'>
           {availableOrders &&
           <div className='flex justify-between items-center mx-4'>
-          <p className='text-start text-xl font-bold ml-2'>Solicitudes de disponibles</p>
+            <p className='text-start text-xl font-bold lg:ml-2'>Solicitudes de disponibles</p>
           </div>
           }
 

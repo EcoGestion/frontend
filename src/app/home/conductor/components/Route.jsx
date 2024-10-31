@@ -40,7 +40,7 @@ const Route = ({route, startRoute, cancelRoute}) => {
                     <LocalShippingIcon></LocalShippingIcon> 
                     <span>Camión:</span>
                 </div>
-                <div className='grid grid-cols-2 gap-y-3 gap-x-20'>
+                <div className='grid grid-rows-4 lg:grid-cols-2 lg:gap-y-3 lg:gap-x-20'>
                     <span className="text-body-secondary font-semibold text-md">Marca: {route.truck.brand}</span>
                     <span className="text-body-secondary font-semibold text-md">Modelo: {route.truck.model}</span>
                     <span className="text-body-secondary font-semibold text-md">Patente: {route.truck.patent}</span>
