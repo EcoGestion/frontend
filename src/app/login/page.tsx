@@ -1,16 +1,21 @@
 'use client'
 import React, { useEffect } from 'react';
-import {auth} from './firebaseConfig'
+import {auth} from '../firebaseConfig'
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { RootState } from '@/state/store';
 import { useSelector } from 'react-redux';
-import GreenRoundedButton from '../components/greenRoundedButton';
-import BlueRoundedButton from '../components/blueRoundedButton';
+import GreenRoundedButton from '../../components/greenRoundedButton';
+import BlueRoundedButton from '../../components/blueRoundedButton';
 
 const InitialPage = () => {
   const userSession = useSelector((state: RootState) => state.userSession);
   const router = useRouter();
+
+  const handleBack = () => {
+    // Redirigir a la página anterior
+    router.back();
+  };
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -43,6 +48,15 @@ const InitialPage = () => {
             >
               Conductor
             </button>
+          </div>
+          <div className='flex justify-center'>
+          <button 
+            type='button'
+            className="bg-gray-dark hover:bg-gray-light text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 mt-4" 
+            onClick={handleBack}
+          >
+            Volver
+          </button>
           </div>
         </div>
       </div>
