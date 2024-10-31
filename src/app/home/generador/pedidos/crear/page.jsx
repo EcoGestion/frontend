@@ -15,7 +15,7 @@ import { getUserById, createRequest } from "@/api/apiService";
 import { UserInfo, WasteCollectionRequest } from '@/types';
 import { useRouter } from "next/navigation";
 import Spinner from "@/components/Spinner";
-import {materialsDefault} from "@/constants/recyclables";
+import {wasteTypesDefault} from "@/constants/recyclables";
 import AddressForm from "@components/AddressForm";
 import { ToastNotifier } from "@/components/ToastNotifier";
 import { ToastContainer } from "react-toastify";
@@ -23,29 +23,34 @@ import { ToastContainer } from "react-toastify";
 // Dynamic import to avoid Window not defined error
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
-interface Marker {
-  position: number[];
-  content: string;
-  popUp: string;
-}
-
 const CreacionPedido = () => {
   const router = useRouter();
   const current_date = new Date();
-  const userSession = useSelector((state: RootState) => state.userSession);
+  const userSession = useSelector((state) => state.userSession);
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [request_from, setRequestFrom] = useState(now("America/Argentina/Buenos_Aires"));
   const [request_to, setRequestTo] = useState(now("America/Argentina/Buenos_Aires"));
-  const [selectedRecyclables, setSelectedRecyclables] = useState<string[]>([]);
-  const [quantities, setQuantities] = useState<{ waste_type: string, quantity: number }[]>([]);
+  const [selectedRecyclables, setSelectedRecyclables] = useState([]);
+  const [quantities, setQuantities] = useState([]);
   const [comments, setComments] = useState("");
   
   const [useUserProfileAddress, setUseUserProfileAddress] = useState(true);
-  const [userNewAddress, setUserAddress] = useState({} as UserInfo['address']);
+  const [userNewAddress, setUserAddress] = useState({
+    street: '',
+    number: '',
+    city: '',
+    province: '',
+    zip_code: 0,
+    lat: '',
+    lng: ''
+  });
 
-  const [coordinates, setCoordinates] = useState<[number, number] | undefined>(undefined);
-  const [markers, setMarkers] = useState<Marker[]>([]);
+  const [coordinates, setCoordinates] = useState(undefined);
+  const [markers, setMarkers] = useState([]);
+
+  const [isAddressValid, setIsAddressValid] = useState(false);
+  const [isAddressValidated, setIsAddressValidated] = useState(false);
 
   const retrieveData = async () => {
     try {
@@ -78,9 +83,18 @@ const CreacionPedido = () => {
     }
   }, [userInfo]);
 
-  const [items, setItems] = useState(materialsDefault);
+  useEffect(() => {
 
-  const handleRequestDateChange = (date: DateValue) => {
+    if (userNewAddress.street != '' && userNewAddress.number != '' && userNewAddress.city != '' && userNewAddress.province != '' && userNewAddress.zip_code != 0) {
+      setIsAddressValid(true);
+    } else {
+      setIsAddressValid(false);
+    }
+  }, [userNewAddress, useUserProfileAddress]);
+
+  const [items, setItems] = useState(wasteTypesDefault);
+
+  const handleRequestDateChange = (date) => {
     const { year, month, day } = date;
     const updated_from = request_from.set({ year, month, day });
     const updated_to = request_to.set({ year, month, day });
@@ -88,19 +102,19 @@ const CreacionPedido = () => {
     setRequestTo(updated_to);
   };
 
-  const handleRequestTimeChangeFrom = (time : Time) => {
+  const handleRequestTimeChangeFrom = (time) => {
       const {hour, minute, second, millisecond} = time;
       const updated_from = request_from.set({hour, minute, second, millisecond});
       setRequestFrom(updated_from);
   }
 
-  const handleRequestTimeChangeTo = (time : Time) => {
+  const handleRequestTimeChangeTo = (time) => {
     const {hour, minute, second, millisecond} = time;
     const updated_to = request_to.set({hour, minute, second, millisecond});
     setRequestTo(updated_to);
   }
 
-  const handleQuantityChange = (waste_type: string, quantity: number) => {
+  const handleQuantityChange = (waste_type, quantity) => {
     setQuantities((prevQuantities) => {
       const existingIndex = prevQuantities.findIndex(item => item.waste_type === waste_type);
   
@@ -115,6 +129,10 @@ const CreacionPedido = () => {
   };
 
   const updateCoordinates = async () => {
+    if (!isAddressValid) {
+      ToastNotifier.error('Por favor complete todos los campos de la dirección para vericiarla');
+      return;
+    }
     const requestObj = {
       street: userNewAddress.street,
       number: userNewAddress.number,
@@ -125,6 +143,7 @@ const CreacionPedido = () => {
     };
     const addressCoordinates = await geocodeAddress(requestObj);
     if (addressCoordinates) {
+      setIsAddressValidated(true);
       setCoordinates([addressCoordinates.latitud, addressCoordinates.longitud]);
       setMarkers([
         {
@@ -138,8 +157,16 @@ const CreacionPedido = () => {
     }
   };
 
-  const handleConfirm = () => {
-    const body: WasteCollectionRequest = {
+  const handleConfirm = async () => {
+    if (selectedRecyclables.length === 0) {
+      ToastNotifier.error('Por favor seleccione al menos un material para recolectar');
+      return;
+    }
+    if (!useUserProfileAddress && !isAddressValidated) {
+      ToastNotifier.error('Por favor verifique la dirección ingresada');
+      return;
+    }
+    const body = {
       request_date: now(getLocalTimeZone()).toDate(),
       generator_id: userSession.userId,
       details: comments,
@@ -150,13 +177,19 @@ const CreacionPedido = () => {
     };
     
     if (!useUserProfileAddress) {
+      userNewAddress.lat = coordinates ? coordinates[0].toString() : '';
+      userNewAddress.lng = coordinates ? coordinates[1].toString() : '';
       body.address = userNewAddress;
+      
     }
 
     console.log(body);
     setLoading(true);
     try {
-      const response = createRequest(body);
+      const response = await createRequest(body);
+      if (response.status !== 200) {
+        throw new Error('Error creating request');
+      }
       ToastNotifier.success('Pedido creado exitosamente');
       setTimeout(() => {
         router.push('/home/generador/pedidos');
@@ -219,15 +252,19 @@ const CreacionPedido = () => {
             </CardHeader>
             <CardBody>
               <CheckboxGroup label="Selecciona materiales" defaultValue={selectedRecyclables} onValueChange={setSelectedRecyclables}>
-                <p>Las unidades que se detallan a continuacion son expresadas en kilogramos</p>
+                <div className="bg-white shadow-md p-2">
+                  <p className="text-center">Las unidades que se detallan a continuacion son expresadas en kilogramos.</p>
+                  <p className="text-center">En caso de no saber las cantidades con exactitud seleccione un valor estimado.</p>
+                </div>
+                <div>
                 {items.map(item => (
-                  <div key={item.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                    <Checkbox value={item.name}>
+                  <div key={item.id} style={{ display: 'flex', alignItems: 'between', marginBottom: '10px' }}>
+                    <Checkbox value={item.name} color="success">
                       {item.label}
                     </Checkbox>
                     <input 
                       type="number" 
-                      min="0" 
+                      min={"0"} 
                       defaultValue={item.quantity}
                       style={{ 
                         marginLeft: '10px', 
@@ -241,6 +278,7 @@ const CreacionPedido = () => {
                     />
                   </div>
                 ))}
+                </div>
               </CheckboxGroup>
             </CardBody>
           </Card>
@@ -268,10 +306,10 @@ const CreacionPedido = () => {
               </div>
 
               <button
-              className={`bg-blue-dark text-white font-bold py-2 px-4 rounded mt-2 ${useUserProfileAddress ? 'disabled-button' : 'hover:bg-blue-light'}`}
-              disabled={useUserProfileAddress}
-              onClick={updateCoordinates}>
-                Buscar dirección
+                className={`bg-blue-dark text-white font-bold py-2 px-4 rounded mt-2 ${useUserProfileAddress ? 'disabled-button' : 'hover:bg-blue-light'}`}
+                disabled={useUserProfileAddress}
+                onClick={updateCoordinates}>
+                  Buscar dirección
               </button>
               {/* TODO: Cambiar a la direccion del usuario */}
               <MapView centerCoordinates={coordinates} zoom={15} markers={markers} />

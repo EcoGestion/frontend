@@ -6,33 +6,28 @@ import dynamic from 'next/dynamic';
 import { Table, TableHeader, TableBody, TableRow, TableColumn, TableCell } from '@nextui-org/react';
 import { getCoopPendingRequests, getTrucksByCoopId, getDriversByCoopId, getUserById, createRoute } from "@api/apiService";
 import { WasteCollectionRequests, Truck, TrucksResources, Driver, DriversResources, UserInfo } from '@/types';
-import {formatDateRange, formatDate} from '@utils/dateStringFormat';
+import {formatDateRange, formatDate, formatTimeRange } from '@utils/dateStringFormat';
 import AddressFormat from '@utils/addressFormat';
 import Spinner from '@/components/Spinner';
 import { ToastNotifier } from '@/components/ToastNotifier';
 import { ToastContainer } from 'react-toastify';
 import { mapTruckStatus } from '@constants/truck';
 import { useRouter } from 'next/navigation';
+import { FormatTruckCapacityToFront } from '@utils/truckFormat';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
-interface Marker {
-  position: number[];
-  content: string;
-  popUp: string;
-}
-
 const crearRuta = () => {
   const router = useRouter();
-  const userSession = useSelector((state: RootState) => state.userSession);
+  const userSession = useSelector((state) => state.userSession);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   const [coopCoords, setCoopCoords] = useState([0,0]);
-  const [markers, setMarkers] = useState<Marker[]>([]);
-  const [requests, setRequests] = useState<WasteCollectionRequests>([]);
-  const [trucks, setTrucks] = useState<TrucksResources>([]);
-  const [drivers, setDrivers] = useState<DriversResources>([]);
+  const [markers, setMarkers] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [trucks, setTrucks] = useState([]);
+  const [drivers, setDrivers] = useState([]);
 
   const [selectedRequests, setSelectedRequests] = useState(new Set());
   const [selectedTruck, setSelectedTruck] = useState('');
@@ -47,13 +42,14 @@ const crearRuta = () => {
       setLoading(true);
       const coop_info_response = await getUserById(userSession.userId);
       const camiones_response = await getTrucksByCoopId(userSession.userId);
+      const camiones_formatted = camiones_response.map((truck) => (FormatTruckCapacityToFront(truck)));
       const conductores_response = await getDriversByCoopId(userSession.userId);
       const requests_response = await getCoopPendingRequests(userSession.userId);
       setCoopCoords([
         parseFloat(coop_info_response.address.lat), 
         parseFloat(coop_info_response.address.lng)
       ]);
-      setTrucks(camiones_response);
+      setTrucks(camiones_formatted);
       setDrivers(conductores_response);
       setRequests(requests_response);
       setMarkersFromRequests(requests_response);
@@ -64,7 +60,7 @@ const crearRuta = () => {
     }
   }
 
-  const setMarkersFromRequests = (requests: WasteCollectionRequests) => {
+  const setMarkersFromRequests = (requests) => {
     const markers = requests
       .filter((request) => request.address && request.generator)
       .map((request) => ({
@@ -105,17 +101,19 @@ const crearRuta = () => {
       driver_id: selectedDriver
     }
     console.log('Request body:', request_body);
+    setLoading(true);
     createRoute(request_body).then((response) => {
       if (response) {
         ToastNotifier.success('Ruta generada correctamente');
-        
         router.push('/home/cooperativa/rutas');
       } else {
         ToastNotifier.error('Error al generar la ruta');
+        setLoading(false);
       }
     }).catch((error) => {
       console.error('Error creating route:', error);
       ToastNotifier.error('Error al generar la ruta');
+      setLoading(false);
     });
   }
 
@@ -129,12 +127,13 @@ const crearRuta = () => {
         <h2 className='text-xl font-bold'>Recolecciones pendientes</h2>
         <Table
           selectionMode='multiple'
-          onSelectionChange={keys => setSelectedRequests(keys as Set<string>)}
+          onSelectionChange={keys => setSelectedRequests(keys)}
           >
           <TableHeader>
             <TableColumn>ID</TableColumn>
             <TableColumn>Fecha de solicitud</TableColumn>
             <TableColumn>Fecha de retiro</TableColumn>
+            <TableColumn>Horario de retiro</TableColumn>
             <TableColumn>Zona</TableColumn>
             <TableColumn>Direccion</TableColumn>
             <TableColumn>Estado</TableColumn>
@@ -144,7 +143,8 @@ const crearRuta = () => {
               <TableRow key={request.id}>
                 <TableCell>{request.id}</TableCell>
                 <TableCell>{formatDate(request.request_date)}</TableCell>
-                <TableCell>{formatDateRange(request.pickup_date_from, request.pickup_date_to)}</TableCell>
+                <TableCell>{formatDate(request.pickup_date_from)}</TableCell>
+                <TableCell>{formatTimeRange(request.pickup_date_from, request.pickup_date_to)}</TableCell>
                 <TableCell>{request.address ? request.address.zone : ""}</TableCell>
                 <TableCell>{request.address ? AddressFormat(request.address) : ""}</TableCell>
                 <TableCell>{request.status}</TableCell>
@@ -153,12 +153,12 @@ const crearRuta = () => {
           </TableBody>
         </Table>
       </div>
-      <div className='flex flex-row w-full'>
+      <div className='flex flex-row w-full mt-2'>
         <div className='flex-1 flex-col'>
           <h2 className='text-xl font-semibold'>Camiones disponibles</h2>
           <select className='w-full p-2 rounded-md border border-gray-300' onChange={(e) => setSelectedTruck(e.target.value)}>
             <option value=''>Selecciona un camión</option>
-            {trucks.map((truck:Truck) => (
+            {trucks.map((truck) => (
               <option key={truck.id} value={truck.id} disabled={truck.status !== 'ENABLED'}>
                 {truck.id} - {truck.patent} - {truck.brand} {truck.model} - {mapTruckStatus[truck.status]} - {truck.capacity} tons.
               </option>
@@ -170,7 +170,7 @@ const crearRuta = () => {
           <h2 className='text-xl font-semibold'>Conductores disponibles</h2>
           <select className='w-full p-2 rounded-md border border-gray-300' onChange={(e) => setSelectedDriver(e.target.value)}>
             <option value=''>Selecciona un conductor</option>
-            {drivers.map((driver:Driver) => (
+            {drivers.map((driver) => (
               <option key={driver.id} value={driver.id}>
                 {driver.id} - {driver.username}
               </option>
@@ -179,12 +179,12 @@ const crearRuta = () => {
         </div>
       </div>
       <div className='mt-4'>
-        <button className='bg-white text-green-dark px-4 py-2 rounded-full border border-green-800' onClick={generarRuta}>
+        <button className='bg-white text-green-dark px-4 py-2 rounded-medium border border-green-800' onClick={generarRuta}>
           Generar ruta
         </button>
       </div>
       <div className='p-2 mt-4'>
-        <h2 className='text-xl'>Aqui puedes ver todas las solicitudes que tienes pendientes</h2>
+        <h2 className='text-lg'>Aqui puedes ver todas las solicitudes que tienes pendientes</h2>
         <MapView centerCoordinates={coopCoords} zoom={12} markers={markers}/>
       </div>
       </div>

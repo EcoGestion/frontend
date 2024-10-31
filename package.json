@@ -42,7 +42,8 @@
     "redux-persist": "^6.0.0",
     "tailwind": "^4.0.0",
     "xlsx": "^0.18.5",
-    "react-toastify": "^10.0.5"
+    "react-toastify": "^10.0.5",
+    "react-verification-input": "4.1.2"
   },
   "devDependencies": {
     "@types/node": "^20",

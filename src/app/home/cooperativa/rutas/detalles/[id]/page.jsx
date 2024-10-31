@@ -14,29 +14,24 @@ import { ToastContainer } from 'react-toastify';
 import { mapTruckStatus } from '@constants/truck';
 import { mapRequestStatus } from '@constants/request';
 import { mapRouteStatus } from '@constants/route';
+import { mapRouteRequestStatus } from '@/constants/routeRequest';
 
 const MapView = dynamic(() => import('@/components/MapWithRouteView'), { ssr: false });
 
-interface Marker {
-  position: number[];
-  content: string;
-  popUp: string;
-}    
-
-const detallesRuta = (props: {params?: { id?: string } }) => {
+const detallesRuta = (props) => {
   const router = useRouter();
-  const userSession = useSelector((state: RootState) => state.userSession);
+  const userSession = useSelector((state) => state.userSession);
   const route_id = parseInt(props.params?.id ?? '0');
   const [loading, setLoading] = useState(false);
 
   const [coopCoords, setCoopCoords] = useState([0,0]);
-  const [markers, setMarkers] = useState<Marker[]>([]);
+  const [markers, setMarkers] = useState([]);
 
-  const [routeInfo, setRouteInfo] = useState<Route>();
-  const [requests, setRequests] = useState<RouteRequests>([]);
-  const [wasteRequests, setWasteRequests] = useState<WasteCollectionRequests>([]);
+  const [routeInfo, setRouteInfo] = useState();
+  const [requests, setRequests] = useState([]);
+  const [wasteRequests, setWasteRequests] = useState([]);
 
-  const [routeCoords, setRouteCoords] = useState<number[][]>([]);
+  const [routeCoords, setRouteCoords] = useState([]);
 
   useEffect(() => {
     retrieveData();
@@ -61,7 +56,7 @@ const detallesRuta = (props: {params?: { id?: string } }) => {
     }
   }
 
-  const setMarkersFromRequests = (requests: WasteCollectionRequests, coopInfo: UserInfo) => {
+  const setMarkersFromRequests = (requests, coopInfo) => {
     console.log("Requests en page: ", requests);
     const genMarkers = requests
       .map((request) => ({
@@ -82,7 +77,7 @@ const detallesRuta = (props: {params?: { id?: string } }) => {
     console.log("Markers en page: ", markers);
   };
 
-  const setRouteCoordsFromRequests = (requests: RouteRequests, coopAddress: Address) => {
+  const setRouteCoordsFromRequests = (requests, coopAddress) => {
     const coopCoords = [parseFloat(coopAddress.lat), parseFloat(coopAddress.lng)];
     const routeCoords = requests
       .filter((request) => request.lat && request.lng)
@@ -91,21 +86,21 @@ const detallesRuta = (props: {params?: { id?: string } }) => {
     setRouteCoords(updatedRouteCoords);
   }
 
-  const formatWasteQuantities = (wasteQuantities: WasteQuantities): string => {
+  const formatWasteQuantities = (wasteQuantities) => {
     return wasteQuantities.map(waste => `${waste.waste_type}: ${waste.quantity} kg`).join(', ');
   };
 
-  const getGeneratorTextFromRequestId = (requestId: number) => {
+  const getGeneratorTextFromRequestId = (requestId) => {
     const request = wasteRequests.find((request) => request.id === requestId);
     return request ? request.generator?.username : 'Generador';
   }
 
-  const getAddressTextFromRequestId = (requestId: number) => {
+  const getAddressTextFromRequestId = (requestId) => {
     const request = wasteRequests.find((request) => request.id === requestId);
     return request ? AddressFormat(request.address) : 'Dirección';
   }
 
-  const handleRequestDetails = (requestId: number) => {
+  const handleRequestDetails = (requestId) => {
     router.push(`/home/cooperativa/pedidos/detalles/${requestId}`);
   }
 
@@ -171,8 +166,8 @@ const detallesRuta = (props: {params?: { id?: string } }) => {
                   <TableCell>{request.request_id}</TableCell>
                   <TableCell>{getGeneratorTextFromRequestId(request.request_id)}</TableCell>
                   <TableCell>{getAddressTextFromRequestId(request.request_id)}</TableCell>
-                  <TableCell>{request.status === 'COMPLETED' ? formatDate(request.delivery_time) : request.status === 'REPROGRAMED' ? 'Reprogramado' : 'Pendiente'}</TableCell>
-                  <TableCell>{mapRequestStatus[request.status]}</TableCell>
+                  <TableCell>{request.status === 'COMPLETED' ? formatDate(request.delivery_time) : ' - '}</TableCell>
+                  <TableCell>{mapRouteRequestStatus[request.status]}</TableCell>
                   <TableCell>
                     <button className='bg-white text-green-dark px-4 py-2 rounded-2xl border border-green-800' onClick={()=>handleRequestDetails(request.request_id)}>
                       Ver detalles

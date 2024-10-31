@@ -25,41 +25,40 @@ const MapView = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     setLoading(false);
-  }, []);
+  }, [centerCoordinates, zoom, markers]);
 
   const customIcon = new Icon({
       iconUrl: "https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678111-map-marker-512.png",
       iconSize: [40,40]
   });
 
-  return (
-    <div>
-    {loading ? (
-      <Spinner />
-    ) : (
-      <MapContainer
-      center={centerCoordinates}
-      zoom={zoom}
-      style={styles.map}
-      >
-          <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          {markers.map((marker) => (
-          <Marker position={marker.position} icon={customIcon }>
-              <Popup>
-                  <div>
-                      <h2>{marker.content}</h2>
-                      <p>{marker.popUp}</p>
-                  </div> 
-              </Popup>
-          </Marker>
-          ))}
-      </MapContainer>
-    )}
-    </div>
-  );
+  if (!window) {
+    return <Spinner />;
+  }
+  else {return (
+    <MapContainer
+    center={centerCoordinates}
+    zoom={zoom}
+    style={styles.map}
+    >
+        <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {markers.map((marker) => (
+        <Marker position={marker.position} icon={customIcon }>
+            <Popup>
+                <div>
+                    <h2>{marker.content}</h2>
+                    <p>{marker.popUp}</p>
+                </div> 
+            </Popup>
+        </Marker>
+        ))}
+    </MapContainer>
+    );
+  }
 };
 
 export default MapView;

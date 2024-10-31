@@ -2,11 +2,11 @@
 import { useState } from 'react';
 import GreenRoundedButton from '@/components/greenRoundedButton';
 import ReciclablesSelector from '@/components/ReciclablesSelector';
-import {materialsDefault} from '@/constants/recyclables';
+import {wasteTypesDefault} from '@/constants/recyclables';
 
 const OnboardingCooperativaFormStep2 = ({prevStep, nextStep, setRecyclableObjects, recyclableObjects}) => {
 
-  const [items, setItems] = useState(recyclableObjects || materialsDefault);
+  const [items, setItems] = useState(recyclableObjects || wasteTypesDefault);
 
   const handleCheckboxChange = (id) => {
     setItems(

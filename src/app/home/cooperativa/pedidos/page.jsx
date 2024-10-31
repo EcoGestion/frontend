@@ -1,15 +1,24 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { useUser } from '../../../../state/userProvider';
-import { Card, CardHeader, CardBody, Divider, CardFooter,
+import { Card, CardBody,
     Table, TableHeader, TableBody, TableRow, TableCell, Button,
     TableColumn, Pagination, Select, SelectItem, Input, DateRangePicker
    } from '@nextui-org/react';
-import { getCoopOrdersById } from "../../../../api/apiService";
+import { getCoopOrdersById, release_waste_request } from "@api/apiService";
 import { useRouter } from 'next/navigation';
-import Spinner from "../../../../components/Spinner"
+import Spinner from "@components/Spinner";
 import { useSelector } from 'react-redux';
+import zones from '@/constants/zones';
+import { mapGenType } from '@/constants/userTypes';
+import { formatDate, formatDateRange } from '@/utils/dateStringFormat';
+import { mapMaterialNameToLabel } from '@/constants/recyclables';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+import { RequestStatus, mapRequestStatus, mapRequestStatusToKey } from '@/constants/request';
+import { wasteTypesDefault } from '@/constants/recyclables';
 import "./style.css"
+import { ToastNotifier } from '@/components/ToastNotifier';
+import { ToastContainer } from 'react-toastify';
+import AcceptConfirmationModal from '@/components/AcceptConfirmationModal';
 
 export default function Orders() {
     const router = useRouter();
@@ -21,13 +30,8 @@ export default function Orders() {
     const rowsPerPage = 5;
     const [loading, setLoading] = useState(true);
 
-    const statuses = [
-        { value: 'Ingresada', label: 'Ingresada' },
-        { value: 'Completada', label: 'Completada' },
-        { value: 'Cancelada', label: 'Cancelada' },
-        { value: 'En ruta', label: 'En ruta' },
-        { value: 'En proceso', label: 'En proceso' }
-      ];
+    const [orderToRelease, setOrderToRelease] = useState(null);
+    const [isModalReleaseOpen, setIsModalReleaseOpen] = useState(false);
 
       const generatorTypes = [
         { value: "Restaurante", label: "Restaurante" },
@@ -43,60 +47,6 @@ export default function Orders() {
         { value: "Otro", label: "Otro" }
       ];
       
-      const wasteTypes = [
-        { label: 'Papel', value: 'Papel' },
-        { label: 'Metal', value: 'Metal' },
-        { label: 'Vidrio', value: 'Vidrio' },
-        { label: 'Plástico', value: 'Plastico' },
-        { label: 'Cartón', value: 'Cartón' },
-        { label: 'Tetra Brik', value: 'Tetra Brik' },
-        { label: 'Telgopor', value: 'Telgopor' },
-        { label: 'Pilas', value: 'Pilas' },
-        { label: 'Aceite', value: 'Aceite' },
-        { label: 'Electrónicos', value: 'Electrónicos' }
-      ];
-
-    const zones = [
-        { value: "Abasto", label: "Abasto" },
-        { value: "Almagro", label: "Almagro" },
-        { value: "Balvanera", label: "Balvanera" },
-        { value: "Barracas", label: "Barracas" },
-        { value: "Belgrano", label: "Belgrano" },
-        { value: "Boedo", label: "Boedo" },
-        { value: "Caballito", label: "Caballito" },
-        { value: "Centro", label: "Centro" },
-        { value: "Chacarita", label: "Chacarita" },
-        { value: "Coghlan", label: "Coghlan" },
-        { value: "Colegiales", label: "Colegiales" },
-        { value: "Constitución", label: "Constitución" },
-        { value: "Devoto", label: "Devoto" },
-        { value: "Flores", label: "Flores" },
-        { value: "Floresta", label: "Floresta" },
-        { value: "La Boca", label: "La Boca" },
-        { value: "La Paternal", label: "La Paternal" },
-        { value: "Liniers", label: "Liniers" },
-        { value: "Mataderos", label: "Mataderos" },
-        { value: "Monte Castro", label: "Monte Castro" },
-        { value: "Morón", label: "Morón" },
-        { value: "Núñez", label: "Núñez" },
-        { value: "Palermo", label: "Palermo" },
-        { value: "Paternal", label: "Paternal" },
-        { value: "Puerto Madero", label: "Puerto Madero" },
-        { value: "Recoleta", label: "Recoleta" },
-        { value: "Retiro", label: "Retiro" },
-        { value: "Saavedra", label: "Saavedra" },
-        { value: "San Cristóbal", label: "San Cristóbal" },
-        { value: "San Nicolás", label: "San Nicolás" },
-        { value: "San Telmo", label: "San Telmo" },
-        { value: "Villa Devoto", label: "Villa Devoto" },
-        { value: "Villa del Parque", label: "Villa del Parque" },
-        { value: "Villa Luro", label: "Villa Luro" },
-        { value: "Villa Ortúzar", label: "Villa Ortúzar" },
-        { value: "Villa Real", label: "Villa Real" },
-        { value: "Villa Santa Rita", label: "Villa Santa Rita" },
-        { value: "Villa Urquiza", label: "Villa Urquiza" }
-      ];
-
     const cols = [
         { field: 'generator', header: 'Generador' },
         { field: 'request_date', header: 'Fecha creación' },
@@ -113,30 +63,30 @@ export default function Orders() {
           ((!filters.date_from && !filters.date_to) ||
           (filters.date_from && filters.date_to && (order.pickup_date_to >= filters.date_from && order.pickup_date_from <= filters.date_to))) &&
           (!filters.generator || order.generator_name.toLowerCase().includes(filters.generator.toLowerCase())) &&
-          (filters.status.length == 0 || (filters.status.length == 1 && !filters.status[0])  || filters.status.includes(order.status)) &&
+          (filters.status.length == 0 || (filters.status.length == 1 && !filters.status[0])  || filters.status.includes(mapRequestStatusToKey[order.status])) &&
           (filters.wasteType.length == 0 || (filters.wasteType.length == 1 && !filters.wasteType[0]) || filters.wasteType.every(element => order.waste_types.includes(element))) &&
           (filters.zone.length == 0 || (filters.zone.length == 1 && !filters.zone[0]) || filters.zone.includes(zone)) &&
           (filters.generatorType.length == 0 || (filters.generatorType.length == 1 && !filters.generatorType[0]) || filters.generatorType.includes(order.generator_type))
         );
-      });
+    });
 
-      useEffect(() => {
-        if (filteredOrders) {
-          setPages(Math.ceil(filteredOrders.length / rowsPerPage)); 
-        } 
-      }, [orders, filters]);
+    useEffect(() => {
+      if (filteredOrders) {
+        setPages(Math.ceil(filteredOrders.length / rowsPerPage)); 
+      } 
+    }, [orders, filters]);
 
-      const get_orders = React.useMemo(() => {
-        if (filteredOrders) {
-          const start = (page - 1) * rowsPerPage;
-          const end = start + rowsPerPage;
-      
-          return filteredOrders.slice(start, end);
-        }
-        else
-          return []
-      
-      }, [page, filteredOrders]);
+    const get_orders = React.useMemo(() => {
+      if (filteredOrders) {
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+    
+        return filteredOrders.slice(start, end);
+      }
+      else
+        return []
+    
+    }, [page, filteredOrders]);
 
     const exportColumns = cols.map((col) => ({ title: col.header, dataKey: col.field }));
 
@@ -201,135 +151,80 @@ export default function Orders() {
         fetchOrders();
     }, []);
 
-    const getStatus = (status) => {
-        switch (status) {
-            case 'REJECTED':
-                return 'Cancelada';
-    
-            case 'COMPLETED':
-                return 'Completada';
-    
-            case 'PENDING':
-                return 'En proceso';
-    
-            case 'OPEN':
-                return 'Ingresada';
-    
-            case 'ON_ROUTE':
-                return 'En ruta';
-        }
-    }
-
-    const getGeneratorType = (type) => {
-        switch (type) {
-          case "GEN_RESTAURANT":
-              return 'Restaurante';
-      
-          case "GEN_BUILDING":
-              return 'Edificio';
-      
-          case "GEN_COMPANY":
-              return 'Empresa';
-      
-          case "GEN_OFFICE":
-              return 'Oficina';
-      
-          case "GEN_HOTEL":
-              return 'Hotel';
-      
-          case "GEN_FACTORY":
-              return 'Fábrica';
-      
-          case "GEN_CLUB":
-              return 'Club';
-      
-          case "GEN_EDUCATIONAL_INSTITUTION":
-              return 'Institución Educativa';
-      
-          case "GEN_HOSPITAL":
-              return 'Hospital';
-      
-          case "GEN_MARKET":
-              return 'Mercado';
-      
-          case "GEN_OTHER":
-              return 'Otro';
-        }
-      }
-
-      const formatWasteType = (value) => {
-        return value.join(", ");
-      };
+    const formatWasteType = (value) => {
+      return value.join(", ");
+    };
 
     const transform_order_data = async (order) => {
         order.request_date = new Date(order.request_date)
         order.pickup_date_from = new Date(order.pickup_date_from)
         order.pickup_date_to = new Date(order.pickup_date_to)
-        order.pickup_date = formatDate(order.pickup_date_from) + " - " + formatDate(order.pickup_date_to)
-        order.generator_type = getGeneratorType(order.generator.type)
+        order.pickup_date = formatDate(order.pickup_date_from)
+        order.generator_type = mapGenType(order.generator.type)
         order.generator_name = order.generator.username
-        order.waste_types = order.waste_quantities.map(waste => waste.waste_type).sort()
-        order.status = getStatus(order.status)
+        order.waste_types = order.waste_quantities.map(waste => mapMaterialNameToLabel[waste.waste_type]).sort()
+        order.status = mapRequestStatus[order.status]
         return order
     }
-
-    const formatDate = (value) => {
-        const dateOptions = {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-        };
-    
-        const timeOptions = {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false 
-        };
-    
-        const dateString = value.toLocaleDateString('en-GB', dateOptions);
-        const timeString = value.toLocaleTimeString('en-GB', timeOptions);
-    
-        return `${dateString} ${timeString}`;
-    };
 
     const redirectDetailPage = (rowData) => {
         console.log(rowData)
         router.replace(`/home/cooperativa/pedidos/detalles/${rowData.id}`)
     };
 
-    const formatDateRange = (from, to) => {
-        const fromDate = new Date(from);
-        const toDate = new Date(to);
+    const clearFilters = () => {
+        setFilters({ zone: [], wasteType: [], generatorType: [], date_from: '', date_to: '', status: [] });
+    }
+
+    const confirmReleaseOrder = (order) => {
+      setOrderToRelease(order);
+      setIsModalReleaseOpen(true);
+    }
       
-        const date = fromDate.toLocaleDateString();
-        const fromTime = fromDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const toTime = toDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      
-        return `${date} ${fromTime} - ${toTime}`;
-      };
+
+    const releaseOrder = async () => {
+      try {
+        setLoading(true);
+        setIsModalReleaseOpen(false);
+        await release_waste_request(orderToRelease.id, orderToRelease.coop_id)
+        .then((r) => {
+          ToastNotifier.success("Solicitud liberada exitosamente")
+          setLoading(false);
+        })
+      } catch (error) {
+        console.log("Error al liberar solicitud", error)
+        ToastNotifier.error("Error al liberar solicitud\nPor favor, intente nuevamente")
+      } 
+    }
 
     return (
-        <div className="overflow-x-auto max-w-full w-full text-2xs md:text-sm min-h-full flex  flex-col">
+        <div className="overflow-x-auto max-w-full w-full text-2xs md:text-sm min-h-full flex flex-col">
+          <ToastContainer />
+          <AcceptConfirmationModal isOpen={isModalReleaseOpen} onRequestClose={() => setIsModalReleaseOpen(false)} onConfirm={releaseOrder} title='Desea liberar la solicitud?' message="Una vez liberada, la solicitud estará nuevamente disponible para todas las cooperativas." />
             {(loading || !orders) && <Spinner/>}
             {!loading && orders &&
-            <div className='flex gap-3 justify-end mt-3 mr-3 md:mr-12 md:mt-7'>
-                <Button type="button" className="bg-white" severity="success" rounded onClick={exportExcel} data-pr-tooltip="XLS">
-                <img src="/excel.svg" alt="box" className="w-7 md:w-10 bg-white" />
+            <div className='flex justify-between items-center mt-4 mx-4'>
+                <p className='text-start text-xl font-bold ml-2'>Solicitudes de recolección</p>
+                <Button type="button" className='bg-white' onClick={exportExcel} data-pr-tooltip="XLS">
+                    <img src="/excel.svg" alt="box" className="w-7 md:w-10" />
                 </Button> 
+                {/*<Button type="button" severity="warning" rounded onClick={exportPdf} data-pr-tooltip="PDF">
+                    <img src="/pdf.svg" alt="box" className="w-7 md:w-10" />
+                </Button>  */}
             </div>
             }
-            {!loading && orders && (document.documentElement.clientWidth > 750) &&
-                <Card className='lg:mx-9 my-4 mx-4'>
-                <CardHeader className='bg-green-dark text-white pl-4 text-xl font-bold py-3'>SOLICITUDES</CardHeader>
-                <Divider />
-                <CardBody className='p-0'>
-                <div className="flex gap-4 m-4">
+
+            {!loading && orders &&
+            <div className='flex flex-col mx-4 my-4 gap-2'>
+                <Card className='rounded-md'>
+                <CardBody>
+                <div className="flex gap-4 items-center">
                 <DateRangePicker label="Fecha" className="max-w-[284px]" onChange={(e) => 
                     setFilters({ ...filters, date_from: new Date(e.start.year, e.start.month - 1, e.start.day, 0,0,0,0), date_to: new Date(e.end.year, e.end.month - 1, e.end.day,23,59,59,999) })} />
 
                 <Input
-                  className='select h-14'
-                  placeholder="Generador"
+                  className='select'
+                  placeholder="Nombre del Generador"
                   onChange={(e) => {
                     setFilters({...filters, generator: e.target.value})
                   }}>
@@ -350,13 +245,13 @@ export default function Orders() {
                     </Select>
                     <Select
                     className='select'
-                    placeholder="Tipo"
+                    placeholder="Tipo de Reciclables"
                     value={filters.wasteType}
-                    options={wasteTypes}
+                    options={wasteTypesDefault}
                     selectionMode="multiple"
                     onChange={(e) => setFilters({ ...filters, wasteType: e.target.value.split(',')})}
                     >
-                        {wasteTypes.map((waste) => (
+                        {wasteTypesDefault.map((waste) => (
                         <SelectItem key={waste.value} value={waste.value}>
                             {waste.label}
                         </SelectItem>
@@ -379,19 +274,26 @@ export default function Orders() {
                     </Select>
                     <Select
                   className='select'
-                  placeholder="Estado"
+                  placeholder="Estado de la solicitud"
                   value={filters.status}
-                  options={statuses}
+                  options={RequestStatus}
                   selectionMode="multiple"
                   onChange={(e) => setFilters({ ...filters, status: e.target.value.split(',') })}
                 >
-                    {statuses.map((status) => (
+                    {RequestStatus.map((status) => (
                       <SelectItem key={status.value} value={status.value}>
                         {status.label}
                       </SelectItem>
                     ))}
                 </Select>
+                <div className='flex flex-col items-center justify-center'>
+                  <FilterAltOffIcon className='cursor-pointer' onClick={clearFilters}/>
+                  <p className='text-center'>Limpiar filtros</p>
                 </div>
+                </div>
+                </CardBody>
+                </Card>
+                
                 <Table
                         bottomContent={
                         <div className="flex w-full justify-between items-center">
@@ -410,16 +312,16 @@ export default function Orders() {
                     </div>}
                 >
                     <TableHeader>
-                    <TableColumn>Fecha de recolección</TableColumn>
-                    <TableColumn>Nombre generador</TableColumn>
-                    <TableColumn>Zona</TableColumn>
-                    <TableColumn>Tipo de residuo</TableColumn>
-                    <TableColumn>Tipo de generador</TableColumn>
-                    <TableColumn>Fecha de creación</TableColumn>
-                    <TableColumn>Estado</TableColumn>
-                    <TableColumn>Acciones</TableColumn>
+                    <TableColumn className='text-small'>Fecha de recolección</TableColumn>
+                    <TableColumn className='text-small'>Nombre generador</TableColumn>
+                    <TableColumn className='text-small'>Zona</TableColumn>
+                    <TableColumn className='text-small'>Tipo de residuo</TableColumn>
+                    <TableColumn className='text-small'>Tipo de generador</TableColumn>
+                    <TableColumn className='text-small'>Fecha de creación</TableColumn>
+                    <TableColumn className='text-small'>Estado</TableColumn>
+                    <TableColumn className='text-small'>Acciones</TableColumn>
                     </TableHeader>
-                    <TableBody>
+                    <TableBody emptyContent="No hay solicitudes para mostrar">
                     {get_orders.map((request, index) => (
                         <TableRow key={index} className='cursor-pointer hover:bg-green-dark hover:text-white'>
                         <TableCell>{formatDateRange(request.pickup_date_from, request.pickup_date_to)}</TableCell>
@@ -430,99 +332,16 @@ export default function Orders() {
                         <TableCell>{formatDate(request.request_date)}</TableCell>
                         <TableCell>{request.status}</TableCell>
                         <TableCell>
-                            <Button onClick={() => redirectDetailPage(request)}>Ver</Button>
+                          <div className='flex gap-2'>
+                            <Button className="rounded-medium" onClick={() => redirectDetailPage(request)}>Ver</Button>
+                            {request.status == "Pendiente" && <Button className='bg-white text-red-dark px-3 py-2 rounded-medium border-medium border-red-dark' onClick={() => confirmReleaseOrder(request)}>Liberar</Button>}
+                          </div>
                         </TableCell>
                         </TableRow>
                     ))}
                     </TableBody>
                 </Table>
-                </CardBody>
-                </Card>
-            }
-
-                {!loading && orders && (document.documentElement.clientWidth <= 750) &&
-                <Card className='lg:mx-9 my-4 mx-4'>
-                <CardHeader className='bg-green-dark text-white pl-4 text-xl font-bold py-3'>SOLICITUDES</CardHeader>
-                <Divider />
-                <CardBody className='p-0'>
-                <div className="flex gap-4 m-4">
-                <DateRangePicker label="Fecha" className="max-w-[284px]" placeholder="" onChange={(e) => 
-                    setFilters({ ...filters, date_from: new Date(e.start.year, e.start.month - 1, e.start.day, 0,0,0,0), date_to: new Date(e.end.year, e.end.month - 1, e.end.day,23,59,59,999) })} />
-
-                <Input
-                  className='select h-14'
-                  placeholder="Generador"
-                  onChange={(e) => {
-                    setFilters({...filters, generator: e.target.value})
-                  }}>
-                </Input>                   
-                <Select
-                    className='select'
-                    placeholder="Zona"
-                    value={filters.zone}
-                    options={zones}
-                    selectionMode="multiple"
-                    onChange={(e) => setFilters({ ...filters, zone: e.target.value.split(',') })}
-                    >
-                        {zones.map((zone) => (
-                        <SelectItem key={zone.value} value={zone.value}>
-                            {zone.label}
-                        </SelectItem>
-                        ))}
-                    </Select>
-                    <Select
-                  className='select'
-                  placeholder="Estado"
-                  value={filters.status}
-                  options={statuses}
-                  selectionMode="multiple"
-                  onChange={(e) => setFilters({ ...filters, status: e.target.value.split(',') })}
-                >
-                    {statuses.map((status) => (
-                      <SelectItem key={status.value} value={status.value}>
-                        {status.label}
-                      </SelectItem>
-                    ))}
-                </Select>
-                </div>
-                <Table
-                        bottomContent={
-                        <div className="flex w-full justify-between items-center">
-                        <span className='flex 1 invisible'>{get_orders.length} de {filteredOrders.length} solicitudes</span>
-                        <Pagination
-                        className='flex 1'
-                        isCompact
-                        showControls
-                        showShadow
-                        color="secondary"
-                        page={page}
-                        total={pages}
-                        onChange={(page) => setPage(page)}
-                        />
-                        <span className='flex 1'>{get_orders.length} de {filteredOrders.length} solicitudes</span>
-                    </div>}
-                >
-                    <TableHeader>
-                    <TableColumn>Fecha de recolección</TableColumn>
-                    <TableColumn>Nombre generador</TableColumn>
-                    <TableColumn>Zona</TableColumn>
-                    <TableColumn>Estado</TableColumn>
-                    <TableColumn></TableColumn>
-                    </TableHeader>
-                    <TableBody>
-                    {get_orders.map((request, index) => (
-                        <TableRow key={index} className='cursor-pointer hover:bg-green-dark hover:text-white'>
-                        <TableCell>{formatDateRange(request.pickup_date_from, request.pickup_date_to)}</TableCell>
-                        <TableCell>{request.generator_name}</TableCell>
-                        <TableCell>{request.address? request.address.zone : request.generator.address.zone}</TableCell>
-                        <TableCell>{request.status}</TableCell>
-                        <TableCell><Button onClick={() => redirectDetailPage(request)}>Ver</Button></TableCell>
-                        </TableRow>
-                    ))}
-                    </TableBody>
-                </Table>
-                </CardBody>
-            </Card>
+            </div>
             }
         </div>
     );

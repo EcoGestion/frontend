@@ -6,8 +6,9 @@ import { Table, TableHeader, TableBody, TableRow, TableColumn, TableCell } from 
 import TruckModal from './components/truckModal';
 import DriverModal from './components/driverModal';
 import { getDriversByCoopId, getTrucksByCoopId, updateTruckStatus, deleteTruck, deleteUserById } from '@/api/apiService';
-import { TrucksResources, DriversResources } from '@/types';
+import { TrucksResources, DriversResources, Truck } from '@/types';
 import { mapTruckStatus } from '@constants/truck';
+import { FormatTruckCapacityToFront } from '@/utils/truckFormat';
 import { ToastContainer } from 'react-toastify';
 import { ToastNotifier } from '@/components/ToastNotifier';
 import { getAuth, deleteUser } from 'firebase/auth';
@@ -37,8 +38,10 @@ const recursosCooperativa = () => {
     try {
       setLoading(true);
       const camiones_response = await getTrucksByCoopId(userSession.userId);
+      const camiones_formatted = camiones_response.map((camion: Truck) => FormatTruckCapacityToFront(camion));
+      setCamiones(camiones_formatted);
+
       const conductores_response = await getDriversByCoopId(userSession.userId);
-      setCamiones(camiones_response);
       setConductores(conductores_response);
     } catch (error) {
       console.error('Error retrieving user data:', error);
@@ -143,7 +146,7 @@ const recursosCooperativa = () => {
       <div className='w-full'>
       <div className='flex justify-between items-center'>
         <h2 className='text-xl font-bold'>Camiones</h2>
-        <button onClick={handleAgregarCamion} className='bg-white text-green-dark px-4 py-2 rounded-full border border-green-800'>
+        <button onClick={handleAgregarCamion} className='bg-white text-green-dark px-4 py-2 rounded-medium border-medium border-green-800'>
           Agregar camión
         </button>
       </div>
@@ -164,14 +167,14 @@ const recursosCooperativa = () => {
                 <TableCell>{camion.patent}</TableCell>
                 <TableCell>{camion.model}</TableCell>
                 <TableCell>{camion.brand}</TableCell>
-                <TableCell>{camion.capacity}</TableCell>
+                <TableCell>{camion.capacity} tons</TableCell>
                 <TableCell>{mapTruckStatus[camion.status]}</TableCell>
                 <TableCell>
                   
                 {camion.status === 'ENABLED' && (
                   <button
                     onClick={() => handleDisableCamion(camion.id)}
-                    className='bg-white text-yellow-dark px-3 py-2 rounded-full border border-yellow-light'
+                    className='bg-white text-yellow-dark px-3 py-2 rounded-medium border-medium border-yellow-light mr-2'
                   >
                     Deshabilitar
                   </button>
@@ -180,7 +183,7 @@ const recursosCooperativa = () => {
                 {camion.status === 'DISABLE' && (
                   <button
                     onClick={() => handleEnableCamion(camion.id)}
-                    className='bg-white text-green-dark px-3 py-2 rounded-full border border-green-light'
+                    className='bg-white text-green-dark px-3 py-2 rounded-medium border-medium border-green-dark mr-2'
                   >
                     Habilitar
                   </button>
@@ -189,13 +192,13 @@ const recursosCooperativa = () => {
                 {camion.status === 'ON_ROUTE' && (
                   <button
                     disabled
-                    className='bg-white text-gray-400 px-3 py-2 rounded-full border border-gray-300'
+                    className='bg-white text-gray-400 px-3 py-2 rounded-medium border-medium border-gray-300 mr-2'
                   >
                     En Ruta
                   </button>
                 )}
 
-                  <button onClick={() => {setDeletedTruckId(camion.id); setModalDeleteTruckIsOpen(true)}} className='bg-white text-red-dark px-3 py-2 rounded-full border border-red-800'>
+                  <button onClick={() => {setDeletedTruckId(camion.id); setModalDeleteTruckIsOpen(true)}} className='bg-white text-red-dark px-3 py-2 rounded-medium border-medium border-red-800 mr-2'>
                     Eliminar
                   </button>
                 </TableCell>
@@ -207,7 +210,7 @@ const recursosCooperativa = () => {
       <div className='w-full'>
         <div className='flex justify-between items-center'>
           <h2 className='text-xl font-bold'>Conductores</h2>
-          <button onClick={handleAgregarConductor} className='bg-white text-green-dark px-4 py-2 rounded-full border border-green-800'>
+          <button onClick={handleAgregarConductor} className='bg-white text-green-dark px-4 py-2 rounded-medium border-medium border-green-800'>
             Agregar conductor
           </button>
         </div>
@@ -229,10 +232,10 @@ const recursosCooperativa = () => {
                 <TableCell>{conductor.phone}</TableCell>
                 <TableCell>{conductor.email}</TableCell>
                 <TableCell>
-                  <button onClick={() => handleDisableConductor(conductor.id)} className='bg-white text-yellow-dark px-3 py-2 rounded-full border border-yellow-light'>
+                  <button onClick={() => handleDisableConductor(conductor.id)} className='bg-white text-yellow-dark px-3 py-2 rounded-medium border-medium border-yellow-light mr-2'>
                     Deshabilitar
                   </button>
-                  <button onClick={() => {setDeletedDriverId(conductor.id); setModalDeleteDriverIsOpen(true)}} className='bg-white text-red-dark px-3 py-2 rounded-full border border-red-800'>
+                  <button onClick={() => {setDeletedDriverId(conductor.id); setModalDeleteDriverIsOpen(true)}} className='bg-white text-red-dark px-3 py-2 rounded-medium border-medium border-red-800 mr-2'>
                     Eliminar
                   </button>
                 </TableCell>

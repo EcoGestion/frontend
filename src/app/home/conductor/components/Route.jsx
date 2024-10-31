@@ -5,6 +5,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import {Button} from '@nextui-org/react';
+import { formatDate, formatTime } from '@/utils/dateStringFormat';
 
 const Route = ({route, startRoute, cancelRoute}) => {
     const [isCollapsedItems, setIsCollapsedItems] = useState(false);
@@ -12,26 +13,7 @@ const Route = ({route, startRoute, cancelRoute}) => {
     const toggleCollapseItems = () => {
         setIsCollapsedItems(!isCollapsedItems);
     };
-
-    const formatDate = (value) => {
-        const dateOptions = {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-        };
-      
-        const timeOptions = {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false 
-        };
     
-        const dateString = value.toLocaleDateString('en-GB', dateOptions);
-        const timeString = value.toLocaleTimeString('en-GB', timeOptions);
-      
-        return `${dateString} ${timeString}`;
-      };
-
     return (
     <div className="card my-3 w-88 px-3 shadow-lg rounded-3xl cursor-pointer" onClick={toggleCollapseItems}>
     <div className="row g-0 w-full ml-3">
@@ -46,7 +28,7 @@ const Route = ({route, startRoute, cancelRoute}) => {
             <div className="flex flex-col gap-3 justify-start mx-2 md:mx-5">
             <p className="card-text flex gap-3 items-center">
                 <CalendarMonthIcon></CalendarMonthIcon> Fecha:
-                <span className="text-body-secondary font-semibold text-md">{formatDate(route.created_at)}</span>
+                <span className="text-body-secondary font-semibold text-md">{formatDate(route.created_at)} {formatTime(route.created_at)}</span>
             </p>
             <p className="card-text flex gap-3 items-center">
                 <FitnessCenterIcon></FitnessCenterIcon> Peso:
@@ -67,13 +49,13 @@ const Route = ({route, startRoute, cancelRoute}) => {
             </div>
             <div className='flex gap-2 justify-end mr-8 mt-3 pr-2'>
                 {route.status == "Creada" &&
-                    <Button className='bg-green-dark text-white disabled' onClick={() => startRoute(route.id)}>Comenzar ruta</Button>
+                    <Button className='bg-white text-green-dark px-3 py-2 rounded-medium border-medium border-green-dark' onClick={() => startRoute(route.id)}>Comenzar ruta</Button>
                 }
                 {route.status != "Creada" &&
                     <Button className='cursor-not-allowed opacity-60' disabled onClick={startRoute}>Comenzar ruta</Button>
                 }
-                {route.status != "Completada" && route.status != "Cancelada" &&
-                    <Button className='bg-red-dark text-white' onClick={cancelRoute}>Cancelar ruta</Button>
+                {route.status != "Completada" && route.status != "Cancelada" && route.status != "Completada parcialmente" &&
+                    <Button className='bg-white text-red-dark px-3 py-2 rounded-medium border-medium border-red-dark' onClick={() => cancelRoute(route.id)}>Cancelar ruta</Button>
                 }
             </div>
             </div>

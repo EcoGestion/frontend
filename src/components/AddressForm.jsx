@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import barrios from '@/constants/zones';
+import zones from '@/constants/zones';
 import {Autocomplete, AutocompleteItem} from "@nextui-org/react";
 
 const AddressForm = ({
@@ -10,7 +10,6 @@ const AddressForm = ({
 
   return (
     <div>
-
     <form className="form-container">
       <div>
         <label htmlFor="street">Calle</label>
@@ -22,6 +21,7 @@ const AddressForm = ({
           onChange={(e) => setAddress({ ...address, street: e.target.value })}
           disabled={isDisabled}
           className={isDisabled ? 'disabled-input' : ''}
+          required
         />
       </div>
       <div>
@@ -55,14 +55,14 @@ const AddressForm = ({
         </label>
         <div className="mt-2">
           <Autocomplete
-            onSelectionChange={(value) => setAddress({ ...address, zone: value })}
+            onSelectionChange={(key) => setAddress({ ...address, zone: key })}
             placeholder="Seleccione un barrio"
             isDisabled={isDisabled}
             scrollShadowProps={{ isEnabled: false }}
           >
-            {barrios.map((barrio) => (
-              <AutocompleteItem key={barrio} value={barrio}>
-                {barrio}
+            {zones.map((barrio) => (
+              <AutocompleteItem key={barrio.value} value={barrio.value}>
+                {barrio.label}
               </AutocompleteItem>
             ))}
           </Autocomplete>

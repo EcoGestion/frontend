@@ -5,184 +5,47 @@ import { Card, CardHeader, CardBody, Divider, CardFooter,
   Table, TableHeader, TableBody, TableRow, TableCell, Button,
   TableColumn, Input, Select, SelectItem, Pagination
  } from '@nextui-org/react';
- import {RadioGroup, Radio, cn} from "@nextui-org/react";
+import { useSelector } from 'react-redux';
 import dynamic from 'next/dynamic';
 import 'dotenv/config';
 import AddressFormat from '@utils/addressFormat';
-import { useUser } from '../../../state/userProvider';
 import Spinner from '../../../components/Spinner';
-import { getRequestsByRouteId, getRoutesByDriverId, startRouteById, getRouteById, updateRouteRequestById, getUserById} from '../../../api/apiService';
+import { getRequestsByRouteId, startRouteById, getRouteById, updateRouteRequestById, getUserById, verifyGeneratorCode, getDriverHomeRoutes, cancel_route} from '@api/apiService';
 import "./style.css"
 import Route from "../conductor/components/Route"
+import { ToastNotifier } from '@/components/ToastNotifier';
+import zones from '@/constants/zones';
+import AcceptConfirmationModal from '@components/AcceptConfirmationModal';
+import CodeConfirmationModal from '@components/CodeConfirmationModal';
+import { ToastContainer } from 'react-toastify';
+import { mapRouteStatus } from '@/constants/route';
+import { RouteRequestStatus, mapRouteRequestStatus, mapRouteRequestStatusToKey} from '@/constants/routeRequest';
+import ClearIcon from '@mui/icons-material/Clear';
 
 const MapView = dynamic(() => import('@/components/MapWithRouteView'), { ssr: false });
 
-const zones = [
-  { value: "Abasto", label: "Abasto" },
-  { value: "Almagro", label: "Almagro" },
-  { value: "Balvanera", label: "Balvanera" },
-  { value: "Barracas", label: "Barracas" },
-  { value: "Belgrano", label: "Belgrano" },
-  { value: "Boedo", label: "Boedo" },
-  { value: "Caballito", label: "Caballito" },
-  { value: "Centro", label: "Centro" },
-  { value: "Chacarita", label: "Chacarita" },
-  { value: "Coghlan", label: "Coghlan" },
-  { value: "Colegiales", label: "Colegiales" },
-  { value: "Constitución", label: "Constitución" },
-  { value: "Devoto", label: "Devoto" },
-  { value: "Flores", label: "Flores" },
-  { value: "Floresta", label: "Floresta" },
-  { value: "La Boca", label: "La Boca" },
-  { value: "La Paternal", label: "La Paternal" },
-  { value: "Liniers", label: "Liniers" },
-  { value: "Mataderos", label: "Mataderos" },
-  { value: "Monte Castro", label: "Monte Castro" },
-  { value: "Morón", label: "Morón" },
-  { value: "Núñez", label: "Núñez" },
-  { value: "Palermo", label: "Palermo" },
-  { value: "Paternal", label: "Paternal" },
-  { value: "Puerto Madero", label: "Puerto Madero" },
-  { value: "Recoleta", label: "Recoleta" },
-  { value: "Retiro", label: "Retiro" },
-  { value: "Saavedra", label: "Saavedra" },
-  { value: "San Cristóbal", label: "San Cristóbal" },
-  { value: "San Nicolás", label: "San Nicolás" },
-  { value: "San Telmo", label: "San Telmo" },
-  { value: "Villa Devoto", label: "Villa Devoto" },
-  { value: "Villa del Parque", label: "Villa del Parque" },
-  { value: "Villa Luro", label: "Villa Luro" },
-  { value: "Villa Ortúzar", label: "Villa Ortúzar" },
-  { value: "Villa Real", label: "Villa Real" },
-  { value: "Villa Santa Rita", label: "Villa Santa Rita" },
-  { value: "Villa Urquiza", label: "Villa Urquiza" }
-];
-
-const statuses = [
-  { value: 'Pendiente', label: 'Pendiente' },
-  { value: 'Completada', label: 'Completada' },
-  { value: 'Reprogramada', label: 'Reprogramada' },
-  { value: 'En ruta', label: 'En ruta' }
-];
-
-const generatorTypes = [
-{ value: "Restaurante", label: "Restaurante" },
-{ value: "Edificio", label: "Edificio" },
-{ value: "Empresa", label: "Empresa" },
-{ value: "Oficina", label: "Oficina" },
-{ value: "Hotel", label: "Hotel" },
-{ value: "Fábrica", label: "Fábrica" },
-{ value: "Club", label: "Club" },
-{ value: "Institución Educativa", label: "Institución Educativa" },
-{ value: "Hospital", label: "Hospital" },
-{ value: "Mercado", label: "Mercado" },
-{ value: "Otro", label: "Otro" }
-];
-
-const wasteTypes = [
-{ label: 'Papel', value: 'Papel' },
-{ label: 'Metal', value: 'Metal' },
-{ label: 'Vidrio', value: 'Vidrio' },
-{ label: 'Plástico', value: 'Plastico' },
-{ label: 'Cartón', value: 'Cartón' },
-{ label: 'Tetra Brik', value: 'Tetra Brik' },
-{ label: 'Telgopor', value: 'Telgopor' },
-{ label: 'Pilas', value: 'Pilas' },
-{ label: 'Aceite', value: 'Aceite' },
-{ label: 'Electrónicos', value: 'Electrónicos' }
-];
-
-const MockData = [
-  {
-    "request_date": "2024-09-01T00:00:00",
-    "generator_id": 42,
-    "status": "OPEN",
-    "pickup_date_from": "2024-09-18T12:00:00",
-    "zone": "Palermo",
-    "id": 15,
-    "coop_id": 50,
-    "details": "2do piso",
-    "pickup_date_to": "2024-09-20T18:00:00",
-    "generator": {
-        "username": "Test Gen",
-        "email": "teo@test.com",
-        "type": "GEN_BUILDING",
-        "address_id": 2,
-        "id": 42,
-        "firebase_id": "4QM0hPEgrshWXnar8NG6dD08EPo1",
-        "phone": "123456"
-    },
-    "coop": {
-        "username": "Coop",
-        "email": "coop@mail.com",
-        "type": "COOP",
-        "address_id": 10,
-        "id": 50,
-        "firebase_id": "wKRF2UykszP54caWiTo7U8lbxG02",
-        "phone": "121212"
-    }
-  },
-  {
-    "request_date": "2024-09-01T00:00:00",
-    "generator_id": 42,
-    "status": "OPEN",
-    "pickup_date_from": "2024-09-18T12:00:00",
-    "zone": "Palermo",
-    "id": 16,
-    "coop_id": 50,
-    "details": "2do piso",
-    "pickup_date_to": "2024-09-20T18:00:00",
-    "generator": {
-        "username": "Test Gen",
-        "email": "gen@test.com",
-        "type": "GEN_OFFICE",
-        "address_id": 3,
-        "id": 42,
-        "firebase_id": "4QM0hPEgrshWXnar8NG6dD08EPo1",
-        "phone": "123456"
-    },
-    "coop": {
-        "username": "Coop",
-        "email": "coop@mail.com",
-        "type": "COOP",
-        "address_id": 10,
-        "id": 50,
-        "firebase_id": "wKRF2UykszP54caWiTo7U8lbxG02",
-        "phone": "121212"
-    }
-  },
-  {
-    "request_date": "2024-09-01T00:00:00",
-    "generator_id": 42,
-    "status": "OPEN",
-    "pickup_date_from": "2024-09-18T12:00:00",
-    "zone": "Palermo",
-    "id": 17,
-    "coop_id": 50,
-    "details": "2do piso",
-    "pickup_date_to": "2024-09-20T18:00:00",
-    "generator": {
-        "username": "Test Gen",
-        "email": "gen_hotel@gmail.com",
-        "type": "GEN_HOTEL",
-        "address_id": 4,
-        "id": 42,
-        "firebase_id": "4QM0hPEgrshWXnar8NG6dD08EPo1",
-        "phone": "123456"
-    },
-    "coop": {
-        "username": "Coop",
-        "email": "coop@mail.com",
-        "type": "COOP",
-        "address_id": 10,
-        "id": 50,
-        "firebase_id": "wKRF2UykszP54caWiTo7U8lbxG02",
-        "phone": "121212"
-    }
-  }
-]
+const noRutesComponent = () => {
+  return (
+  <Card className="rounded-md mt-6 shadow-lg bg-gray-50 border border-gray-200">
+    <CardBody className="flex flex-col items-center py-8 px-4">
+      <div className="flex flex-col items-center">
+        <div className="mb-4 text-gray-400">
+          <ClearIcon fontSize='large' color='error' />
+        </div>
+        <p className="text-center text-gray-700 font-medium text-lg mb-2">
+          No hay rutas asignadas para el conductor
+        </p>
+        <p className="text-center text-gray-500 text-sm mb-4">
+          Cuando la cooperativa asigne rutas, aparecerán aquí
+        </p>
+      </div>
+    </CardBody>
+  </Card>
+  );
+};
 
 const HomeConductor = () => {
+  const userSession = useSelector((state) => state.userSession);
   const [page, setPage] = React.useState(1);
   const [pages, setPages] = React.useState(null);
   const [requests, setRequests] = useState(null)
@@ -192,20 +55,34 @@ const HomeConductor = () => {
   const [markers, setMarkers] = useState(null);
   const [routeCoords, setRouteCoords] = useState(null);
   const [filters, setFilters] = useState({ zone: [], status: [], generator: '' });
-  const [points, setPoints] = useState(null)
 
-  const { user } = useUser();
   const [loading, setLoading] = useState(true);
   const [routeActive, setRouteActive] = useState(null);
-  const [userId, setUserId] = useState(null);
   const rowsPerPage = 5;
   const router = useRouter();
+
+  const [routeToStart, setRouteToStart] = useState(null);
+  const [requestToConfirm, setRequestToConfirm] = useState(null);
+  const [indexToConfirm, setIndexToConfirm] = useState(null);
+  const [requestToReprogram, setRequestToReprogram] = useState(null);
+  const [routeToCancel, setRouteToCancel] = useState(null);
+
+  const [isModalStartRouteOpen, setIsModalStartRouteOpen] = useState(false);
+  const [isModalConfirmRequestOpen, setIsModalConfirmRequestOpen] = useState(false);
+  const [isModalReprogramRequestOpen, setIsModalReprogramRequestOpen] = useState(false);
+  const [isModalCancelRouteOpen, setIsModalCancelRouteOpen] = useState(false);
+
+  const [refreshValue, setRefreshValue] = useState(false);
+
+  const refresh = () => {
+    setRefreshValue(!refreshValue)
+  }
 
   const filteredRequests = requests?.filter(request => {
     return (
       (!filters.generator || request.generator.username.toLowerCase().includes(filters.generator.toLowerCase())) &&
       (filters.zone.length == 0 || (filters.zone.length == 1 && !filters.zone[0]) || filters.zone.includes(request.address.zone)) &&
-      (filters.status.length == 0 || (filters.status.length == 1 && !filters.status[0])  || filters.status.includes(request.route_request_status))
+      (filters.status.length == 0 || (filters.status.length == 1 && !filters.status[0])  || filters.status.includes(mapRouteRequestStatusToKey[request.route_request_status]))
     );
   });
 
@@ -227,444 +104,370 @@ const HomeConductor = () => {
   
   }, [page, filteredRequests]);
 
-  const getStatus = (status) => {
-    switch (status) {
-        case 'REJECTED':
-            return 'Cancelada';
-  
-        case 'COMPLETED':
-            return 'Completada';
-  
-        case 'PENDING':
-            return 'En proceso';
-  
-        case 'OPEN':
-            return 'Ingresada';
-  
-        case 'ON_ROUTE':
-            return 'En ruta';
-    }
-  }
-
-  const getRouteStatus = (status) => {
-    switch (status) {
-        case 'CANCELED':
-            return 'Cancelada';
-  
-        case 'COMPLETED':
-            return 'Completada';
-  
-        case 'IN_PROGRESS':
-            return 'En proceso';
-  
-        case 'CREATED':
-            return 'Creada';
-    }
-  }
-
-  const getRouteRequestStatus = (status) => {
-    switch (status) {
-        case 'REPROGRAMED':
-            return 'Reprogramada';
-  
-        case 'COMPLETED':
-            return 'Completada';
-  
-        case 'ON_ROUTE':
-            return 'En ruta';
-  
-        case 'PENDING':
-            return 'Pendiente';
-    }
-  }
-  
-  const getGeneratorType = (type) => {
-    switch (type) {
-      case "GEN_RESTAURANT":
-          return 'Restaurante';
-  
-      case "GEN_BUILDING":
-          return 'Edificio';
-  
-      case "GEN_COMPANY":
-          return 'Empresa';
-  
-      case "GEN_OFFICE":
-          return 'Oficina';
-  
-      case "GEN_HOTEL":
-          return 'Hotel';
-  
-      case "GEN_FACTORY":
-          return 'Fábrica';
-  
-      case "GEN_CLUB":
-          return 'Club';
-  
-      case "GEN_EDUCATIONAL_INSTITUTION":
-          return 'Institución Educativa';
-  
-      case "GEN_HOSPITAL":
-          return 'Hospital';
-  
-      case "GEN_MARKET":
-          return 'Mercado';
-  
-      case "GEN_OTHER":
-          return 'Otro';
-    }
-  }
-
-  const formatDate = (value) => {
-    const dateOptions = {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-    };
-  
-    const timeOptions = {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false 
-    };
-
-    const dateString = value.toLocaleDateString('en-GB', dateOptions);
-    const timeString = value.toLocaleTimeString('en-GB', timeOptions);
-  
-    return `${dateString} ${timeString}`;
-  };
-
-  const formatWasteType = (value) => {
-    return value.join(", ");
-  };
-
-  const transform_requests = async (request) => {
-    request.route_request_status = getRouteRequestStatus(getRequestStatus(request.id))
+  const transform_requests = (request) => {
+    const status = getRequestStatus(request.id);
+    request.route_request_status = mapRouteRequestStatus[status];
     request.route_request_id = getRequestId(request.id)
     return request
-}
+  }
 
-const transform_route_data = async (route) => {
-  console.log("RUTA")
-  console.log(route)
-  route.created_at = new Date(route.created_at)
-  route.status = getRouteStatus(route.status)
-  return route
-}
+  const transform_route_data = (route) => {
+    route.status = mapRouteStatus[route.status]
+    return route
+  }
 
-const filter_daily_orders = (orders) => {
-  const today = new Date(Date.now())
-  return orders.filter(order => {
-    const date = new Date(order.pickup_date_from)
+  const getRequestStatus = (requestId) => {
+    const request = wastes.find((request) => request.request_id === requestId);
+    return request.status;
+  }
 
-    return date.getFullYear() === today.getFullYear() &&
-    date.getMonth() === today.getMonth() &&
-    date.getDate() === today.getDate()
-  })
-}
+  const getRequestId = (requestId) => {
+    const request = wastes.find((request) => request.request_id === requestId);
+    return request.id;
+  }
 
-const filter_daily_routes = (routes) => {
-  console.log("RUTITAS")
-  console.log(routes)
-  const today = new Date(Date.now())
-  console.log(today)
-  return routes.filter(route => {
-    const date = route.created_at
-
-    return date.getFullYear() <= today.getFullYear() &&
-    date.getMonth() <= today.getMonth() &&
-    date.getDate() <= today.getDate()
-  })
-}
-
-const filter_canceled = (routes) => {
-  return routes.filter(route => {
-    return route.status != "Cancelada"
-  })
-}
-
-const getPoints = (order, address) => {
-  return { position: [parseFloat(address.lat), parseFloat(address.lng)], content: order.generator.username, popUp: `${address.street} ${address.number}`}
-}
-
-const getRequestStatus = (requestId) => {
-  const request = wastes.find((request) => request.request_id === requestId);
-  return request.status;
-}
-
-const getRequestId = (requestId) => {
-  const request = wastes.find((request) => request.request_id === requestId);
-  return request.id;
-}
-
-useEffect(() => {
-  const fetchOrders = async () => {
-    if(wastes) {
-      console.log("PIDO REQUESTSS")
-      console.log(wastes)
-      await getRequestsByRouteId(routeActive)
-      .then((response) => Promise.all(response.map(request => transform_requests(request))))
-      .then(async (transformed) => {
-        const coop = await getUserById(transformed[0].coop_id)
-        setRequests(transformed)
-        setMarkersFromRequests(transformed, coop);
-      })
-      .then(() => setLoading(false))
+  useEffect(() => {
+    const fetchRequestsByRouteId = async () => {
+      if(wastes) {
+        try {
+          setLoading(true)
+          await getRequestsByRouteId(routeActive)
+          .then((response) => Promise.all(response.map(request => transform_requests(request))))
+          .then(async (transformed) => {
+            const coop = await getUserById(transformed[0].coop_id)
+            setRequests(transformed)
+            setMarkersFromRequests(transformed, coop);
+          })
+        } catch (error) {
+          console.log("Error al obtener rutas", error);
+          ToastNotifier.error("Error al obtener rutas\nPor favor, intente nuevamente")
+        } finally {
+          setLoading(false)
+        }
+      }
     }
-  }
-  fetchOrders()
-}, [wastes])
+    fetchRequestsByRouteId()
+  }, [wastes])
 
-useEffect(() => {
-  const fetchOrders = async () => {
-    if(routeActive) {
-      console.log("PIDO RUTARDA")
-      await getRouteById(routeActive)
-      .then(async (response) => {
-        setWastes(response.route_requests)
-        const coop = await getUserById(response.truck.coop_id)
-        setCoords([parseFloat(coop.address.lat), parseFloat(coop.address.lng)]);
-        setRouteCoordsFromRequests(response.route_requests, coop.address);
-      })
+  useEffect(() => {
+    const fetchActiveRoute = async () => {
+      if(routeActive) {
+        try {
+          setLoading(true)
+          await getRouteById(routeActive)
+          .then(async (response) => {
+            setWastes(response.route_requests)
+            const coop = await getUserById(response.truck.coop_id)
+            setCoords([parseFloat(coop.address.lat), parseFloat(coop.address.lng)]);
+            setRouteCoordsFromRequests(response.route_requests, coop.address);
+          })
+        } catch (error) {
+          console.log("Error al obtener rutas", error);
+          ToastNotifier.error("Error al obtener rutas\nPor favor, intente nuevamente")
+        } finally {
+          setLoading(false)
+        }
+      }
     }
+    fetchActiveRoute()
+  }, [routeActive])
+
+  const setMarkersFromRequests = (requests, coopInfo) => {
+    const genMarkers = requests
+      .map((request) => ({
+        position: [
+          parseFloat(request.address?.lat ?? "0"), 
+          parseFloat(request.address?.lng ?? "0")
+        ],
+        content: request.generator?.username ?? "Desconocido",
+        popUp: request.address ? AddressFormat(request.address) : "Dirección desconocida",
+      }));
+    const markers = [...genMarkers, {
+      position: [parseFloat(coopInfo.address.lat), parseFloat(coopInfo.address.lng)],
+      content: 'Cooperativa',
+      popUp: AddressFormat(coopInfo.address),
+    }
+    ]
+    setMarkers(markers);
+    console.log("Markers en page: ", markers);
+  };
+
+  const setRouteCoordsFromRequests = (requests, coopAddress) => {
+    const coopCoords = [parseFloat(coopAddress.lat), parseFloat(coopAddress.lng)];
+    const routeCoords = requests
+      .filter((request) => request.lat && request.lng)
+      .map((request) => [parseFloat(request.lat), parseFloat(request.lng)]);
+    const updatedRouteCoords = [coopCoords, ...routeCoords, coopCoords];
+    setRouteCoords(updatedRouteCoords);
   }
-  fetchOrders()
-}, [routeActive])
 
-const setMarkersFromRequests = (requests, coopInfo) => {
-  console.log("Requests en page: ", requests);
-  const genMarkers = requests
-    .map((request) => ({
-      position: [
-        parseFloat(request.address?.lat ?? "0"), 
-        parseFloat(request.address?.lng ?? "0")
-      ],
-      content: request.generator?.username ?? "Desconocido",
-      popUp: request.address ? AddressFormat(request.address) : "Dirección desconocida",
-    }));
-  const markers = [...genMarkers, {
-    position: [parseFloat(coopInfo.address.lat), parseFloat(coopInfo.address.lng)],
-    content: 'Cooperativa',
-    popUp: AddressFormat(coopInfo.address),
-  }
-  ]
-  setMarkers(markers);
-  console.log("Markers en page: ", markers);
-};
-
-const setRouteCoordsFromRequests = (requests, coopAddress) => {
-  const coopCoords = [parseFloat(coopAddress.lat), parseFloat(coopAddress.lng)];
-  const routeCoords = requests
-    .filter((request) => request.lat && request.lng)
-    .map((request) => [parseFloat(request.lat), parseFloat(request.lng)]);
-  const updatedRouteCoords = [coopCoords, ...routeCoords, coopCoords];
-  setRouteCoords(updatedRouteCoords);
-}
-
-
-
-
-useEffect(() => {
-  const fetchOrders = async () => {
-    if (user.userId) {
-      console.log(user)
+  useEffect(() => {
+    const fetchRoutes = async () => {
       try {
-        setUserId(user.userId)
-        await getRoutesByDriverId(user.userId)
+        setLoading(true)
+        await getDriverHomeRoutes(userSession.userId)
         .then((response) => Promise.all(response.map(route => transform_route_data(route))))
         .then((transformed_routes) => {
-          //const filtered_routes = filter_daily_routes(transformed_routes)
-          const filtered_routes = filter_canceled(transformed_routes)
-          const activeRoute = filtered_routes.find(route => route.status === "En proceso")
+          const activeRoute = transformed_routes.find(route => route.status === "En proceso")
           if(activeRoute) {
-            console.log("HAY ACTIVA")
             setRouteActive(activeRoute.id)
           }
-          else{
-            setLoading(false)
-          }
-          setRoutes(filtered_routes)
+          setRoutes(transformed_routes)
         })
-        
       } catch (error) {
         console.log("Error al obtener pedidos", error);
-      } 
-    } else {
-      setLoading(false);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchRoutes();
+  }, [refreshValue]);
+
+  const redirectDetailPage = (rowData) => {
+    router.push(`/home/conductor/rutas/recoleccion/detalles/${rowData.id}`)
+  };
+
+  const startRoute = async (id) => {
+    if (routeActive) {
+      ToastNotifier.warning("Ya tienes una ruta en progreso");
+      return;
+    }
+    setRouteToStart(id);
+    setIsModalStartRouteOpen(true);
+  };
+
+  const handleStartRoute = async () => {
+    await startRouteById(routeToStart)
+    .then(() => setRouteActive(routeToStart))
+    .catch((error) => {
+      console.log("Error al comenzar ruta", error);
+      ToastNotifier.error("Error al comenzar ruta\nPor favor, intente nuevamente")
+    })
+    setIsModalStartRouteOpen(false);
+  };
+
+  const confirmRequest = (route_request_id, index) => {
+    setRequestToConfirm(route_request_id);
+    setIndexToConfirm(index);
+    setIsModalConfirmRequestOpen(true);
+  };
+
+  const handleConfirmRequest = async (code) => {
+    try {
+      const verification = await verifyGeneratorCode(requestToConfirm, code);
+      if (verification.passed) {
+        await updateRouteRequest(indexToConfirm, routeActive, "COMPLETED");
+        ToastNotifier.success("Solicitud completada");
+      } else {
+        ToastNotifier.warning("Código incorrecto");
+      }
+    } catch (error) {
+      console.log("Error al confirmar solicitud", error);
+      ToastNotifier.error("Error al confirmar solicitud\nPor favor, intente nuevamente")
+    } finally {
+      setIsModalConfirmRequestOpen(false);
     }
   };
 
-  fetchOrders();
-}, [user.userId]);
+  const reprogramRequest = (id) => {
+    setRequestToReprogram(id);
+    setIsModalReprogramRequestOpen(true);
+  };
 
-const redirectDetailPage = (rowData) => {
-  router.replace(`/home/conductor/rutas/recoleccion/detalles/${rowData.id}`)
-};
+  const handleReprogramRequest = async () => {
+    try {
+      await updateRouteRequest(requestToReprogram, routeActive, "REPROGRAMED");
+      ToastNotifier.success("Solicitud reprogramada");
+    } catch (error) {
+      console.log("Error al reprogramar solicitud", error);
+      ToastNotifier.error("Error al reprogramar solicitud\nPor favor, intente nuevamente")
+    } finally {
+      setIsModalReprogramRequestOpen(false);
+    }
+  };
 
-const startRoute = async (id) => {
-  await startRouteById(id)
-  .then(() => setRouteActive(id))
-};
+  const cancelRoute = (routeId) => {
+    setRouteToCancel(routeId);
+    setIsModalCancelRouteOpen(true);
+  };
 
-const cancelRoute = (rowData) => {
-  router.replace(`/home/cooperativa/pedidos/detalles/${rowData.id}`)
-};
-
-const updateRouteRequest = async (id, routeId, status) => {
-  setLoading(true)
-  await updateRouteRequestById(id, routeId, status)
-  .then((response) => {
-    if(response.route_status == "COMPLETED"){
-      setRouteActive(null)
-      setWastes(null)
-      setRequests(null)
-      setRoutes(prevRoutes => 
-        prevRoutes.map(route => 
-            route.id === routeId ? { ...route, status: "Completada" } : route
-        )
-      );
+  const handleCancelRoute = async () => {
+    try {
+      setLoading(true)
+      setIsModalCancelRouteOpen(false);
+      await cancel_route(routeToCancel)
+      .then(() => {
+        refresh()
+        ToastNotifier.success("Ruta cancelada");
+      })
+    } catch (error) {
+      console.log("Error al cancelar ruta", error);
+      ToastNotifier.error("Error al cancelar ruta\nPor favor, intente nuevamente")
       setLoading(false)
     }
-    else{
-      setRequests(prevRequests => 
-        prevRequests.map(request => 
-          request.route_request_id === id ? { ...request, route_request_status: getRouteRequestStatus(status) } : request
-        )
-      );
-      setLoading(false)
-    }
-    
-})
-};
+  };
 
-function formatDateRange(date_from, date_to) {
-  const fromDate = new Date(date_from);
-  const toDate = new Date(date_to);
 
-  const day = fromDate.getDate().toString().padStart(2, '0');
-  const month = (fromDate.getMonth() + 1).toString().padStart(2, '0');
-  const year = fromDate.getFullYear();
-
-  const fromHours = fromDate.getHours().toString().padStart(2, '0');
-  const fromMinutes = fromDate.getMinutes().toString().padStart(2, '0');
-
-  const toHours = toDate.getHours().toString().padStart(2, '0');
-  const toMinutes = toDate.getMinutes().toString().padStart(2, '0');
-
-  return `${day}/${month}/${year} ${fromHours}:${fromMinutes} - ${toHours}:${toMinutes}`;
-}
+  const updateRouteRequest = async (id, routeId, status) => {
+    setLoading(true)
+    await updateRouteRequestById(id, routeId, status)
+    .then((response) => {
+      if(response.route_status == "COMPLETED" || response.route_status == "PARTIALLY_COMPLETED") {
+        setRouteActive(null)
+        setWastes(null)
+        setRequests(null)
+        setRoutes(prevRoutes => 
+          prevRoutes.map(route => 
+              route.id === routeId ? { ...route, status: "Completada" } : route
+          )
+        );
+        setLoading(false)
+      }
+      else{
+        setRequests(prevRequests => 
+          prevRequests.map(request => 
+            request.route_request_id === id ? { ...request, route_request_status: mapRouteRequestStatus[status] } : request
+          )
+        );
+        setLoading(false)
+      }  
+    }).catch((error) => {
+      console.log("Error al actualizar solicitud:", error);
+      setLoading(false);
+      throw error;
+    })
+  };
 
   return (
-    <div className='flex flex-col p-4 gap-3 h-screen'>
-      <div className='flex justify-between items-center'>
-        <h1 className='text-3xl font-bold'>Bienvenido!</h1>
+    <div className="overflow-x-auto max-w-full w-full h-full text-2xs md:text-sm min-h-full flex flex-col">
+      <ToastContainer />
+      <AcceptConfirmationModal isOpen={isModalStartRouteOpen} onRequestClose={() => setIsModalStartRouteOpen(false)} onConfirm={handleStartRoute} title="¿Seguro que desea comenzar la ruta?" />
+      <CodeConfirmationModal isOpen={isModalConfirmRequestOpen} onRequestClose={() => setIsModalConfirmRequestOpen(false)} onConfirm={handleConfirmRequest} />
+      <AcceptConfirmationModal isOpen={isModalReprogramRequestOpen} onRequestClose={() => setIsModalReprogramRequestOpen(false)} onConfirm={handleReprogramRequest} title="¿Seguro que desea reprogramar la solicitud?" />
+      <AcceptConfirmationModal isOpen={isModalCancelRouteOpen} onRequestClose={() => setIsModalCancelRouteOpen(false)} onConfirm={handleCancelRoute} title="¿Seguro que desea cancelar la ruta?" message='Esta acción no se puede deshacer' />
+      <div className='mt-4 mx-4'>
+        <h1 className='text-2xl font-bold text-center'>Bienvenido</h1>
+        <h2 className='text-xl font-semibold text-start mt-2'>Aqui puede ver las rutas que la cooperativa le asignó y se encuentran en progreso o pendientes de iniciar</h2>
+        {routes && routes.length == 0 && 
+          <div className='flex justify-center items-center mt-10'>
+            {noRutesComponent()}
+          </div>
+        }
       </div>
       {(loading || !routes) && <Spinner/>}
 
     {!loading && routes && 
-      <div className='flex flex-col'>
+      <div className='flex flex-col mx-4 my-4'>
         {routes.map((route) => (
           <Route route={route} startRoute={startRoute} cancelRoute={cancelRoute}></Route>
         ))}
       </div>
     }
 
-      <div className='flex flex-col gap-2 w-full home-col'>
-      {!loading && requests &&
-          <Card className='lg:mx-9 my-4'>
-            <CardHeader className='bg-green-dark text-white pl-4 text-xl font-bold py-3'>RECOLECCIONES DEL DÍA</CardHeader>
-            <Divider />
-            <CardBody className='p-0'>
-              <div className="flex gap-4 m-4">
-                <Input
-                  className='select h-14'
-                  placeholder="Generador"
-                  onChange={(e) => {
-                    setFilters({...filters, generator: e.target.value})
-                  }}>
-                </Input>
-              <Select
-                  className='select'
-                  placeholder="Zona"
-                  value={filters.zone}
-                  options={zones}
-                  selectionMode="multiple"
-                  onChange={(e) => setFilters({ ...filters, zone: e.target.value.split(',') })}
-                >
-                    {zones.map((zone) => (
-                      <SelectItem key={zone.value} value={zone.value}>
-                        {zone.label}
-                      </SelectItem>
-                    ))}
-                </Select>
-                <Select
-                  className='select'
-                  placeholder="Estado"
-                  value={filters.status}
-                  options={statuses}
-                  selectionMode="multiple"
-                  onChange={(e) => setFilters({ ...filters, status: e.target.value.split(',') })}
-                >
-                    {statuses.map((status) => (
-                      <SelectItem key={status.value} value={status.value}>
-                        {status.label}
-                      </SelectItem>
-                    ))}
-                </Select>
-                </div>
-              <Table
-              bottomContent={
-                <div className="flex w-full justify-between items-center">
-                  <span className='flex 1 invisible'>{get_orders.length} de {filteredRequests.length} solicitudes</span>
-                  <Pagination
-                    className='flex 1'
-                    isCompact
-                    showControls
-                    showShadow
-                    color="secondary"
-                    page={page}
-                    total={pages}
-                    onChange={(page) => setPage(page)}
-                  />
-                  <span className='flex 1'>{get_orders.length} de {filteredRequests.length} solicitudes</span>
-                </div>}>
-                <TableHeader>
-                  <TableColumn>Nombre generador</TableColumn>
-                  <TableColumn>Dirección</TableColumn>
-                  <TableColumn>Zona</TableColumn>
-                  <TableColumn>Estado</TableColumn>
-                  <TableColumn>Acciones</TableColumn>
-                </TableHeader>
-                <TableBody>
-                  {get_orders.map((request, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{request.generator.username}</TableCell>
-                      <TableCell>{request.address? request.address.street : request.generator.address.street} {request.address? request.address.number : request.generator.address.number}</TableCell>
-                      <TableCell>{request.address? request.address.zone : request.generator.address.zone}</TableCell>
-                      <TableCell>{request.route_request_status}</TableCell>
-                      <TableCell>
-                        <div className='flex gap-3'>
-                          <Button className="" onClick={() => redirectDetailPage(request)}>Ver</Button>
-                          {request.route_request_status != "Completada" &&
-                          <Button className="bg-green-dark text-white" onClick={() => updateRouteRequest(request.route_request_id, routeActive, "COMPLETED")}>Completar</Button> }
-                          {(request.route_request_status == "Pendiente" || request.route_request_status == "En ruta") &&
-                          <Button className="bg-red-dark text-white" onClick={() => updateRouteRequest(request.route_request_id, routeActive, "REPROGRAMED")}>Reprogramar</Button>
-                          }
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardBody>
+    {!loading && requests &&
+    <div className='flex justify-between items-center mt-4 mx-4'>
+        <p className='text-start text-xl font-bold ml-2'>Recolecciónes de la ruta en progreso</p>
+    </div>
+    }
+
+    {!loading && requests &&
+      <div className='flex flex-col mx-4 my-4 gap-2'>
+          <Card className='rounded-md'>
+          <CardBody className='p-0'>
+          <div className="flex gap-4 items-center my-3 mx-4">
+            <Input
+              className='select'
+              placeholder="Generador"
+              onChange={(e) => {
+                setFilters({...filters, generator: e.target.value})
+              }}>
+            </Input>
+            <Select
+              className='select'
+              placeholder="Zona"
+              value={filters.zone}
+              options={zones}
+              selectionMode="multiple"
+              onChange={(e) => setFilters({ ...filters, zone: e.target.value.split(',') })}
+            >
+                {zones.map((zone) => (
+                  <SelectItem key={zone.value} value={zone.value}>
+                    {zone.label}
+                  </SelectItem>
+                ))}
+            </Select>
+            <Select
+              className='select'
+              placeholder="Estado"
+              value={filters.status}
+              options={RouteRequestStatus}
+              selectionMode="multiple"
+              onChange={(e) => setFilters({ ...filters, status: e.target.value.split(',') })}
+            >
+            {RouteRequestStatus.map((status) => (
+              <SelectItem key={status.value} value={status.value}>
+                {status.label}
+              </SelectItem>
+            ))}
+            </Select>
+          </div>
+          </CardBody>
           </Card>
-}
+          <Table
+          bottomContent={
+            <div className="flex w-full justify-between items-center">
+              <span className='flex 1 invisible'>{get_orders.length} de {filteredRequests.length} solicitudes</span>
+              <Pagination
+                className='flex 1'
+                isCompact
+                showControls
+                showShadow
+                color="secondary"
+                page={page}
+                total={pages}
+                onChange={(page) => setPage(page)}
+              />
+              <span className='flex 1'>{get_orders.length} de {filteredRequests.length} solicitudes</span>
+            </div>}>
+            <TableHeader>
+              <TableColumn>Id</TableColumn>
+              <TableColumn>Nombre generador</TableColumn>
+              <TableColumn>Dirección</TableColumn>
+              <TableColumn>Zona</TableColumn>
+              <TableColumn>Estado</TableColumn>
+              <TableColumn>Acciones</TableColumn>
+            </TableHeader>
+            <TableBody>
+              {get_orders.map((request, index) => (
+                <TableRow key={index}>
+                  <TableCell>{request.id}</TableCell>
+                  <TableCell>{request.generator.username}</TableCell>
+                  <TableCell>{request.address? request.address.street : request.generator.address.street} {request.address? request.address.number : request.generator.address.number}</TableCell>
+                  <TableCell>{request.address? request.address.zone : request.generator.address.zone}</TableCell>
+                  <TableCell>{request.route_request_status}</TableCell>
+                  <TableCell>
+                    <div className='flex gap-3'>
+                      <Button className="" onClick={() => redirectDetailPage(request)}>Ver</Button>
+                      {request.route_request_status != "Completada" & request.route_request_status != "Reprogramada" &&
+                      <Button className='bg-white text-green-dark px-3 py-2 rounded-medium border-medium border-green-dark' onClick={() => confirmRequest(request.route_request_id, index + 1)}>Completar</Button> }
+                      {(request.route_request_status == "Pendiente" || request.route_request_status == "En ruta") &&
+                      <Button className='bg-white text-red-dark px-3 py-2 rounded-medium border-medium border-red-dark' onClick={() => reprogramRequest(index + 1)}>Reprogramar</Button>
+                      }
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
       </div>
+    }
 
       {!loading && requests &&
       <div className='p-2 mt-4'>
           <h2 className='text-xl'>Recorrido</h2>
-          <MapView centerCoordinates={coords} zoom={14} markers={markers} routeCoordinates={routeCoords}/>
+          <div className='justify-center items-center'>
+            <MapView centerCoordinates={coords} zoom={14} markers={markers} routeCoordinates={routeCoords}/>
+          </div>
       </div>
       }
     </div>

@@ -15,84 +15,10 @@ import "./style.css"
 import { Button } from "@nextui-org/react";
 import { useRouter } from 'next/navigation';
 import { Address, UserInfo, WasteQuantity, WasteQuantities, WasteCollectionRequest, WasteCollectionRequests } from '@/types';
+import { mapRequestStatus } from '@/constants/request';
+import { formatDate, formatDateRange, formatTime } from '@/utils/dateStringFormat';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
-
-  const getGeneratorType = (type: any) => {
-    switch (type) {
-      case "GEN_RESTAURANT":
-          return 'Restaurante';
-  
-      case "GEN_BUILDING":
-          return 'Edificio';
-  
-      case "GEN_COMPANY":
-          return 'Empresa';
-  
-      case "GEN_OFFICE":
-          return 'Oficina';
-  
-      case "GEN_HOTEL":
-          return 'Hotel';
-  
-      case "GEN_FACTORY":
-          return 'Fábrica';
-  
-      case "GEN_CLUB":
-          return 'Club';
-  
-      case "GEN_EDUCATIONAL_INSTITUTION":
-          return 'Institución Educativa';
-  
-      case "GEN_HOSPITAL":
-          return 'Hospital';
-  
-      case "GEN_MARKET":
-          return 'Mercado';
-  
-      case "GEN_OTHER":
-          return 'Otro';
-    }
-  }
-
-
-const getStatus = (status : any) => {
-    switch (status) {
-        case 'REJECTED':
-            return 'Cancelada';
-
-        case 'COMPLETED':
-            return 'Completada';
-
-        case 'PENDING':
-            return 'En proceso';
-
-        case 'OPEN':
-            return 'Ingresada';
-
-        case 'ON_ROUTE':
-            return 'En ruta';
-    }
-}
-
-const formatDate = (value: any) => {
-    const dateOptions = {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-    };
-
-    const timeOptions = {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false 
-    };
-
-    const dateString = value.toLocaleDateString('en-GB', dateOptions);
-    const timeString = value.toLocaleTimeString('en-GB', timeOptions);
-
-    return `${dateString} ${timeString}`;
-};
 
 const OrderDetails = (props: {params?: { id?: string } }) => {
     const {user} = useUser();
@@ -105,7 +31,6 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
     const [order, setOrder] = useState<WasteCollectionRequest | null>(null);
     const [isCollapsedItems, setIsCollapsedItems] = useState(false);
     const [isCollapsedObservations, setIsCollapsedObservations] = useState(false);
-    const router = useRouter();
 
     const toggleCollapseItems = () => {
         setIsCollapsedItems(!isCollapsedItems);
@@ -123,12 +48,10 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
                 setOrder(responseOrder);
                 setGenerator(responseGenerator);
 
-                setDate_from(formatDate(new Date(responseOrder.pickup_date_from)));
-                setDate_to(formatDate(new Date(responseOrder.pickup_date_to)));
-                setInserted_date(formatDate(new Date(responseOrder.request_date)));
-                setStatus(getStatus(responseOrder.status));
+                setDateTimeRange(formatDateRange(responseOrder.pickup_date_from, responseOrder.pickup_date_to));
+                setInserted_date(responseOrder.request_date);
+                setStatus(mapRequestStatus[responseOrder.status as keyof typeof mapRequestStatus]);
                 setProducts(responseOrder.waste_quantities);
-                setAddress(responseOrder.address);
                 setPoint([{position: [parseFloat(responseOrder.address.lat), parseFloat(responseOrder.address.lng)], content: responseOrder.generator.username, popUp: `${responseOrder.address.street} ${responseOrder.address.number}`}])
 
                 setLoading(false);
@@ -140,12 +63,10 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
         fetchUser();
     }, [props, user.userId, update]);
 
-    const [date_from, setDate_from] = useState<string | null>(null);
-    const [date_to, setDate_to] = useState<string | null>(null);
+    const [dateTimeRange, setDateTimeRange] = useState<string | null>(null);
     const [inserted_date, setInserted_date] = useState<string | null>(null);
     const [status, setStatus] = useState<string | null | undefined>(null);
     const [products, setProducts] = useState<WasteQuantities | null>(null);
-    const [address, setAddress] = useState<Address | null>(null);
     const [point, setPoint] = useState<any | null>(null);
     
     const acceptRequest = async (rowData: any) => {
@@ -174,7 +95,7 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
                                 <div className="flex flex-row gap-3 text-xl items-center">
                                     <LocalShippingIcon className="ml-1"/>
                                     <div className="flex flex-col">
-                                    <p className="card-text"><small className="text-body-secondary">{date_from} - {date_to}</small></p>
+                                    <p className="card-text"><small className="text-body-secondary">{dateTimeRange}</small></p>
                                     </div>
                                 </div>
 
@@ -253,7 +174,7 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
 
                         {/* FECHA INSERTADO */}
                         <div className="flex flex-row gap-3 text-xl items-center mt-52 justify-between">
-                            <p className="card-text"><small className="text-body-secondary text-md">Ingresado el {inserted_date}</small></p>
+                            <p className="card-text"><small className="text-body-secondary text-md">Ingresado el {formatDate(inserted_date)} {formatTime(inserted_date)}</small></p>
                             {order && order.status == "OPEN" && <Button className="bg-green-dark text-white w-32" onClick={() => acceptRequest(order)}>Aceptar</Button>}
                         </div>
 

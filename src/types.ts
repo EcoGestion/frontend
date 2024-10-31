@@ -87,6 +87,7 @@ export interface WasteCollectionRequest {
   status: 'OPEN' | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED';
   generator?: UserInfo;
   coop?: UserInfo;
+  delivery_code?: string;
 }
 
 export type WasteCollectionRequests = WasteCollectionRequest[];
@@ -117,3 +118,19 @@ export interface Route {
 }
 
 export type Routes = Route[];
+
+export interface GenHomeStats {
+  open: number;
+  pending: number;
+  completed: number;
+}
+
+export interface Notification {
+  id: number;
+  generator_id: number;
+  event_id: number;
+  details: string;
+  created_at: Date;
+}
+
+export type Notifications = Notification[];

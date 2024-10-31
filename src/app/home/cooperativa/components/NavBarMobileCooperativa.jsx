@@ -78,19 +78,19 @@ const NavBarMobileCooperativa = () => {
         </NavbarContent>
 
         <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
-            <NavbarItem key={`Reportes-1`}>
+            <NavbarItem key={`Reportes-1`} onClick={() => setIsMenuOpen(false)}>
             <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/reportes" >
               Reportes
             </Link>
             </NavbarItem>
 
-            <NavbarItem key={`Recursos-2`}>
+            <NavbarItem key={`Recursos-2`} onClick={() => setIsMenuOpen(false)}>
             <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/recursos">
             Recursos
             </Link>
             </NavbarItem>
 
-          <NavbarMenuItem key={`Cerrar Sesión-3`} className='mt-2'>
+          <NavbarMenuItem key={`Cerrar Sesión-3`} className='mt-2' >
             <a
               className="w-full text-lg justify-start"
               color={"danger"}

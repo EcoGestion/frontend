@@ -8,27 +8,21 @@ import TimeSelector from '@/components/TimeSelector';
 import Spinner from '@/components/Spinner';
 import { Card, CardHeader, CardBody, Divider } from '@nextui-org/react';
 import { Day, Item, UserInfo } from '@/types';
-import {materialsDefault} from '@constants/recyclables';
-
-const nameSpanishMap: Record<string, string> = {
-  MONDAY: 'Lunes',
-  TUESDAY: 'Martes',
-  WEDNESDAY: 'Miercoles',
-  THURSDAY: 'Jueves',
-  FRIDAY: 'Viernes',
-  SATURDAY: 'Sábado',
-  SUNDAY: 'Domingo'
-};
+import {wasteTypesDefault} from '@constants/recyclables';
+import { daysOptions } from '@constants/dateAndTime';
+import { ToastNotifier } from '@/components/ToastNotifier';
+import { ToastContainer } from 'react-toastify';
 
 const transformDays = (backendDays: Day[]): Day[] => {
-  return backendDays.map(day => ({
-    id: day.id,
-    name: day.name,
-    name_spanish: nameSpanishMap[day.name],
-    active: day.active,
-    begin_at: day.begin_at,
-    end_at: day.end_at
-  }));
+  return daysOptions.map(dayOption => {
+    const backendDay = backendDays.find(day => day.name === dayOption.name);
+    return backendDay ? {
+      ...dayOption,
+      active: backendDay.active,
+      begin_at: backendDay.begin_at,
+      end_at: backendDay.end_at
+    } : dayOption;
+  });
 };
 
 const Perfil = () => {
@@ -37,37 +31,21 @@ const Perfil = () => {
     const [days, setDays] = useState<Day[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const [items, setItems] = useState(materialsDefault);
-
-    const nameSpanishMap = {
-    MONDAY: 'Lunes',
-    TUESDAY: 'Martes',
-    WEDNESDAY: 'Miercoles',
-    THURSDAY: 'Jueves',
-    FRIDAY: 'Viernes',
-    SATURDAY: 'Sábado',
-    SUNDAY: 'Domingo'
-    };
-      
-
-    useEffect(() => {
-    if (userInfo) {
-      const wasteTypeMap = new Map(userInfo.waste_type_config.map(item => [item.name, true]));
+    const [items, setItems] = useState(wasteTypesDefault);
+    
+    const updateItems = (newItems: Item[]) => {
+      const wasteTypeMap = new Map(newItems.map(item => [item.name, true]));
       const updatedItems = items.map(item => ({
         ...item,
         checked: wasteTypeMap.has(item.name),
       }));
       setItems(updatedItems);
     }
-  }, [userInfo]);
 
-    useEffect(() => {
-        if (userInfo) {
-        const transformedDays = transformDays(userInfo.days);
-        console.log("transformedDays", transformedDays);
-        setDays(transformedDays);
-        }
-    }, [userInfo]);
+    const updateDays = (newDays: Day[]) => {
+      const transformedDays = transformDays(newDays);
+      setDays(transformedDays);
+    }
 
     useEffect(() => {
         retrieveData();
@@ -76,10 +54,12 @@ const Perfil = () => {
     const retrieveData = async () => {
       try {
           const response = await getUserById(userSession.userId);
-          console.log(response);
+          updateItems(response.waste_type_config);
+          updateDays(response.days);
           setUserInfo(response);
       } catch (error) {
           console.error('Error retrieving user data:', error);
+          ToastNotifier.error('Error al obtener los datos del usuario.\nPor favor, intente nuevamente.');
       } finally {
           setLoading(false);
       }
@@ -87,13 +67,16 @@ const Perfil = () => {
 
   return (
     <div className="flex items-start justify-center bg-white">
+      <ToastContainer />
       {loading ? (
         <Spinner />
       ) : (
-        <div className="flex flex-col items-center justify-center p-4">
-          <h1 className="text-4xl font-bold mb-6">Perfil de usuario</h1>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-            <Card className="md:col-span-1">
+        <div className='flex flex-col h-screen w-11/12 md:w-4/5 p-2 gap-3'>
+          <h1 className='text-2xl font-bold text-center my-3'>Perfil de usuario</h1>
+          <div className="flex flex-row flex-wrap gap-6 w-full">
+
+          <div className="flex-1">
+            <Card >
               <CardHeader>
                 <div className="flex flex-col items-start">
                   <p className="text-md">{userInfo?.username}</p>
@@ -113,8 +96,9 @@ const Perfil = () => {
                 <p>Teléfono: {userInfo?.phone}</p>
               </CardBody>
             </Card>
+          </div>
   
-            <div className="md:col-span-1">
+            <div className="flex-1">
               <ReciclablesSelector
                 items={items}
                 editable={false}
@@ -122,7 +106,7 @@ const Perfil = () => {
               />
             </div>
   
-            <div className="md:col-span-1">
+            <div className="flex-2">
               <TimeSelector
                 days={days}
                 editable={false}

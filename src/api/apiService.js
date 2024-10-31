@@ -41,7 +41,7 @@ export const getOpenOrders = async () => {
 
 export const createRequest = async (requestData) => {
   const response = await axios.post(`${API_BASE_URL}/waste_collection_requests`, requestData);
-  return response.data;
+  return response;
 }
 
 export const createTruck = async (truckData) => {
@@ -66,6 +66,16 @@ export const updateOrderById = async (orderId, coopId, status) => {
     status: status
   }
   const response = await axios.put(`${API_BASE_URL}/waste_request/${orderId}`, requestBody);
+  return response.data;
+};
+
+export const acceptOrderById = async (orderId, coopId) => {
+  const requestBody =
+  {
+    coop_id: parseInt(coopId, 10), 
+    status: 'PENDING'
+  }
+  const response = await axios.put(`${API_BASE_URL}/assign_waste_request/${orderId}`, requestBody);
   return response.data;
 };
 
@@ -159,6 +169,17 @@ export const getCoopActiveRoutes = async (coopId) => {
   return response;
 }
 
+export const getDriverHomeRoutes = async (driverId) => {
+  const requests_filters = {
+    "operations": [
+    {"op": "EQ", "attribute": "driver_id", "value": driverId, "model": "Route"},
+    {"op": "IN", "attribute": "status", "value": ["CREATED", "IN_PROGRESS"], "model": "Route"}
+    ]
+  };
+  const response = await getRoutesWithFilter(requests_filters);
+  return response;
+}
+
 export const getRouteById = async (routeId) => {
   const response = await axios.get(`${API_BASE_URL}/route/${routeId}`);
   return response.data;
@@ -176,5 +197,30 @@ export const startRouteById = async (routeId) => {
 
 export const updateRouteRequestById = async (routeRequestId, routeId, status) => {
   const response = await axios.put(`${API_BASE_URL}/route_requests/${routeRequestId}/route/${routeId}?status=${status}`);
+  return response.data;
+}
+
+export const getGeneratorHomeStats = async (userId) => {
+  const response = await axios.get(`${API_BASE_URL}/generator/${userId}/home_stats`);
+  return response.data;
+}
+
+export const getGeneratorNotifications = async (userId) => {
+  const response = await axios.get(`${API_BASE_URL}/notifications/${userId}`);
+  return response.data;
+}
+
+export const verifyGeneratorCode = async (routeRequestId, code) => {
+  const response = await axios.post(`${API_BASE_URL}/route_request/${routeRequestId}/code/${code}`);
+  return response.data;
+}
+
+export const release_waste_request = async (routeRequestId, coopId) => {
+  const response = await axios.put(`${API_BASE_URL}/waste_request/${routeRequestId}/coop/${coopId}`);
+  return response.data;
+};
+
+export const cancel_route = async (routeId) => {
+  const response = await axios.put(`${API_BASE_URL}/route/${routeId}/cancel`);
   return response.data;
 }

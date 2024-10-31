@@ -10,7 +10,7 @@ import { ToastNotifier } from "@/components/ToastNotifier";
 import { getCoopRoutes, getCoopActiveRoutes } from "@/api/apiService";
 import { Route, Routes } from "@/types";
 import { formatDate } from "@/utils/dateStringFormat";
-import FormatTruck from "@/utils/truckFormat";
+import { FormatTruckString } from "@/utils/truckFormat";
 import { mapRouteStatus } from '@constants/route';
 
 
@@ -71,7 +71,7 @@ const rutasCooperativa = () => {
       {loading ? (<Spinner />) : (
       <div>
         <div className='w-full gap-2 pt-2'>
-          <button className='bg-white text-green-dark px-4 py-2 rounded-full border border-green-800' onClick={handleCreateRoute}>
+          <button className='bg-white text-green-dark px-4 py-2 rounded-medium border border-green-800' onClick={handleCreateRoute}>
             Crear nueva ruta
           </button>
           <div className='w-full pt-2'>
@@ -86,13 +86,13 @@ const rutasCooperativa = () => {
                 <TableColumn>Estado</TableColumn>
                 <TableColumn>Acciónes</TableColumn>
               </TableHeader>
-              <TableBody>
+              <TableBody emptyContent="No hay rutas para mostrar">
                 {activeRoutes.map((route, index) => (
                   <TableRow key={index}>
                     <TableCell>{route.id}</TableCell>
                     <TableCell>{formatDate(route.created_at)}</TableCell>
                     <TableCell>{route.driver.username}</TableCell>
-                    <TableCell>{FormatTruck(route.truck)}</TableCell>
+                    <TableCell>{FormatTruckString(route.truck)}</TableCell>
                     <TableCell>{route.total_weight} kg</TableCell>
                     <TableCell>{mapRouteStatus[route.status]}</TableCell>
                     <TableCell>
@@ -127,13 +127,13 @@ const rutasCooperativa = () => {
                 <TableColumn>Estado</TableColumn>
                 <TableColumn>Acciónes</TableColumn>
               </TableHeader>
-              <TableBody>
+              <TableBody emptyContent="No hay rutas para mostrar">
                 {items.map((route, index) => (
                   <TableRow key={index}>
                     <TableCell>{route.id}</TableCell>
                     <TableCell>{formatDate(route.created_at)}</TableCell>
                     <TableCell>{route.driver.username}</TableCell>
-                    <TableCell>{FormatTruck(route.truck)}</TableCell>
+                    <TableCell>{FormatTruckString(route.truck)}</TableCell>
                     <TableCell>{route.total_weight} kg</TableCell>
                     <TableCell>{mapRouteStatus[route.status]}</TableCell>
                     <TableCell>

@@ -8,17 +8,31 @@ import { Card, CardHeader, CardBody, Divider, CardFooter,
  } from '@nextui-org/react';
 import dynamic from 'next/dynamic'
 import 'dotenv/config'
-import { getTrucksById, getOpenOrders, getCoopOrdersById, updateOrderById } from '../../../api/apiService';
+import { getTrucksById, getOpenOrders, getCoopOrdersById, acceptOrderById } from '@api/apiService';
 import Spinner from '../../../components/Spinner';
 import { useRouter } from 'next/navigation';
 import "./style.css"
 import { mapMaterialNameToLabel } from '@/constants/recyclables';
 import { ToastNotifier } from '@/components/ToastNotifier';
+import zones from '@/constants/zones';
+import { mapGenType } from '@/constants/userTypes';
+import { formatDate, formatDateRange } from '@/utils/dateStringFormat';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+import AcceptConfirmationModal from '@components/AcceptConfirmationModal';
+import { FormatTruckCapacityToFront } from '@/utils/truckFormat';
+import { mapTruckStatus } from '@/constants/truck';
+import { ToastContainer } from 'react-toastify';
+import { generatorTypes } from '@/constants/userTypes';
+import { wasteTypesDefault } from '@/constants/recyclables';
+import { RequestStatus, mapRequestStatusToKey, mapRequestStatus } from '@/constants/request';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
 const HomeCooperativa = () => {
   const userSession = useSelector((state) => state.userSession);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [acceptedOrder, setAcceptedOrder] = useState(null);
+
   const [page, setPage] = React.useState(1);
   const [pages, setPages] = React.useState(null);
   const [availableOrders, setAvailableOrders] = useState(null)
@@ -33,88 +47,11 @@ const HomeCooperativa = () => {
   const [truckPage, setTruckPage] = React.useState(1);
   const [truckPages, setTruckPages] = React.useState(null);
   const [trucks, setTrucks] = useState(null)
-  const [brands, setBrands] = useState(null)
-  const [truckFilters, setTruckFilters] = useState({ brand: [], patent: '' });
-  
+ 
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(true);
   const rowsPerPage = 5;
   const router = useRouter();
-  
-  const zones = [
-    { value: "Abasto", label: "Abasto" },
-    { value: "Almagro", label: "Almagro" },
-    { value: "Balvanera", label: "Balvanera" },
-    { value: "Barracas", label: "Barracas" },
-    { value: "Belgrano", label: "Belgrano" },
-    { value: "Boedo", label: "Boedo" },
-    { value: "Caballito", label: "Caballito" },
-    { value: "Centro", label: "Centro" },
-    { value: "Chacarita", label: "Chacarita" },
-    { value: "Coghlan", label: "Coghlan" },
-    { value: "Colegiales", label: "Colegiales" },
-    { value: "Constitución", label: "Constitución" },
-    { value: "Devoto", label: "Devoto" },
-    { value: "Flores", label: "Flores" },
-    { value: "Floresta", label: "Floresta" },
-    { value: "La Boca", label: "La Boca" },
-    { value: "La Paternal", label: "La Paternal" },
-    { value: "Liniers", label: "Liniers" },
-    { value: "Mataderos", label: "Mataderos" },
-    { value: "Monte Castro", label: "Monte Castro" },
-    { value: "Morón", label: "Morón" },
-    { value: "Núñez", label: "Núñez" },
-    { value: "Palermo", label: "Palermo" },
-    { value: "Paternal", label: "Paternal" },
-    { value: "Puerto Madero", label: "Puerto Madero" },
-    { value: "Recoleta", label: "Recoleta" },
-    { value: "Retiro", label: "Retiro" },
-    { value: "Saavedra", label: "Saavedra" },
-    { value: "San Cristóbal", label: "San Cristóbal" },
-    { value: "San Nicolás", label: "San Nicolás" },
-    { value: "San Telmo", label: "San Telmo" },
-    { value: "Villa Devoto", label: "Villa Devoto" },
-    { value: "Villa del Parque", label: "Villa del Parque" },
-    { value: "Villa Luro", label: "Villa Luro" },
-    { value: "Villa Ortúzar", label: "Villa Ortúzar" },
-    { value: "Villa Real", label: "Villa Real" },
-    { value: "Villa Santa Rita", label: "Villa Santa Rita" },
-    { value: "Villa Urquiza", label: "Villa Urquiza" }
-  ];
-  
-  const statuses = [
-    { value: 'Ingresada', label: 'Ingresada' },
-    { value: 'Completada', label: 'Completada' },
-    { value: 'Cancelada', label: 'Cancelada' },
-    { value: 'Coordinada', label: 'Coordinada' }
-  ];
-
-const generatorTypes = [
-  { value: "Restaurante", label: "Restaurante" },
-  { value: "Edificio", label: "Edificio" },
-  { value: "Empresa", label: "Empresa" },
-  { value: "Oficina", label: "Oficina" },
-  { value: "Hotel", label: "Hotel" },
-  { value: "Fábrica", label: "Fábrica" },
-  { value: "Club", label: "Club" },
-  { value: "Institución Educativa", label: "Institución Educativa" },
-  { value: "Hospital", label: "Hospital" },
-  { value: "Mercado", label: "Mercado" },
-  { value: "Otro", label: "Otro" }
-];
-
-const wasteTypes = [
-  { label: 'Papel', value: 'Papel' },
-  { label: 'Metal', value: 'Metal' },
-  { label: 'Vidrio', value: 'Vidrio' },
-  { label: 'Plástico', value: 'Plastico' },
-  { label: 'Cartón', value: 'Cartón' },
-  { label: 'Tetra Brik', value: 'Tetra Brik' },
-  { label: 'Telgopor', value: 'Telgopor' },
-  { label: 'Pilas', value: 'Pilas' },
-  { label: 'Aceite', value: 'Aceite' },
-  { label: 'Electrónicos', value: 'Electrónicos' }
-];
 
 const filteredAvailableOrders = availableOrders?.filter(order => {
   const zone = order.address? order.address.zone : order.generator.address.zone
@@ -133,15 +70,8 @@ const filteredDailyOrders = dailyOrders?.filter(order => {
     (!dailyFilters.generator || order.generator_name.toLowerCase().includes(dailyFilters.generator.toLowerCase())) &&
     (dailyFilters.wasteType.length == 0 || (dailyFilters.wasteType.length == 1 && !dailyFilters.wasteType[0]) || dailyFilters.wasteType.every(element => order.waste_types.includes(element))) &&
     (dailyFilters.zone.length == 0 || (dailyFilters.zone.length == 1 && !dailyFilters.zone[0]) || dailyFilters.zone.includes(zone)) &&
-    (dailyFilters.status.length == 0 || (dailyFilters.status.length == 1 && !dailyFilters.status[0])  || dailyFilters.status.includes(order.status)) &&
+    (dailyFilters.status.length == 0 || (dailyFilters.status.length == 1 && !dailyFilters.status[0])  || dailyFilters.status.includes(mapRequestStatusToKey[order.status])) &&
     (dailyFilters.generatorType.length == 0 || (dailyFilters.generatorType.length == 1 && !dailyFilters.generatorType[0]) || dailyFilters.generatorType.includes(order.generator_type))
-  );
-});
-
-const filteredTrucks = trucks?.filter(truck => {
-  return (
-    (!truckFilters.patent || truck.patent.toLowerCase().includes(truckFilters.patent.toLowerCase())) &&
-    (truckFilters.brand.length == 0 || (truckFilters.brand.length == 1 && !truckFilters.brand[0]) || truckFilters.brand.includes(truck.brand))
   );
 });
 
@@ -156,30 +86,6 @@ useEffect(() => {
     setDailyPages(Math.ceil(filteredDailyOrders.length / rowsPerPage)); 
   } 
 }, [dailyOrders, dailyFilters]);
-
-useEffect(() => {
-  if (filteredTrucks) {
-    setTruckPages(Math.ceil(filteredTrucks.length / rowsPerPage)); 
-  } 
-}, [trucks, truckFilters]);
-
-  useEffect(() => {
-    if (filteredAvailableOrders) {
-      setPages(Math.ceil(filteredAvailableOrders.length / rowsPerPage)); 
-    } 
-  }, [availableOrders, availableFilters]);
-
-  useEffect(() => {
-    if (filteredDailyOrders) {
-      setPages(Math.ceil(filteredDailyOrders.length / rowsPerPage)); 
-    } 
-  }, [dailyOrders, dailyFilters]);
-
-  useEffect(() => {
-    if (filteredTrucks) {
-      setTruckPages(Math.ceil(filteredTrucks.length / rowsPerPage)); 
-    } 
-  }, [trucks, truckFilters]);
 
   const get_available_orders = React.useMemo(() => {
     if (filteredAvailableOrders) {
@@ -206,106 +112,30 @@ useEffect(() => {
   }, [dailyPage, filteredDailyOrders]);
 
   const get_trucks = React.useMemo(() => {
-    if (filteredTrucks) {
+    if (trucks) {
       const start = (truckPage - 1) * rowsPerPage;
       const end = start + rowsPerPage;
 
-      return filteredTrucks.slice(start, end);
+      return trucks.slice(start, end);
     }
     else
       return []
 
-  }, [truckPage, filteredTrucks]);
-
-  const getStatus = (status) => {
-    switch (status) {
-        case 'REJECTED':
-            return 'Cancelada';
-
-        case 'COMPLETED':
-            return 'Completada';
-
-        case 'PENDING':
-            return 'En proceso';
-
-        case 'OPEN':
-            return 'Ingresada';
-
-        case 'ON_ROUTE':
-            return 'En ruta';
-    }
-  }
-
-  const getGeneratorType = (type) => {
-    switch (type) {
-      case "GEN_RESTAURANT":
-          return 'Restaurante';
-
-      case "GEN_BUILDING":
-          return 'Edificio';
-
-      case "GEN_COMPANY":
-          return 'Empresa';
-
-      case "GEN_OFFICE":
-          return 'Oficina';
-
-      case "GEN_HOTEL":
-          return 'Hotel';
-
-      case "GEN_FACTORY":
-          return 'Fábrica';
-
-      case "GEN_CLUB":
-          return 'Club';
-
-      case "GEN_EDUCATIONAL_INSTITUTION":
-          return 'Institución Educativa';
-
-      case "GEN_HOSPITAL":
-          return 'Hospital';
-
-      case "GEN_MARKET":
-          return 'Mercado';
-
-      case "GEN_OTHER":
-          return 'Otro';
-    }
-  }
-
-  const formatDate = (value) => {
-    const dateOptions = {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-    };
-
-    const timeOptions = {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false 
-    };
-
-    const dateString = value.toLocaleDateString('en-GB', dateOptions);
-    const timeString = value.toLocaleTimeString('en-GB', timeOptions);
-
-    return `${dateString} ${timeString}`;
-  };
+  }, [trucks, truckPage]);
 
   const formatWasteType = (value) => {
     return value.join(", ");
   };
 
   const transform_order_data = async (order) => {
-    console.log(order)
     order.request_date = new Date(order.request_date)
     order.pickup_date_from = new Date(order.pickup_date_from)
     order.pickup_date_to = new Date(order.pickup_date_to)
-    order.pickup_date = formatDate(order.pickup_date_from) + " - " + formatDate(order.pickup_date_to)
-    order.generator_type = getGeneratorType(order.generator.type)
+    order.pickup_date = formatDate(order.pickup_date_from)
+    order.generator_type = mapGenType(order.generator.type)
     order.generator_name = order.generator.username
     order.waste_types = order.waste_quantities.map(waste => mapMaterialNameToLabel[waste.waste_type]).sort()
-    order.status = getStatus(order.status)
+    order.status = mapRequestStatus[order.status]
     return order
   }
 
@@ -329,7 +159,7 @@ useEffect(() => {
   }
 
   useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchDailyOrders = async () => {
       if (userSession.userId) {
         try {
           setLoading(true);
@@ -341,24 +171,60 @@ useEffect(() => {
             setPoints(filtered_orders.map(order => getPoints(order, order.address? order.address : order.generator.address)))
             setDailyPages(Math.ceil(filtered_orders.length / rowsPerPage))
             })
+        } catch (error) {
+          console.log("Error al obtener pedidos", error);
+          ToastNotifier.error("Error al obtener pedidos del dia")
+        } finally {
+          setLoading(false)
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+    fetchDailyOrders();
+  }, [userSession.userId, refresh]);
 
+  useEffect(() => {
+    const fetchAvailableOrders = async () => {
+      if (userSession.userId) {
+        try {
+          setLoading(true);
           await getOpenOrders()
           .then((response) => Promise.all(response.map(order => transform_order_data(order))))
           .then((transformed_orders) => {
-            const filtered_orders = filter_available_orders(transformed_orders)
-            setAvailableOrders(filtered_orders)
-            setPages(Math.ceil(filtered_orders.length / rowsPerPage))
+            //const filtered_orders = filter_available_orders(transformed_orders)
+            setAvailableOrders(transformed_orders)
+            setPages(Math.ceil(transformed_orders.length / rowsPerPage))
             })
+        } catch (error) {
+          console.log("Error al obtener pedidos", error);
+          ToastNotifier.error("Error al obtener pedidos disponibles")
+        } finally {
+          setLoading(false)
+        }
+      } else {
+        setLoading(false);
+      }
+    };
 
+    fetchAvailableOrders();
+  }, [userSession.userId, refresh]);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (userSession.userId) {
+        try {
+          setLoading(true);
           await getTrucksById(userSession.userId)
             .then((response) => {
-              setTrucks(response)
+              const formattedTrucks = response.map(truck => FormatTruckCapacityToFront(truck))
+              setTrucks(formattedTrucks)
               setTruckPages(Math.ceil(response.length / rowsPerPage))
-              setBrands([...new Set(response.map(truck => truck.brand))].map(brand => ({ value: brand, label: brand })))
             })
           
         } catch (error) {
-          console.log("Error al obtener pedidos", error);
+          console.log("Error al obtener camiones", error);
+          ToastNotifier.error("Error al obtener camiones")
         } finally {
           setLoading(false)
         }
@@ -374,41 +240,49 @@ useEffect(() => {
     router.replace(`/home/cooperativa/pedidos/detalles/${rowData.id}`)
   };
 
-  const acceptRequest = async (rowData) => {
-    await updateOrderById(rowData.id, userSession.userId, "PENDING")
+  const acceptRequest = async () => {
+    setLoading(true);
+    setModalIsOpen(false);
+    await acceptOrderById(acceptedOrder.id, userSession.userId)
       .then(() => {
         ToastNotifier.success("Solicitud aceptada correctamente");
         setRefresh(!refresh);
       })
       .catch(() => {
+        setModalIsOpen(false);
+        setLoading(false);
         ToastNotifier.error("Error al aceptar la solicitud");
-        console.log("Error al aceptar la solicitud");
       });
   };
 
-  const formatDateRange = (from, to) => {
-    const fromDate = new Date(from);
-    const toDate = new Date(to);
-  
-    const date = fromDate.toLocaleDateString();
-    const fromTime = fromDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const toTime = toDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  
-    return `${date} ${fromTime} - ${toTime}`;
-  };
+   const clearAvailableFilters = () => {
+    setAvailableFilters({ zone: [], wasteType: [], generatorType: [], date_from: '', date_to: '' });
+  }
+
+  const clearDailyFilters = () => {
+    setDailyFilters({ zone: [], status: [], wasteType: [], generatorType: [], generator: '' });
+  }
+
 
     return (
       <div className='flex flex-col p-4 gap-5 h-screen'>
+        <ToastContainer/>
+        <AcceptConfirmationModal isOpen={modalIsOpen} onRequestClose={() => setModalIsOpen(false)} onConfirm={acceptRequest} title='Deseas aceptar esta solicitud?' />
         {loading  && <Spinner/>}
         {!loading &&
         <div className='flex flex-col gap-2 w-full home-col'>
           {availableOrders &&
-          <Card className='lg:mx-9 my-4'>
-            <CardHeader className='bg-green-dark text-white pl-4 text-xl font-bold py-3'>SOLICITUDES DISPONIBLES</CardHeader>
-            <Divider />
-            <CardBody className='p-0'>
-            <div className="flex gap-4 m-4">
-              <DateRangePicker label="Fecha" className="max-w-[284px]" onChange={(e) => 
+          <div className='flex justify-between items-center mx-4'>
+          <p className='text-start text-xl font-bold ml-2'>Solicitudes de disponibles</p>
+          </div>
+          }
+
+          {availableOrders &&
+          <div className='flex flex-col my-2 gap-2'>
+            <Card className='rounded-md'>
+            <CardBody>
+            <div className="flex gap-4 items-center">
+              <DateRangePicker label="Rango de fechas" className="" onChange={(e) => 
                 setAvailableFilters({ ...availableFilters, date_from: new Date(e.start.year, e.start.month - 1, e.start.day, 0,0,0,0), date_to: new Date(e.end.year, e.end.month - 1, e.end.day,23,59,59,999) })} />
               <Select
                   className='select'
@@ -416,8 +290,8 @@ useEffect(() => {
                   value={availableFilters.zone}
                   options={zones}
                   selectionMode="multiple"
-                  onChange={(e) => setAvailableFilters({ ...availableFilters, zone: e.target.value.split(',') })}
-                >
+                  onChange={(e) => setAvailableFilters({ ...availableFilters, zone: e.target.value})}
+                  >
                     {zones.map((zone) => (
                       <SelectItem key={zone.value} value={zone.value}>
                         {zone.label}
@@ -426,13 +300,13 @@ useEffect(() => {
                 </Select>
                 <Select
                   className='select'
-                  placeholder="Tipo"
+                  placeholder="Tipo de Reciclables"
                   value={availableFilters.wasteType}
-                  options={wasteTypes}
+                  options={wasteTypesDefault}
                   selectionMode="multiple"
                   onChange={(e) => setAvailableFilters({ ...availableFilters, wasteType: e.target.value.split(',')})}
                 >
-                    {wasteTypes.map((waste) => (
+                    {wasteTypesDefault.map((waste) => (
                       <SelectItem key={waste.value} value={waste.value}>
                         {waste.label}
                       </SelectItem>
@@ -453,7 +327,14 @@ useEffect(() => {
                       </SelectItem>
                     ))}
                 </Select>
+                <div className='flex flex-col items-center justify-center'>
+                  <FilterAltOffIcon className='cursor-pointer' onClick={clearAvailableFilters}/>
+                  <p className='text-center'>Limpiar filtros</p>
+                </div>
               </div>
+              </CardBody>
+              </Card>
+
               <Table
                    bottomContent={
                     <div className="flex w-full justify-between items-center">
@@ -472,14 +353,14 @@ useEffect(() => {
                   </div>}
               >
                 <TableHeader>
-                  <TableColumn>Fecha de recolección</TableColumn>
-                  <TableColumn>Zona</TableColumn>
-                  <TableColumn>Tipo de residuo</TableColumn>
-                  <TableColumn>Tipo de generador</TableColumn>
-                  <TableColumn>Fecha de creación</TableColumn>
-                  <TableColumn>Acciones</TableColumn>
+                  <TableColumn className='text-small'>Fecha de recolección</TableColumn>
+                  <TableColumn className='text-small'>Zona</TableColumn>
+                  <TableColumn className='text-small'>Tipo de residuo</TableColumn>
+                  <TableColumn className='text-small'>Tipo de generador</TableColumn>
+                  <TableColumn className='text-small'>Fecha de creación</TableColumn>
+                  <TableColumn className='text-small'>Acciones</TableColumn>
                 </TableHeader>
-                <TableBody>
+                <TableBody emptyContent="No hay solicitudes sin aceptar">
                   {get_available_orders.map((request, index) => (
                     <TableRow key={index}>
                       <TableCell>{formatDateRange(request.pickup_date_from, request.pickup_date_to)}</TableCell>
@@ -489,25 +370,29 @@ useEffect(() => {
                       <TableCell>{formatDate(request.request_date)}</TableCell>
                       <TableCell>
                         <div className='flex gap-3'>
-                          <Button className="" onClick={() => redirectDetailPage(request)}>Ver</Button>
-                          <Button className="bg-green-dark text-white" onClick={() => acceptRequest(request)}>Aceptar</Button>
+                          <Button className="rounded-medium" onClick={() => redirectDetailPage(request)}>Ver</Button>
+                          <Button className='bg-white text-green-dark px-3 py-2 rounded-medium border-medium border-green-dark' onClick={() => {setAcceptedOrder(request); setModalIsOpen(true)}}>Aceptar</Button>
                         </div>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            </CardBody>
-          </Card>
-  }
+            </div>
+          }
+
           {dailyOrders &&
-          <Card className='lg:mx-9 my-4'>
-            <CardHeader className='bg-green-dark text-white pl-4 text-xl font-bold py-3'>SOLICITUDES DE HOY</CardHeader>
-            <Divider />
-            <CardBody className='p-0'>
-              <div className="flex gap-4 m-4">
+          <div className='flex justify-between items-center mx-4 mt-3'>
+          < p className='text-start text-xl font-bold ml-2'>Recolecciónes del dia</p>
+          </div>
+          }
+          {dailyOrders &&
+          <div className='flex flex-col my-2 gap-2'>
+            <Card className='rounded-md'>
+            <CardBody>
+            <div className="flex gap-4 items-center">
                 <Input
-                  className='select h-14'
+                  className='select'
                   placeholder="Generador"
                   onChange={(e) => {
                     setDailyFilters({...dailyFilters, generator: e.target.value})
@@ -534,7 +419,7 @@ useEffect(() => {
                   value={dailyFilters.zone}
                   options={zones}
                   selectionMode="multiple"
-                  onChange={(e) => setDailyFilters({ ...dailyFilters, zone: e.target.value.split(',') })}
+                  onChange={(e) => setDailyFilters({ ...dailyFilters, zone: e.target.value })}
                 >
                     {zones.map((zone) => (
                       <SelectItem key={zone.value} value={zone.value}>
@@ -544,13 +429,13 @@ useEffect(() => {
                 </Select>
                 <Select
                   className='select'
-                  placeholder="Tipo"
+                  placeholder="Tipo de material"
                   value={dailyFilters.wasteType}
-                  options={wasteTypes}
+                  options={wasteTypesDefault}
                   selectionMode="multiple"
                   onChange={(e) => setDailyFilters({ ...dailyFilters, wasteType: e.target.value.split(',')})}
                 >
-                    {wasteTypes.map((waste) => (
+                    {wasteTypesDefault.map((waste) => (
                       <SelectItem key={waste.value} value={waste.value}>
                         {waste.label}
                       </SelectItem>
@@ -558,19 +443,26 @@ useEffect(() => {
                 </Select>
                 <Select
                   className='select'
-                  placeholder="Estado"
+                  placeholder="Estado de la solicitud"
                   value={dailyFilters.status}
-                  options={statuses}
+                  options={RequestStatus}
                   selectionMode="multiple"
                   onChange={(e) => setDailyFilters({ ...dailyFilters, status: e.target.value.split(',') })}
                 >
-                    {statuses.map((status) => (
+                    {RequestStatus.map((status) => (
                       <SelectItem key={status.value} value={status.value}>
                         {status.label}
                       </SelectItem>
                     ))}
                 </Select>
+                <div className='flex flex-col items-center justify-center'>
+                  <FilterAltOffIcon className='cursor-pointer' onClick={clearDailyFilters}/>
+                  <p className='text-center'>Limpiar filtros</p>
                 </div>
+                </div>
+                </CardBody>
+              </Card>
+
               <Table
               bottomContent={
                 <div className="flex w-full justify-between items-center">
@@ -588,15 +480,15 @@ useEffect(() => {
                   <span className='flex 1'>{get_daily_orders.length} de {filteredDailyOrders.length} solicitudes</span>
                 </div>}>
                 <TableHeader>
-                  <TableColumn>Fecha de creación</TableColumn>
-                  <TableColumn>Nombre generador</TableColumn>
-                  <TableColumn>Tipo de generador</TableColumn>
-                  <TableColumn>Dirección</TableColumn>
-                  <TableColumn>Zona</TableColumn>
-                  <TableColumn>Tipo de residuo</TableColumn>
-                  <TableColumn>Estado</TableColumn>
+                  <TableColumn className='text-small'>Fecha de creación</TableColumn>
+                  <TableColumn className='text-small'>Nombre generador</TableColumn>
+                  <TableColumn className='text-small'>Tipo de generador</TableColumn>
+                  <TableColumn className='text-small'>Dirección</TableColumn>
+                  <TableColumn className='text-small'>Zona</TableColumn>
+                  <TableColumn className='text-small'>Tipo de residuo</TableColumn>
+                  <TableColumn className='text-small'>Estado</TableColumn>
                 </TableHeader>
-                <TableBody>
+                <TableBody emptyContent="No hay recolecciones para el dia de hoy">
                   {get_daily_orders.map((request, index) => (
                     <TableRow key={index} onClick={() => redirectDetailPage(request)}>
                       <TableCell>{formatDate(request.request_date)}</TableCell>
@@ -610,88 +502,62 @@ useEffect(() => {
                   ))}
                 </TableBody>
               </Table>
-            </CardBody>
-          </Card>
-}
-    {trucks && brands &&
-          <Card className='lg:mx-9 my-4'>
-            <CardHeader className='bg-green-dark text-white pl-4 text-xl font-bold py-3'>CAMIONES ACTIVOS</CardHeader>
-            <Divider />
-            <CardBody className='p-0'>
-            <div className="flex gap-4 m-4">
-              <Select
-                  className='select'
-                  placeholder="Marca"
-                  value={truckFilters.brand}
-                  options = {brands}
-                  selectionMode="multiple"
-                  onChange={(e) => {
-                    setTruckFilters({ ...truckFilters, brand: e.target.value.split(',') }) }}
-                >
-                    {brands.map((brand) => (
-                      <SelectItem key={brand.value} value={brand.value}>
-                        {brand.label}
-                      </SelectItem>
-                    ))}
-                </Select>
-                <Input
-                  className='select h-14'
-                  placeholder="Patente"
-                  onChange={(e) => {
-                    setTruckFilters({...truckFilters, patent: e.target.value})
-                  }}>
-                </Input>
-                </div>
-              <Table
-                bottomContent={
-                  <div className="flex w-full justify-between items-center">
-                    <span className='flex 1 invisible'>{get_trucks.length} de {filteredTrucks.length} solicitudes</span>
-                    <Pagination
-                      className='flex 1'
-                      isCompact
-                      showControls
-                      showShadow
-                      color="secondary"
-                      page={truckPage}
-                      total={truckPages}
-                      onChange={(page) => setTruckPage(page)}
-                    />
-                    <span className='flex 1'>{get_trucks.length} de {filteredTrucks.length} camiones</span>
-                  </div>}>
-                <TableHeader>
-                  <TableColumn>Marca</TableColumn>
-                  <TableColumn>Modelo</TableColumn>
-                  <TableColumn>Patente</TableColumn>
-                  <TableColumn>Capacidad</TableColumn>
-                </TableHeader>
-                <TableBody>
-                  {get_trucks.map((truck, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{truck.brand}</TableCell>
-                      <TableCell>{truck.model}</TableCell>
-                      <TableCell>{truck.patent}</TableCell>
-                      <TableCell>{truck.capacity}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardBody>
-          </Card>
+            </div>
+            }
+
+          {trucks &&
+          <div className='flex justify-between items-center mx-4 mt-3'>
+            < p className='text-start text-xl font-bold ml-2'>Camiones de la cooperativa</p>
+          </div>
+          }
+
+          {trucks &&
+          <div className='flex flex-col my-2 gap-2'>
+            <Table
+              bottomContent={
+                <div className="flex w-full justify-between items-center">
+                  <span className='flex 1 invisible'>{get_trucks.length} de {trucks.length} solicitudes</span>
+                  <Pagination
+                    className='flex 1'
+                    isCompact
+                    showControls
+                    showShadow
+                    color="secondary"
+                    page={truckPage}
+                    total={truckPages}
+                    onChange={(page) => setTruckPage(page)}
+                  />
+                  <span className='flex 1'>{get_trucks.length} de {trucks.length} camiones</span>
+                </div>}>
+              <TableHeader>
+                <TableColumn>Marca</TableColumn>
+                <TableColumn>Modelo</TableColumn>
+                <TableColumn>Patente</TableColumn>
+                <TableColumn>Capacidad</TableColumn>
+                <TableColumn>Estado</TableColumn>
+              </TableHeader>
+              <TableBody emptyContent="No hay camiones para mostrar">
+                {get_trucks.map((truck, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{truck.brand}</TableCell>
+                    <TableCell>{truck.model}</TableCell>
+                    <TableCell>{truck.patent}</TableCell>
+                    <TableCell>{truck.capacity} tons.</TableCell>
+                    <TableCell>{mapTruckStatus[truck.status]}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            </div>
         }
-        {console.log(points)}
-          <MapView className="lg:mx-9 my-4 h-96 justify-center" centerCoordinates={[-34.5814551, -58.4211107]} markers={points}/>
+
+        <Card className='lg:mx-9 my-4'>
+          <CardHeader className='bg-green-dark text-white pl-4 text-lg font-semibold py-3'>UBICACIÓN DE LAS SOLICITUDES A REALIZAR HOY</CardHeader>
+          <CardBody className='p-0'>
+            <MapView className='w-max h-max' markers={points}/>
+          </CardBody>
+        </Card>
         </div>
-        }
-        {!loading &&
-          <div className='flex flex-row items-center justify-center gap-5'>
-            <Card className='flex flex-row justify-between items-center flex-1'>
-              <div className='flex flex-col items-start p-4'>
-                <h1 className='text-center'>Estadisticas de recolecciones</h1>
-                <p>Materiales recibidos</p>
-              </div>
-              <PieChart />
-            </Card>
-          </div> 
         }
       </div>
     );
