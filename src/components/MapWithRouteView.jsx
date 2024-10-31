@@ -6,6 +6,7 @@ import Spinner from "./Spinner";
 import axios from 'axios';
 
 const fetchRoute = async (start, end) => {
+  if (!start || !end) return [];
   const response = await axios.get(`http://router.project-osrm.org/route/v1/driving/${start[1]},${start[0]};${end[1]},${end[0]}?overview=full&geometries=geojson`);
   return response.data.routes[0].geometry.coordinates;
 };
@@ -34,6 +35,7 @@ const MapWithRouteView = ({
   const [routeCoords, setRouteCoords] = useState(routeCoordinates);
 
   useEffect(() => {
+    console.log("in MAP VIEW coordinates: ", routeCoordinates);
     const fetchAllRoutes = async () => {
       const allRoutes = [];
       for (let i = 0; i < routeCoordinates.length - 1; i++) {

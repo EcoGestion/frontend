@@ -219,3 +219,8 @@ export const release_waste_request = async (routeRequestId, coopId) => {
   const response = await axios.put(`${API_BASE_URL}/waste_request/${routeRequestId}/coop/${coopId}`);
   return response.data;
 };
+
+export const cancel_route = async (routeId) => {
+  const response = await axios.put(`${API_BASE_URL}/route/${routeId}/cancel`);
+  return response.data;
+}

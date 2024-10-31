@@ -10,7 +10,7 @@ import dynamic from 'next/dynamic';
 import 'dotenv/config';
 import AddressFormat from '@utils/addressFormat';
 import Spinner from '../../../components/Spinner';
-import { getRequestsByRouteId, getRoutesByDriverId, startRouteById, getRouteById, updateRouteRequestById, getUserById, verifyGeneratorCode, getDriverHomeRoutes} from '@api/apiService';
+import { getRequestsByRouteId, startRouteById, getRouteById, updateRouteRequestById, getUserById, verifyGeneratorCode, getDriverHomeRoutes, cancel_route} from '@api/apiService';
 import "./style.css"
 import Route from "../conductor/components/Route"
 import { ToastNotifier } from '@/components/ToastNotifier';
@@ -67,10 +67,12 @@ const HomeConductor = () => {
   const [requestToConfirm, setRequestToConfirm] = useState(null);
   const [indexToConfirm, setIndexToConfirm] = useState(null);
   const [requestToReprogram, setRequestToReprogram] = useState(null);
+  const [routeToCancel, setRouteToCancel] = useState(null);
 
   const [isModalStartRouteOpen, setIsModalStartRouteOpen] = useState(false);
   const [isModalConfirmRequestOpen, setIsModalConfirmRequestOpen] = useState(false);
   const [isModalReprogramRequestOpen, setIsModalReprogramRequestOpen] = useState(false);
+  const [isModalCancelRouteOpen, setIsModalCancelRouteOpen] = useState(false);
 
   const [refreshValue, setRefreshValue] = useState(false);
 
@@ -124,7 +126,7 @@ const HomeConductor = () => {
   const getRequestId = (requestId) => {
     const request = wastes.find((request) => request.request_id === requestId);
     return request.id;
-}
+  }
 
   useEffect(() => {
     const fetchRequestsByRouteId = async () => {
@@ -221,7 +223,7 @@ const HomeConductor = () => {
       }
     }
     fetchRoutes();
-  }, []);
+  }, [refreshValue]);
 
   const redirectDetailPage = (rowData) => {
     router.push(`/home/conductor/rutas/recoleccion/detalles/${rowData.id}`)
@@ -282,9 +284,27 @@ const HomeConductor = () => {
     }
   };
 
-  const cancelRoute = (rowData) => {
-    // Cancelar ruta
+  const cancelRoute = (routeId) => {
+    setRouteToCancel(routeId);
+    setIsModalCancelRouteOpen(true);
   };
+
+  const handleCancelRoute = async () => {
+    try {
+      setLoading(true)
+      setIsModalCancelRouteOpen(false);
+      await cancel_route(routeToCancel)
+      .then(() => {
+        refresh()
+        ToastNotifier.success("Ruta cancelada");
+      })
+    } catch (error) {
+      console.log("Error al cancelar ruta", error);
+      ToastNotifier.error("Error al cancelar ruta\nPor favor, intente nuevamente")
+      setLoading(false)
+    }
+  };
+
 
   const updateRouteRequest = async (id, routeId, status) => {
     setLoading(true)
@@ -322,6 +342,7 @@ const HomeConductor = () => {
       <AcceptConfirmationModal isOpen={isModalStartRouteOpen} onRequestClose={() => setIsModalStartRouteOpen(false)} onConfirm={handleStartRoute} title="¿Seguro que desea comenzar la ruta?" />
       <CodeConfirmationModal isOpen={isModalConfirmRequestOpen} onRequestClose={() => setIsModalConfirmRequestOpen(false)} onConfirm={handleConfirmRequest} />
       <AcceptConfirmationModal isOpen={isModalReprogramRequestOpen} onRequestClose={() => setIsModalReprogramRequestOpen(false)} onConfirm={handleReprogramRequest} title="¿Seguro que desea reprogramar la solicitud?" />
+      <AcceptConfirmationModal isOpen={isModalCancelRouteOpen} onRequestClose={() => setIsModalCancelRouteOpen(false)} onConfirm={handleCancelRoute} title="¿Seguro que desea cancelar la ruta?" message='Esta acción no se puede deshacer' />
       <div className='mt-4 mx-4'>
         <h1 className='text-2xl font-bold text-center'>Bienvenido</h1>
         <h2 className='text-xl font-semibold text-start mt-2'>Aqui puede ver las rutas que la cooperativa le asignó y se encuentran en progreso o pendientes de iniciar</h2>
@@ -343,7 +364,7 @@ const HomeConductor = () => {
 
     {!loading && requests &&
     <div className='flex justify-between items-center mt-4 mx-4'>
-        <p className='text-start text-xl font-bold ml-2'>Recolecciónes de la ruta</p>
+        <p className='text-start text-xl font-bold ml-2'>Recolecciónes de la ruta en progreso</p>
     </div>
     }
 
@@ -439,12 +460,14 @@ const HomeConductor = () => {
       </div>
     }
 
-      {/*!loading && requests &&
+      {!loading && requests &&
       <div className='p-2 mt-4'>
           <h2 className='text-xl'>Recorrido</h2>
-          <MapView centerCoordinates={coords} zoom={14} markers={markers} routeCoordinates={routeCoords}/>
+          <div className='justify-center items-center'>
+            <MapView centerCoordinates={coords} zoom={14} markers={markers} routeCoordinates={routeCoords}/>
+          </div>
       </div>
-      */}
+      }
     </div>
   );
 };

@@ -32,7 +32,7 @@ const AcceptConfirmationModal = ({
 }) => {
   return (
     <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={styles.modal}>
-      <div className='grid grid-rows-2'>
+      <div className='grid grid-rows-2 h-full'>
         <div className='flex flex-col justify-center'>
           <h2 className='font-semibold'>{title}</h2>
           {message && <p className='text-gray-dark text-sm mt-2'>{message}</p>}

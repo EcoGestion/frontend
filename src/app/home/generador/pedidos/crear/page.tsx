@@ -56,6 +56,7 @@ const CreacionPedido = () => {
   const [markers, setMarkers] = useState<Marker[]>([]);
 
   const [isAddressValid, setIsAddressValid] = useState(false);
+  const [isAddressValidated, setIsAddressValidated] = useState(false);
 
   const retrieveData = async () => {
     try {
@@ -148,6 +149,7 @@ const CreacionPedido = () => {
     };
     const addressCoordinates = await geocodeAddress(requestObj);
     if (addressCoordinates) {
+      setIsAddressValidated(true);
       setCoordinates([addressCoordinates.latitud, addressCoordinates.longitud]);
       setMarkers([
         {
@@ -166,7 +168,7 @@ const CreacionPedido = () => {
       ToastNotifier.error('Por favor seleccione al menos un material para recolectar');
       return;
     }
-    if (!useUserProfileAddress && !isAddressValid) {
+    if (!useUserProfileAddress && !isAddressValidated) {
       ToastNotifier.error('Por favor verifique la dirección ingresada');
       return;
     }

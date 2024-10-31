@@ -13,29 +13,25 @@ import Spinner from '@/components/Spinner';
 import { mapTruckStatus } from '@constants/truck';
 import { mapRouteStatus } from '@constants/route';
 import { mapRouteRequestStatus } from '@/constants/routeRequest';
+import { ToastNotifier } from '@/components/ToastNotifier';
+import { ToastContainer } from 'react-toastify';
 
 const MapView = dynamic(() => import('@/components/MapWithRouteView'), { ssr: false });
 
-interface Marker {
-  position: number[];
-  content: string;
-  popUp: string;
-}    
-
-const detallesRuta = (props: {params?: { id?: string } }) => {
+const detallesRuta = (props) => {
   const router = useRouter();
-  const userSession = useSelector((state: RootState) => state.userSession);
   const route_id = parseInt(props.params?.id ?? '0');
   const [loading, setLoading] = useState(false);
 
-  const [coopCoords, setCoopCoords] = useState([0,0]);
-  const [markers, setMarkers] = useState<Marker[]>([]);
+  const [coopCoords, setCoopCoords] = useState([]);
+  const [coopInfo, setCoopInfo] = useState();
+  const [markers, setMarkers] = useState([]);
 
-  const [routeInfo, setRouteInfo] = useState<Route>();
-  const [requests, setRequests] = useState<RouteRequests>([]);
-  const [wasteRequests, setWasteRequests] = useState<WasteCollectionRequests>([]);
+  const [routeInfo, setRouteInfo] = useState();
+  const [requests, setRequests] = useState([]);
+  const [wasteRequests, setWasteRequests] = useState([]);
 
-  const [routeCoords, setRouteCoords] = useState<number[][]>([]);
+  const [routeCoords, setRouteCoords] = useState([]);
 
   useEffect(() => {
     retrieveData();
@@ -44,24 +40,37 @@ const detallesRuta = (props: {params?: { id?: string } }) => {
   const retrieveData = async () => {
     setLoading(true);
     try {
-      const userInfo = await getUserById(userSession.userId);
-      setCoopCoords([parseFloat(userInfo.address.lat), parseFloat(userInfo.address.lng)]);
       const routeInfo_response = await getRouteById(route_id);
       setRouteInfo(routeInfo_response);
       setRequests(routeInfo_response.route_requests);
-      setRouteCoordsFromRequests(routeInfo_response.route_requests, userInfo.address);
+
+      const coopInfo = await getUserById(routeInfo_response.truck.coop_id);
+      const coopCoordinates = [parseFloat(coopInfo?.address?.lat ?? "0"), parseFloat(coopInfo?.address?.lng ?? "0")];
+      setCoopInfo(coopInfo);
+      setCoopCoords(coopCoordinates);
+
       const wasteRequests_response = await getRequestsByRouteId(route_id);
-      setMarkersFromRequests(wasteRequests_response, userInfo);
+      setMarkersFromRequests(wasteRequests_response);
       setWasteRequests(wasteRequests_response);
     } catch (error) {
       console.error(error);
+      ToastNotifier.error("Error al cargar la información de la ruta");
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  const setMarkersFromRequests = (requests: WasteCollectionRequests, coopInfo: UserInfo) => {
-    console.log("Requests en page: ", requests);
+  useEffect(() => {
+    if (coopCoords.length > 0) {
+      setRouteCoordsFromRequests();
+    }
+  }, [coopCoords]);
+
+
+  const setMarkersFromRequests = (requests) => {
+    if (coopCoords.length === 0) {
+      return;
+    }
     const genMarkers = requests
       .map((request) => ({
         position: [
@@ -72,40 +81,41 @@ const detallesRuta = (props: {params?: { id?: string } }) => {
         popUp: request.address ? AddressFormat(request.address) : "Dirección desconocida",
       }));
     const markers = [...genMarkers, {
-      position: [parseFloat(coopInfo.address.lat), parseFloat(coopInfo.address.lng)],
+      position: [coopCoords[0], coopCoords[1]],
       content: 'Cooperativa',
-      popUp: AddressFormat(coopInfo.address),
+      popUp: coopInfo ? AddressFormat(coopInfo.address) : "Dirección desconocida",
     }
     ]
     setMarkers(markers);
     console.log("Markers en page: ", markers);
   };
 
-  const setRouteCoordsFromRequests = (requests: RouteRequests, coopAddress: Address) => {
-    const coopCoords = [parseFloat(coopAddress.lat), parseFloat(coopAddress.lng)];
-    const routeCoords = requests
+  const setRouteCoordsFromRequests = () => {
+    const routeCoords = routeInfo.route_requests
       .filter((request) => request.lat && request.lng)
       .map((request) => [parseFloat(request.lat), parseFloat(request.lng)]);
     const updatedRouteCoords = [coopCoords, ...routeCoords, coopCoords];
+    console.log("Route coords en setRouteCoordsFromRequests: ", updatedRouteCoords);
     setRouteCoords(updatedRouteCoords);
   }
 
-  const getGeneratorTextFromRequestId = (requestId: number) => {
+  const getGeneratorTextFromRequestId = (requestId) => {
     const request = wasteRequests.find((request) => request.id === requestId);
     return request ? request.generator?.username : 'Generador';
   }
 
-  const getAddressTextFromRequestId = (requestId: number) => {
+  const getAddressTextFromRequestId = (requestId) => {
     const request = wasteRequests.find((request) => request.id === requestId);
     return request ? AddressFormat(request.address) : 'Dirección';
   }
 
-  const handleRequestDetails = (requestId: number) => {
+  const handleRequestDetails = (requestId) => {
     router.push(`/home/conductor/rutas/recoleccion/detalles/${requestId}`);
   }
 
   return (
     <div className='flex flex-col h-screen p-3 gap-3'>
+      <ToastContainer />
       <h1 className='text-2xl font-bold text-center'>Detalles de la ruta de recolección</h1>
       {loading ? (<Spinner />) : (
       <div>

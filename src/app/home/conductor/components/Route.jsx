@@ -55,7 +55,7 @@ const Route = ({route, startRoute, cancelRoute}) => {
                     <Button className='cursor-not-allowed opacity-60' disabled onClick={startRoute}>Comenzar ruta</Button>
                 }
                 {route.status != "Completada" && route.status != "Cancelada" && route.status != "Completada parcialmente" &&
-                    <Button className='bg-white text-red-dark px-3 py-2 rounded-medium border-medium border-red-dark' onClick={cancelRoute}>Cancelar ruta</Button>
+                    <Button className='bg-white text-red-dark px-3 py-2 rounded-medium border-medium border-red-dark' onClick={() => cancelRoute(route.id)}>Cancelar ruta</Button>
                 }
             </div>
             </div>

@@ -17,23 +17,17 @@ import { FormatTruckCapacityToFront } from '@utils/truckFormat';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
-interface Marker {
-  position: number[];
-  content: string;
-  popUp: string;
-}
-
 const crearRuta = () => {
   const router = useRouter();
-  const userSession = useSelector((state: RootState) => state.userSession);
+  const userSession = useSelector((state) => state.userSession);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   const [coopCoords, setCoopCoords] = useState([0,0]);
-  const [markers, setMarkers] = useState<Marker[]>([]);
-  const [requests, setRequests] = useState<WasteCollectionRequests>([]);
-  const [trucks, setTrucks] = useState<TrucksResources>([]);
-  const [drivers, setDrivers] = useState<DriversResources>([]);
+  const [markers, setMarkers] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [trucks, setTrucks] = useState([]);
+  const [drivers, setDrivers] = useState([]);
 
   const [selectedRequests, setSelectedRequests] = useState(new Set());
   const [selectedTruck, setSelectedTruck] = useState('');
@@ -48,7 +42,7 @@ const crearRuta = () => {
       setLoading(true);
       const coop_info_response = await getUserById(userSession.userId);
       const camiones_response = await getTrucksByCoopId(userSession.userId);
-      const camiones_formatted = camiones_response.map((truck:Truck) => (FormatTruckCapacityToFront(truck)));
+      const camiones_formatted = camiones_response.map((truck) => (FormatTruckCapacityToFront(truck)));
       const conductores_response = await getDriversByCoopId(userSession.userId);
       const requests_response = await getCoopPendingRequests(userSession.userId);
       setCoopCoords([
@@ -66,7 +60,7 @@ const crearRuta = () => {
     }
   }
 
-  const setMarkersFromRequests = (requests: WasteCollectionRequests) => {
+  const setMarkersFromRequests = (requests) => {
     const markers = requests
       .filter((request) => request.address && request.generator)
       .map((request) => ({
@@ -133,7 +127,7 @@ const crearRuta = () => {
         <h2 className='text-xl font-bold'>Recolecciones pendientes</h2>
         <Table
           selectionMode='multiple'
-          onSelectionChange={keys => setSelectedRequests(keys as Set<string>)}
+          onSelectionChange={keys => setSelectedRequests(keys)}
           >
           <TableHeader>
             <TableColumn>ID</TableColumn>
@@ -164,7 +158,7 @@ const crearRuta = () => {
           <h2 className='text-xl font-semibold'>Camiones disponibles</h2>
           <select className='w-full p-2 rounded-md border border-gray-300' onChange={(e) => setSelectedTruck(e.target.value)}>
             <option value=''>Selecciona un camión</option>
-            {trucks.map((truck:Truck) => (
+            {trucks.map((truck) => (
               <option key={truck.id} value={truck.id} disabled={truck.status !== 'ENABLED'}>
                 {truck.id} - {truck.patent} - {truck.brand} {truck.model} - {mapTruckStatus[truck.status]} - {truck.capacity} tons.
               </option>
@@ -176,7 +170,7 @@ const crearRuta = () => {
           <h2 className='text-xl font-semibold'>Conductores disponibles</h2>
           <select className='w-full p-2 rounded-md border border-gray-300' onChange={(e) => setSelectedDriver(e.target.value)}>
             <option value=''>Selecciona un conductor</option>
-            {drivers.map((driver:Driver) => (
+            {drivers.map((driver) => (
               <option key={driver.id} value={driver.id}>
                 {driver.id} - {driver.username}
               </option>
