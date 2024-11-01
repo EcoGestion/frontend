@@ -78,8 +78,11 @@ const Login = ({ params }: { params: { userType: string } }) => {
 
   const handleBack = () => {
     // Redirigir a la página anterior
-    // router.back();
-    router.push('/');
+    if (userType === 'generador') {
+      router.push('/');
+    } else {
+      router.back();
+    }
   };
 
   return (
