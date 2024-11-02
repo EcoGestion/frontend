@@ -14,17 +14,17 @@ const Home = () => {
         <div>
             <section id="intro" class="bg-[#057454] xl:h-screen xl:w-full xl:grid xl:grid-cols-intro overflow-hidden ">
             <div class="relative flex flex-col pt-6 xl:pt-8 2xl:pt-14 pb-14 xl:pb-0">
-                <div class="container flex items-center justify-start gap-10">
-                <p className="font-bold text-white text-4xl">EcoGestion</p>
-                <div class="hidden xl:flex items-center gap-14 xl:translate-x-28 text-xl z-40 text-white">
-                    <a href="#about" class="text-2xl">Sobre nosotros</a>
-                    <a href="#contact" class="text-2xl">Contacto</a>
-                </div>
-                <div className='flex w-full justify-end gap-3'>
-                <Button className='bg-[#034532] text-white text-xl' onClick={() => {router.push("/login")}}> Cooperativa</Button>
-                <Button className='bg-[#034532] text-white text-xl' onClick={() => {router.push("/login/generador")}}> Usuario</Button>
-                </div>
-                
+                <div class="container flex flex-col md:flex-row items-center justify-start gap-10">
+                    <p className="font-bold text-white text-4xl">EcoGestion</p>
+                    <div class="hidden xl:flex items-center gap-14 xl:translate-x-28 text-xl z-40 text-white">
+                        <a href="#about" class="text-2xl">Sobre nosotros</a>
+                        <a href="#contact" class="text-2xl">Contacto</a>
+                    </div>
+                    <div className='flex w-full justify-center md:justify-end gap-3'>
+                    <Button className='bg-[#034532] text-white text-xl' onClick={() => {router.push("/login")}}> Cooperativa</Button>
+                    <Button className='bg-[#034532] text-white text-xl' onClick={() => {router.push("/login/generador")}}> Usuario</Button>
+                    </div>
+                    
                 </div>
                 <div class="container xl:h-full md:min-h-[38rem] 2xl:min-h-[45rem] flex flex-col items-center justify-center mt-14 xl:mt-8 2xl:mt-10 xl:-translate-y-12 xl:translate-x-10 2xl:translate-x-52 z-10 ">
                 <div class="text-4xl sm:text-5xl xl:text-6xl 2xl:text-7xl font-condensed font-normal italic uppercase max-w-2xl leading-none text-white">
