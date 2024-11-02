@@ -28,7 +28,7 @@ const CreacionPedido = () => {
   const current_date = new Date();
   const userSession = useSelector((state) => state.userSession);
   const [loading, setLoading] = useState(true);
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [userInfo, setUserInfo] = useState(null);
   const [request_from, setRequestFrom] = useState(now("America/Argentina/Buenos_Aires"));
   const [request_to, setRequestTo] = useState(now("America/Argentina/Buenos_Aires"));
   const [selectedRecyclables, setSelectedRecyclables] = useState([]);
