@@ -37,18 +37,19 @@ const InitialPage = () => {
         <h1 className='text-4xl font-bold text-gray-800 mb-4 text-center'>Bienvenido al sistema EcoGestion</h1>
         <p className='text-lg text-gray-600 mb-6'>Por favor, seleccione su tipo de usuario:</p>
         <div className='flex flex-col gap-3'>
-          <div className='flex gap-4'>
-            <GreenRoundedButton
-              onClick={() => handleLogInTypeSelection('cooperativa')}
-              buttonTitle='Cooperativa'
-            />
-          </div>
-          <div className='flex justify-center'>
-            <button className="bg-cyan-800 hover:bg-cyan-300 text-white font-bold py-2 px-4 rounded"
-            onClick={() => handleLogInTypeSelection('conductor')}
-            >
-              Conductor
-            </button>
+          <div className='flex flex-row gap-2'>
+            
+              <GreenRoundedButton
+                onClick={() => handleLogInTypeSelection('cooperativa')}
+                buttonTitle='Cooperativa'
+              />
+            
+              <button className="bg-cyan-800 hover:bg-cyan-300 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300"
+              onClick={() => handleLogInTypeSelection('conductor')}
+              >
+                Conductor
+              </button>
+            
           </div>
           <div className='flex justify-center'>
           <button 
