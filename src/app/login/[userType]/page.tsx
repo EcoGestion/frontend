@@ -86,11 +86,11 @@ const Login = ({ params }: { params: { userType: string } }) => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-white">
+    <div className="flex items-center justify-center h-screen bg-white mx-3 md:m-0">
       {loading ? (
         <Spinner />
       ) : (
-      <div className="bg-[rgb(146,164,190)] p-10 rounded-lg shadow-lg">
+      <div className="bg-[rgb(146,164,190)] p-4 md:p-8 rounded-lg shadow-lg">
         <h1 className="text-4xl font-bold  mb-4 text-center">Eco Gestion</h1>
         <h2 className="text-2xl mb-6 text-center">Inicio de sesión - {userType.charAt(0).toUpperCase() + userType.slice(1)}</h2>
         <form onSubmit={handleLogin} className="flex flex-col items-center gap-4">
