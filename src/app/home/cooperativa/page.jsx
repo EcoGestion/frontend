@@ -25,6 +25,7 @@ import { ToastContainer } from 'react-toastify';
 import { generatorTypes } from '@/constants/userTypes';
 import { wasteTypesDefault } from '@/constants/recyclables';
 import { RequestStatus, mapRequestStatusToKey, mapRequestStatus } from '@/constants/request';
+import { parseDate } from "@internationalized/date";
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
@@ -36,7 +37,7 @@ const HomeCooperativa = () => {
   const [page, setPage] = React.useState(1);
   const [pages, setPages] = React.useState(null);
   const [availableOrders, setAvailableOrders] = useState(null)
-  const [availableFilters, setAvailableFilters] = useState({ zone: [], wasteType: [], generatorType: [], date_from: '', date_to: '' });
+  const [availableFilters, setAvailableFilters] = useState({ zone: [], wasteType: [], generatorType: [], date_from: null, date_to: null });
 
   const [dailyPage, setDailyPage] = React.useState(1);
   const [dailyPages, setDailyPages] = React.useState(null);
@@ -256,7 +257,7 @@ useEffect(() => {
   };
 
    const clearAvailableFilters = () => {
-    setAvailableFilters({ zone: [], wasteType: [], generatorType: [], date_from: '', date_to: '' });
+    setAvailableFilters({ zone: [], wasteType: [], generatorType: [], date_from: null, date_to: null });
   }
 
   const clearDailyFilters = () => {
@@ -283,14 +284,16 @@ useEffect(() => {
             <CardBody>
             <div className="flex gap-4 items-center">
               <DateRangePicker label="Rango de fechas" className="" onChange={(e) => 
-                setAvailableFilters({ ...availableFilters, date_from: new Date(e.start.year, e.start.month - 1, e.start.day, 0,0,0,0), date_to: new Date(e.end.year, e.end.month - 1, e.end.day,23,59,59,999) })} />
+                setAvailableFilters({ ...availableFilters, date_from: new Date(e.start.year, e.start.month - 1, e.start.day, 0,0,0,0), date_to: new Date(e.end.year, e.end.month - 1, e.end.day,23,59,59,999) })}
+                value={availableFilters.date_from && availableFilters.date_to ? { start: parseDate(availableFilters.date_from.toISOString().split('T')[0]), end: parseDate(availableFilters.date_to.toISOString().split('T')[0]) } : null}
+                />
               <Select
                   className='select'
                   placeholder="Zona"
-                  value={availableFilters.zone}
+                  selectedKeys={availableFilters.zone}
                   options={zones}
                   selectionMode="multiple"
-                  onChange={(e) => setAvailableFilters({ ...availableFilters, zone: e.target.value})}
+                  onChange={(e) => setAvailableFilters({ ...availableFilters, zone: e.target.value.split(',')})}
                   >
                     {zones.map((zone) => (
                       <SelectItem key={zone.value} value={zone.value}>
@@ -301,7 +304,7 @@ useEffect(() => {
                 <Select
                   className='select'
                   placeholder="Tipo de Reciclables"
-                  value={availableFilters.wasteType}
+                  selectedKeys={availableFilters.wasteType}
                   options={wasteTypesDefault}
                   selectionMode="multiple"
                   onChange={(e) => setAvailableFilters({ ...availableFilters, wasteType: e.target.value.split(',')})}
@@ -315,7 +318,7 @@ useEffect(() => {
                 <Select
                   className='select'
                   placeholder="Tipo de Generador"
-                  value={availableFilters.generatorType}
+                  selectedKeys={availableFilters.generatorType}
                   options = {generatorTypes}
                   selectionMode="multiple"
                   onChange={(e) => {
@@ -401,7 +404,7 @@ useEffect(() => {
               <Select
                   className='select'
                   placeholder="Tipo de Generador"
-                  value={dailyFilters.generatorType}
+                  selectedKeys={dailyFilters.generatorType}
                   options = {generatorTypes}
                   selectionMode="multiple"
                   onChange={(e) => {
@@ -416,10 +419,10 @@ useEffect(() => {
               <Select
                   className='select'
                   placeholder="Zona"
-                  value={dailyFilters.zone}
+                  selectedKeys={dailyFilters.zone}
                   options={zones}
                   selectionMode="multiple"
-                  onChange={(e) => setDailyFilters({ ...dailyFilters, zone: e.target.value })}
+                  onChange={(e) => setDailyFilters({ ...dailyFilters, zone: e.target.value.split(',') })}
                 >
                     {zones.map((zone) => (
                       <SelectItem key={zone.value} value={zone.value}>
@@ -427,10 +430,11 @@ useEffect(() => {
                       </SelectItem>
                     ))}
                 </Select>
+
                 <Select
                   className='select'
                   placeholder="Tipo de material"
-                  value={dailyFilters.wasteType}
+                  selectedKeys={dailyFilters.wasteType}
                   options={wasteTypesDefault}
                   selectionMode="multiple"
                   onChange={(e) => setDailyFilters({ ...dailyFilters, wasteType: e.target.value.split(',')})}
@@ -444,7 +448,6 @@ useEffect(() => {
                 <Select
                   className='select'
                   placeholder="Estado de la solicitud"
-                  value={dailyFilters.status}
                   options={RequestStatus}
                   selectionMode="multiple"
                   onChange={(e) => setDailyFilters({ ...dailyFilters, status: e.target.value.split(',') })}
