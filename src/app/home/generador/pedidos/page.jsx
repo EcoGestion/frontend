@@ -6,42 +6,36 @@ import { Card, CardHeader, CardBody, Divider, CardFooter,
 } from '@nextui-org/react';
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import React, { useState, useEffect } from 'react';
-import { IconField } from 'primereact/iconfield';
-import { InputIcon } from 'primereact/inputicon';
-import { MultiSelect } from 'primereact/multiselect';
-import { Tag } from 'primereact/tag';
-import { Calendar } from 'primereact/calendar';
 import { getGeneratorOrdersById, getUserById } from "@api/apiService"
 import { useRouter } from 'next/navigation';
 import Spinner from "@components/Spinner"
 import { mapMaterialNameToLabel } from '@/constants/recyclables';
 import { formatDate, formatDateRange } from '@/utils/dateStringFormat';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+import FiltersModal from '@components/FiltersModal';
 import "./style.css"
+import { mapRequestStatus, mapRequestStatusToKey } from '@/constants/request';
+import { wasteTypesDefault } from '@/constants/recyclables';
+import { RequestStatus } from '@/constants/request';
+import { parseDate } from "@internationalized/date";
 
 export default function BasicFilterDemo() {
     const router = useRouter();
     const userSession = useSelector((state) => state.userSession);
 
     const [orders, setOrders] = useState(null)
-    const [filters, setFilters] = useState({ zone: [], wasteType: [], generatorType: [], date_from: '', date_to: '', status: []});
+    const [filters, setFilters] = useState({ wasteType: [], date_from: null, date_to: null, orderStatus: [], genName: '', genTypes: [], zones: [] });
     
-    const [waste_types, setWasteTypes] = useState([])
-    const [zones, setZones] = useState([])
     const [loading, setLoading] = useState(true);
 
     const rowsPerPage = 5;
     const [page, setPage] = React.useState(1);
     const [pages, setPages] = React.useState(null); 
-    
-    const statuses = [
-        { value: 'Ingresada', label: 'Ingresada' },
-        { value: 'Completada', label: 'Completada' },
-        { value: 'Cancelada', label: 'Cancelada' },
-        { value: 'En ruta', label: 'En ruta' },
-        { value: 'En proceso', label: 'En proceso' }
-    ];
 
+    const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false);
+    
+    
     const cols = [
         { field: 'generator', header: 'Generador' },
         { field: 'request_date', header: 'Fecha creación' },
@@ -57,11 +51,8 @@ export default function BasicFilterDemo() {
         return (
           ((!filters.date_from && !filters.date_to) ||
           (filters.date_from && filters.date_to && (order.pickup_date_to >= filters.date_from && order.pickup_date_from <= filters.date_to))) &&
-          (!filters.generator || order.generator_name.toLowerCase().includes(filters.generator.toLowerCase())) &&
-          (filters.status.length == 0 || (filters.status.length == 1 && !filters.status[0])  || filters.status.includes(order.status)) &&
-          (filters.wasteType.length == 0 || (filters.wasteType.length == 1 && !filters.wasteType[0]) || filters.wasteType.every(element => order.waste_types.includes(element))) &&
-          (filters.zone.length == 0 || (filters.zone.length == 1 && !filters.zone[0]) || filters.zone.includes(zone)) &&
-          (filters.generatorType.length == 0 || (filters.generatorType.length == 1 && !filters.generatorType[0]) || filters.generatorType.includes(order.generator_type))
+          (filters.orderStatus.length == 0 || (filters.orderStatus.length == 1 && !filters.orderStatus[0])  || filters.orderStatus.includes(mapRequestStatusToKey[order.status])) &&
+          (filters.wasteType.length == 0 || (filters.wasteType.length == 1 && !filters.wasteType[0]) || filters.wasteType.every(element => order.waste_types.includes(element)))
         );
     });
 
@@ -131,8 +122,6 @@ export default function BasicFilterDemo() {
               .then((response) => Promise.all(response.map(order => transform_order_data(order))))
               .then((transformed_orders) => {
                 setOrders(transformed_orders)
-                setWasteTypes([...new Set(transformed_orders.map(order => order.waste_types).flat())].sort())
-                setZones([...new Set(transformed_orders.map(order => order.zone))].sort())
                 })
                 .then(() => setLoading(false))
             } catch (error) {
@@ -147,57 +136,6 @@ export default function BasicFilterDemo() {
         fetchOrders();
     }, []);
 
-    const getSeverity = (status) => {
-        switch (status) {
-            case 'Cancelada':
-                return 'danger';
-
-            case 'Completada':
-                return 'success';
-
-            case 'Ingresada':
-                return 'info';
-
-            case 'Coordinada':
-                return 'warning';
-            
-            case 'En camino':
-                return 'warning';
-        }
-    }
-
-    const getStatus = (status) => {
-        switch (status) {
-            case 'REJECTED':
-                return 'Cancelada';
-
-            case 'COMPLETED':
-                return 'Completada';
-
-            case 'OPEN':
-                return 'Ingresada';
-
-            case 'PENDING':
-                return 'Coordinada';
-            
-            case 'ON_ROUTE':
-                return 'En camino';
-        }
-    }
-
-    const wasteTypes = [
-        { label: 'Papel', value: 'Papel' },
-        { label: 'Metal', value: 'Metal' },
-        { label: 'Vidrio', value: 'Vidrio' },
-        { label: 'Plástico', value: 'Plastico' },
-        { label: 'Cartón', value: 'Cartón' },
-        { label: 'Tetra Brik', value: 'Tetra Brik' },
-        { label: 'Telgopor', value: 'Telgopor' },
-        { label: 'Pilas', value: 'Pilas' },
-        { label: 'Aceite', value: 'Aceite' },
-        { label: 'Electrónicos', value: 'Electrónicos' }
-      ];
-
 
     const transform_order_data = async (order) => {
         const response = await getUserById(order.generator_id);
@@ -206,11 +144,10 @@ export default function BasicFilterDemo() {
         order.pickup_date_to = new Date(order.pickup_date_to)
         order.pickup_date = formatDateRange(order.pickup_date_from, order.pickup_date_to)
         order.generator = response.username
-        order.waste_types = order.waste_quantities.map(waste => waste.waste_type).sort()
+        order.waste_types = order.waste_quantities.map(waste => mapMaterialNameToLabel[waste.waste_type]).sort()
         order.waste_quantities = getCombinations(order.waste_quantities.map(waste => waste.waste_type))
         order.size = 50
-        order.status = getStatus(order.status)
-        console.log(order)
+        order.status = mapRequestStatus[order.status]
         return order
     }
     
@@ -233,18 +170,8 @@ export default function BasicFilterDemo() {
         return result;
     };
 
-    const renderHeader = () => {
-        return (
-            <div className="flex justify-content-end">
-                <IconField iconPosition="left">
-                    <InputIcon className="pi pi-search" />
-                </IconField>
-            </div>
-        );
-    };
-
     const formatWasteType = (value) => {
-        return value.map((waste) => mapMaterialNameToLabel[waste]).join(', ');
+        return value.map((waste) =>waste).join(', ');
     };
 
     const redirectDetailPage = (rowData) => {
@@ -252,15 +179,30 @@ export default function BasicFilterDemo() {
     };
 
     const clearFilters = () => {
-        setFilters({ zone: [], wasteType: [], generatorType: [], date_from: '', date_to: '', status: [] });
+        setFilters({ wasteType: [], date_from: null, date_to: null, orderStatus: [], genName: '', genTypes: [], zones: [] });
+    }
+
+    const applyMobileFilters = (mobileFilters) => {
+        setFilters(prevFilters => ({
+            ...prevFilters,
+            ...mobileFilters
+        }));
+        setIsFiltersModalOpen(false)
     }
 
     return (
         <div className="overflow-x-auto max-w-full w-full text-2xs md:text-sm min-h-full flex flex-col">
+            <FiltersModal isOpen={isFiltersModalOpen} onRequestClose={() => setIsFiltersModalOpen(false)} onConfirm={applyMobileFilters} currentFilters={filters}
+                showDate showWasteTypes showStatus
+            />
             {loading && <Spinner/>}
             {!loading && orders &&
             <div className='flex justify-between items-center mt-4 mx-4'>
                 <p className='text-start text-xl font-bold ml-2'>Solicitudes de recolección</p>
+                <Button type="button" className='bg-white md:hidden flex-col' onClick={() => setIsFiltersModalOpen(true)}>
+                    <FilterAltIcon fontSize='small' className='cursor-pointer'/>
+                    Filtros
+                </Button>
                 <Button type="button" className='bg-white' onClick={exportExcel} data-pr-tooltip="XLS">
                     <img src="/excel.svg" alt="box" className="w-7 md:w-10" />
                 </Button> 
@@ -272,49 +214,50 @@ export default function BasicFilterDemo() {
             
             {!loading && orders &&
             <div className='flex flex-col mx-4 my-4 gap-2'>
-                <Card className='rounded-md'>
-                <CardBody>
-                <div className="flex gap-4 items-center">
-                <DateRangePicker label="Fecha" className="max-w-[284px]" onChange={(e) => 
-                    setFilters({ ...filters, date_from: new Date(e.start.year, e.start.month - 1, e.start.day, 0,0,0,0), date_to: new Date(e.end.year, e.end.month - 1, e.end.day,23,59,59,999) })}
-                />
+                <Card className='hidden md:flex rounded-md'>
+                    <CardBody>
+                    <div className="flex gap-4 items-center">
+                    <DateRangePicker label="Fecha" className="max-w-[284px]" onChange={(e) => 
+                        setFilters({ ...filters, date_from: new Date(e.start.year, e.start.month - 1, e.start.day, 0,0,0,0), date_to: new Date(e.end.year, e.end.month - 1, e.end.day,23,59,59,999) })}
+                        value={filters.date_from && filters.date_to ? { start: parseDate(filters.date_from.toISOString().split('T')[0]), end: parseDate(filters.date_to.toISOString().split('T')[0]) } : null}
+                    />
 
-                <Select
+                    <Select
+                        className='select'
+                        placeholder="Tipo de Reciclables"
+                        selectedKeys={filters.wasteType}
+                        options={wasteTypesDefault}
+                        selectionMode="multiple"
+                        onChange={(e) => setFilters({ ...filters, wasteType: e.target.value.split(',')})}
+                        >
+                            {wasteTypesDefault.map((waste) => (
+                            <SelectItem key={waste.value} value={waste.value}>
+                                {waste.label}
+                            </SelectItem>
+                            ))}
+                    </Select>
+                    
+                    <Select
                     className='select'
-                    placeholder="Tipo de Reciclables"
-                    value={filters.wasteType}
-                    options={wasteTypes}
+                    placeholder="Estado de la solicitud"
+                    selectedKeys={filters.orderStatus}
+                    options={RequestStatus}
                     selectionMode="multiple"
-                    onChange={(e) => setFilters({ ...filters, wasteType: e.target.value.split(',')})}
-                    >
-                        {wasteTypes.map((waste) => (
-                        <SelectItem key={waste.value} value={waste.value}>
-                            {waste.label}
+                    onChange={(e) => setFilters({ ...filters, orderStatus: e.target.value.split(',') })}>
+
+                        {RequestStatus.map((status) => (
+                        <SelectItem key={status.value} value={status.value}>
+                            {status.label}
                         </SelectItem>
                         ))}
-                </Select>
-                
-                <Select
-                  className='select'
-                  placeholder="Estado de la solicitud"
-                  value={filters.status}
-                  options={statuses}
-                  selectionMode="multiple"
-                  onChange={(e) => setFilters({ ...filters, status: e.target.value.split(',') })}>
-
-                    {statuses.map((status) => (
-                      <SelectItem key={status.value} value={status.value}>
-                        {status.label}
-                      </SelectItem>
-                    ))}
-                </Select>
-                
-                <div className='flex flex-col items-center justify-center'>
-                  <FilterAltOffIcon className='cursor-pointer' onClick={clearFilters}/>
-                  <p className='text-center'>Limpiar filtros</p>
-                </div>
-                </div>
-                </CardBody>
+                    </Select>
+                    
+                    <div className='flex flex-col items-center justify-center'>
+                    <FilterAltOffIcon className='cursor-pointer' onClick={clearFilters}/>
+                    <p className='text-center'>Limpiar filtros</p>
+                    </div>
+                    </div>
+                    </CardBody>
                 </Card>
 
                 <Table

@@ -38,19 +38,19 @@ const HomeGenerador = () => {
   }, [])
 
   return (
-    <div className='flex flex-col p-4 gap-5 h-screen'>
+    <div className='flex flex-col px-3 py-1 md:p-4 gap-5 h-screen'>
       {loadingStats && <Spinner />}
       {!loadingStats &&
-        <div className='flex flex-row items-start gap-2'>
-        <Card className='flex-1'>
+        <div className='flex flex-col md:flex-row items-start gap-2'>
+        <Card className='flex-1 w-full md:w-auto'>
           <CardHeader className='bg-green-dark text-white min-h-16 font-semibold'>Solicitudes no coordinadas: {homeStats?.open}</CardHeader>
         </Card>
         
-        <Card className='flex-1'>
+        <Card className='flex-1 w-full md:w-auto'>
           <CardHeader className='bg-green-dark text-white min-h-16 font-semibold'>Solicitudes pendientes de recolección: {homeStats?.pending}</CardHeader>
         </Card>
         
-        <Card className='flex-1 p-0'>
+        <Card className='flex-1 w-full md:w-auto'>
           <CardHeader className='bg-green-dark text-white min-h-16 font-semibold'>Solicitudes  completadas: {homeStats?.completed}</CardHeader>
         </Card>
       </div>

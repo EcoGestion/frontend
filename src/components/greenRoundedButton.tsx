@@ -14,7 +14,7 @@ const GreenRoundedButton: React.FC<GreenRoundedButtonProps> = ({
     return (
         <button
             type={type}
-            className="bg-green-dark hover:bg-green-light text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300" 
+            className='bg-white text-green-dark hover:text-green-light border-green-dark hover:border-green-light px-3 py-2 rounded-medium border-medium shadow-md transition duration-300'
             onClick={onClick}
         >
             {buttonTitle}

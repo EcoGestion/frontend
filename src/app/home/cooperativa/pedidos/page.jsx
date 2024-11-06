@@ -19,6 +19,7 @@ import "./style.css"
 import { ToastNotifier } from '@/components/ToastNotifier';
 import { ToastContainer } from 'react-toastify';
 import AcceptConfirmationModal from '@/components/AcceptConfirmationModal';
+import { parseDate } from "@internationalized/date";
 
 export default function Orders() {
     const router = useRouter();
@@ -26,7 +27,7 @@ export default function Orders() {
     const [page, setPage] = React.useState(1);
     const [pages, setPages] = React.useState(null); 
     const [orders, setOrders] = useState(null)
-    const [filters, setFilters] = useState({ zone: [], wasteType: [], generatorType: [], date_from: '', date_to: '', status: []});
+    const [filters, setFilters] = useState({ zone: [], wasteType: [], generatorType: [], date_from: null, date_to: null, status: []});
     const rowsPerPage = 5;
     const [loading, setLoading] = useState(true);
 
@@ -175,7 +176,7 @@ export default function Orders() {
     };
 
     const clearFilters = () => {
-        setFilters({ zone: [], wasteType: [], generatorType: [], date_from: '', date_to: '', status: [] });
+        setFilters({ zone: [], wasteType: [], generatorType: [], date_from: null, date_to: null, status: [] });
     }
 
     const confirmReleaseOrder = (order) => {
@@ -223,7 +224,9 @@ export default function Orders() {
                 <CardBody>
                 <div className="flex gap-4 items-center">
                 <DateRangePicker label="Fecha" className="max-w-[284px]" onChange={(e) => 
-                    setFilters({ ...filters, date_from: new Date(e.start.year, e.start.month - 1, e.start.day, 0,0,0,0), date_to: new Date(e.end.year, e.end.month - 1, e.end.day,23,59,59,999) })} />
+                    setFilters({ ...filters, date_from: new Date(e.start.year, e.start.month - 1, e.start.day, 0,0,0,0), date_to: new Date(e.end.year, e.end.month - 1, e.end.day,23,59,59,999) })}
+                    value={filters.date_from && filters.date_to ? { start: parseDate(filters.date_from.toISOString().split('T')[0]), end: parseDate(filters.date_to.toISOString().split('T')[0]) } : null}
+                    />
 
                 <Input
                   className='select'
@@ -235,7 +238,7 @@ export default function Orders() {
                 <Select
                     className='select'
                     placeholder="Zona"
-                    value={filters.zone}
+                    selectedKeys={filters.zone}
                     options={zones}
                     selectionMode="multiple"
                     onChange={(e) => setFilters({ ...filters, zone: e.target.value.split(',') })}
@@ -249,7 +252,7 @@ export default function Orders() {
                     <Select
                     className='select'
                     placeholder="Tipo de Reciclables"
-                    value={filters.wasteType}
+                    selectedKeys={filters.wasteType}
                     options={wasteTypesDefault}
                     selectionMode="multiple"
                     onChange={(e) => setFilters({ ...filters, wasteType: e.target.value.split(',')})}
@@ -263,7 +266,7 @@ export default function Orders() {
                     <Select
                     className='select'
                     placeholder="Tipo de Generador"
-                    value={filters.generatorType}
+                    selectedKeys={filters.generatorType}
                     options = {generatorTypes}
                     selectionMode="multiple"
                     onChange={(e) => {
@@ -276,13 +279,13 @@ export default function Orders() {
                         ))}
                     </Select>
                     <Select
-                  className='select'
-                  placeholder="Estado de la solicitud"
-                  value={filters.status}
-                  options={RequestStatus}
-                  selectionMode="multiple"
-                  onChange={(e) => setFilters({ ...filters, status: e.target.value.split(',') })}
-                >
+                      className='select'
+                      placeholder="Estado de la solicitud"
+                      selectedKeys={filters.status}
+                      options={RequestStatus}
+                      selectionMode="multiple"
+                      onChange={(e) => setFilters({ ...filters, status: e.target.value.split(',') })}
+                    >
                     {RequestStatus.map((status) => (
                       <SelectItem key={status.value} value={status.value}>
                         {status.label}

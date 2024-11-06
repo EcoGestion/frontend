@@ -37,23 +37,25 @@ const InitialPage = () => {
         <h1 className='text-4xl font-bold text-gray-800 mb-4 text-center'>Bienvenido al sistema EcoGestion</h1>
         <p className='text-lg text-gray-600 mb-6'>Por favor, seleccione su tipo de usuario:</p>
         <div className='flex flex-col gap-3'>
-          <div className='flex gap-4'>
-            <GreenRoundedButton
+          <div className='flex flex-row gap-2'>
+            
+            <button className="bg-green-dark hover:bg-green-light border-green-dark hover:border-green-light text-white py-2 px-3 rounded-medium border-medium shadow-md transition duration-300"
               onClick={() => handleLogInTypeSelection('cooperativa')}
-              buttonTitle='Cooperativa'
-            />
-          </div>
-          <div className='flex justify-center'>
-            <button className="bg-cyan-800 hover:bg-cyan-300 text-white font-bold py-2 px-4 rounded"
-            onClick={() => handleLogInTypeSelection('conductor')}
-            >
+              >
+              Cooperativa
+            </button>
+            
+            <button className="bg-cyan-800 hover:bg-cyan-300 border-cyan-800 hover:border-cyan-300 text-white py-2 px-3 rounded-medium border-medium shadow-md transition duration-300"
+              onClick={() => handleLogInTypeSelection('conductor')}
+              >
               Conductor
             </button>
+            
           </div>
           <div className='flex justify-center'>
           <button 
             type='button'
-            className="bg-gray-dark hover:bg-gray-light text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 mt-4" 
+            className="bg-gray-dark hover:bg-gray-light text-white font-semibold py-2 px-6 rounded-medium shadow-md transition duration-300 mt-4" 
             onClick={handleBack}
           >
             Volver

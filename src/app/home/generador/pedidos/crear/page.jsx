@@ -203,134 +203,106 @@ const CreacionPedido = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center bg-white py-6 px-2">
+    <div className="flex flex-col items-center justify-center bg-white py-2 md:py-6 px-2">
       <ToastContainer />
       <h1 className="text-2xl font-semibold pb-3 text-center">Solicita la recolección de tus reciclables</h1>
       {loading ? (
         <Spinner />
       ) : (
-    <Card className="max-w-2xl w-full mx-auto p-3">
-      <Accordion key='datetime' variant="bordered" className="">
-        <AccordionItem title="Fecha de recolección">
-          <Card className="md:col-span-1">
-            <CardHeader>
-              <DatePicker
-                label="Fecha de recolección"
-                variant="bordered"
-                description="Seleccione la fecha de solicitud de recolección"
-                value={parseDate(request_from.toString().substring(0, 10))}
-                showMonthAndYearPickers
-                onChange={(date) => handleRequestDateChange(date)}
-              />
-            </CardHeader>
-            <Divider />
-            <CardBody>
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-              <TimeInput
-                label="Desde"
-                variant="bordered"
-                placeholderValue={new Time(10,0)}
-                value={(new Time(request_from.hour, request_from.minute))}
-                onChange={(time) => handleRequestTimeChangeFrom(time)}
-              />
-              <TimeInput
-                label="Hasta"
-                variant="bordered"
-                placeholderValue={new Time(12,0)}
-                value={new Time(request_to.hour, request_to.minute)}
-                onChange={(time) => handleRequestTimeChangeTo(time)}
-              />
-              </div>
-            </CardBody>
-          </Card>
+    <Card className="max-w-2xl w-full mx-auto">
+      <Accordion key='details' variant="bordered">
+
+        <AccordionItem key='datetime' title="Fecha de recolección">
+            <DatePicker
+              label="Fecha de recolección"
+              variant="bordered"
+              description="Seleccione la fecha de solicitud de recolección"
+              value={parseDate(request_from.toString().substring(0, 10))}
+              showMonthAndYearPickers
+              onChange={(date) => handleRequestDateChange(date)}
+            />
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <TimeInput
+              label="Desde"
+              variant="bordered"
+              placeholderValue={new Time(10,0)}
+              value={(new Time(request_from.hour, request_from.minute))}
+              onChange={(time) => handleRequestTimeChangeFrom(time)}
+            />
+            <TimeInput
+              label="Hasta"
+              variant="bordered"
+              placeholderValue={new Time(12,0)}
+              value={new Time(request_to.hour, request_to.minute)}
+              onChange={(time) => handleRequestTimeChangeTo(time)}
+            />
+            </div>
         </AccordionItem>
 
-        <AccordionItem key='details' title="Detalles del pedido">
-          <Card className="md:col-span-1">
-            <CardHeader>
-              <Divider />
-            </CardHeader>
-            <CardBody>
-              <CheckboxGroup label="Selecciona materiales" defaultValue={selectedRecyclables} onValueChange={setSelectedRecyclables}>
-                <div className="bg-white shadow-md p-2">
-                  <p className="text-center">Las unidades que se detallan a continuacion son expresadas en kilogramos.</p>
-                  <p className="text-center">En caso de no saber las cantidades con exactitud seleccione un valor estimado.</p>
-                </div>
-                <div>
-                {items.map(item => (
-                  <div key={item.id} style={{ display: 'flex', alignItems: 'between', marginBottom: '10px' }}>
-                    <Checkbox value={item.name} color="success">
-                      {item.label}
-                    </Checkbox>
-                    <input 
-                      type="number" 
-                      min={"0"} 
-                      defaultValue={item.quantity}
-                      style={{ 
-                        marginLeft: '10px', 
-                        borderRadius: '5px', 
-                        border: '1px solid #ccc', 
-                        padding: '5px', 
-                        width: '60px' 
-                      }} 
-                      aria-label={`Cantidad de ${item.label}`} 
-                      onChange={(e) => handleQuantityChange(item.name, parseInt(e.target.value))}
-                    />
-                  </div>
-                ))}
-                </div>
-              </CheckboxGroup>
-            </CardBody>
-          </Card>
+        <AccordionItem key='quantities' title="Detalles del pedido">
+          <CheckboxGroup label="Selecciona materiales" defaultValue={selectedRecyclables} onValueChange={setSelectedRecyclables}>
+            <div className="bg-white shadow-md p-2">
+              <p className="text-center">Las unidades que se detallan a continuacion son expresadas en kilogramos.</p>
+              <p className="text-center">En caso de no saber las cantidades con exactitud seleccione un valor estimado.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2">
+            {items.map(item => (
+              <div key={item.id} className="flex justify-between mb-1 pr-8">
+                <Checkbox value={item.name} color="success">
+                  {item.label}
+                </Checkbox>
+                <input 
+                  type="number" 
+                  min={"0"} 
+                  defaultValue={item.quantity}
+                  style={{ 
+                    marginLeft: '10px', 
+                    borderRadius: '5px', 
+                    border: '1px solid #ccc', 
+                    padding: '5px', 
+                    width: '60px' 
+                  }} 
+                  aria-label={`Cantidad de ${item.label}`} 
+                  onChange={(e) => handleQuantityChange(item.name, parseInt(e.target.value))}
+                />
+              </div>
+            ))}
+            </div>
+          </CheckboxGroup>
         </AccordionItem>
 
         <AccordionItem key='location' title="Ubicación">
-          <Card className="md:col-span-1">
-            <CardHeader className="flex-col">
-              <h2 className="text-lg font-semibold">Cual es la dirección de recolección?</h2>
-            </CardHeader>
-            <Divider />
-            <CardBody>
-              <Checkbox
-                isSelected={useUserProfileAddress}
-                onChange={() => setUseUserProfileAddress(!useUserProfileAddress)}
-              >
-                Usar mi dirección actual
-              </Checkbox>
-              <div>
-                <AddressForm 
-                  address={userNewAddress}
-                  setAddress={setUserAddress}
-                  isDisabled={useUserProfileAddress}
-                />
-              </div>
-
-              <button
-                className={`bg-blue-dark text-white font-bold py-2 px-4 rounded mt-2 ${useUserProfileAddress ? 'disabled-button' : 'hover:bg-blue-light'}`}
-                disabled={useUserProfileAddress}
-                onClick={updateCoordinates}>
-                  Buscar dirección
-              </button>
-              {/* TODO: Cambiar a la direccion del usuario */}
-              <MapView centerCoordinates={coordinates} zoom={15} markers={markers} />
-            </CardBody>
-          </Card>
+          <h2 className="text-lg font-semibold">Cual es la dirección de recolección?</h2>
+          <Checkbox
+            isSelected={useUserProfileAddress}
+            onChange={() => setUseUserProfileAddress(!useUserProfileAddress)}
+          >
+            Usar mi dirección actual
+          </Checkbox>
+          <div>
+            <AddressForm 
+              address={userNewAddress}
+              setAddress={setUserAddress}
+              isDisabled={useUserProfileAddress}
+            />
+          </div>
+          <button
+            className={`bg-blue-dark text-white font-bold py-2 px-4 rounded mt-2 ${useUserProfileAddress ? 'disabled-button' : 'hover:bg-blue-light'}`}
+            disabled={useUserProfileAddress}
+            onClick={updateCoordinates}>
+              Buscar dirección
+          </button>
+          {/* TODO: Cambiar a la direccion del usuario */}
+          <MapView centerCoordinates={coordinates} zoom={15} markers={markers} />
         </AccordionItem>
 
         <AccordionItem key='comments' title="Comentarios">
-          <Card className="md:col-span-1">
-            <CardHeader>
-              <h2 className="text-lg font-semibold">Agregue indicaciones adicionales</h2>
-            </CardHeader>
-            <Divider />
-            <CardBody>
-              <Textarea
-                placeholder="Escribe aquí cualquier comentario adicional que desee indicar a la cooperativa"
-                value={comments}
-                onChange={(e) => setComments(e.target.value)}
-              />
-            </CardBody>
-          </Card>
+          <h2 className="text-lg font-semibold">Agregue indicaciones adicionales</h2>
+          <Textarea
+            placeholder="Escribe aquí cualquier comentario adicional que desee indicar a la cooperativa"
+            value={comments}
+            onChange={(e) => setComments(e.target.value)}
+          />
         </AccordionItem>
         
       </Accordion>
