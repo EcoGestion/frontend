@@ -26,6 +26,8 @@ import { generatorTypes } from '@/constants/userTypes';
 import { wasteTypesDefault } from '@/constants/recyclables';
 import { RequestStatus, mapRequestStatusToKey, mapRequestStatus } from '@/constants/request';
 import { parseDate } from "@internationalized/date";
+import FiltersModal from '@/components/FiltersModal';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
@@ -37,12 +39,12 @@ const HomeCooperativa = () => {
   const [page, setPage] = React.useState(1);
   const [pages, setPages] = React.useState(null);
   const [availableOrders, setAvailableOrders] = useState(null)
-  const [availableFilters, setAvailableFilters] = useState({ zone: [], wasteType: [], generatorType: [], date_from: null, date_to: null });
+  const [availableFilters, setAvailableFilters] = useState({ wasteType: [], date_from: null, date_to: null, orderStatus: [], genName: '', genTypes: [], zones: [] });
 
   const [dailyPage, setDailyPage] = React.useState(1);
   const [dailyPages, setDailyPages] = React.useState(null);
   const [dailyOrders, setDailyOrders] = useState(null)
-  const [dailyFilters, setDailyFilters] = useState({ zone: [], status: [], wasteType: [], generatorType: [], generator: '' });
+  const [dailyFilters, setDailyFilters] = useState({ wasteType: [], date_from: null, date_to: null, orderStatus: [], genName: '', genTypes: [], zones: [] });
   const [points, setPoints] = useState([{position: [-34.5814551, -58.4211107], content: 'Cooperativa', popUp: 'Ubicación de la cooperativa'}])
 
   const [truckPage, setTruckPage] = React.useState(1);
@@ -54,39 +56,42 @@ const HomeCooperativa = () => {
   const rowsPerPage = 5;
   const router = useRouter();
 
-const filteredAvailableOrders = availableOrders?.filter(order => {
-  const zone = order.address? order.address.zone : order.generator.address.zone
-  return (
-    ((!availableFilters.date_from && !availableFilters.date_to) ||
-    (availableFilters.date_from && availableFilters.date_to && (order.pickup_date_to >= availableFilters.date_from && order.pickup_date_from <= availableFilters.date_to))) &&
-    (availableFilters.wasteType.length == 0 || (availableFilters.wasteType.length == 1 && !availableFilters.wasteType[0]) || availableFilters.wasteType.every(element => order.waste_types.includes(element))) &&
-    (availableFilters.zone.length == 0 || (availableFilters.zone.length == 1 && !availableFilters.zone[0]) || availableFilters.zone.includes(zone)) &&
-    (availableFilters.generatorType.length == 0 || (availableFilters.generatorType.length == 1 && !availableFilters.generatorType[0]) || availableFilters.generatorType.includes(order.generator_type))
-  );
-});
+  const [isAvailableFiltersModalOpen, setIsAvailableFiltersModalOpen] = useState(false);
+  const [isDailyFiltersModalOpen, setIsDailyFiltersModalOpen] = useState(false);
 
-const filteredDailyOrders = dailyOrders?.filter(order => {
-  const zone = order.address? order.address.zone : order.generator.address.zone
-  return (
-    (!dailyFilters.generator || order.generator_name.toLowerCase().includes(dailyFilters.generator.toLowerCase())) &&
-    (dailyFilters.wasteType.length == 0 || (dailyFilters.wasteType.length == 1 && !dailyFilters.wasteType[0]) || dailyFilters.wasteType.every(element => order.waste_types.includes(element))) &&
-    (dailyFilters.zone.length == 0 || (dailyFilters.zone.length == 1 && !dailyFilters.zone[0]) || dailyFilters.zone.includes(zone)) &&
-    (dailyFilters.status.length == 0 || (dailyFilters.status.length == 1 && !dailyFilters.status[0])  || dailyFilters.status.includes(mapRequestStatusToKey[order.status])) &&
-    (dailyFilters.generatorType.length == 0 || (dailyFilters.generatorType.length == 1 && !dailyFilters.generatorType[0]) || dailyFilters.generatorType.includes(order.generator_type))
-  );
-});
+  const filteredAvailableOrders = availableOrders?.filter(order => {
+    const zone = order.address? order.address.zone : order.generator.address.zone
+    return (
+      ((!availableFilters.date_from && !availableFilters.date_to) ||
+      (availableFilters.date_from && availableFilters.date_to && (order.pickup_date_to >= availableFilters.date_from && order.pickup_date_from <= availableFilters.date_to))) &&
+      (availableFilters.wasteType.length == 0 || (availableFilters.wasteType.length == 1 && !availableFilters.wasteType[0]) || availableFilters.wasteType.some(element => order.waste_types.includes(element))) &&
+      (availableFilters.zones.length == 0 || (availableFilters.zones.length == 1 && !availableFilters.zones[0]) || availableFilters.zones.includes(zone)) &&
+      (availableFilters.genTypes.length == 0 || (availableFilters.genTypes.length == 1 && !availableFilters.genTypes[0]) || availableFilters.genTypes.includes(order.generator_type))
+    );
+  });
 
-useEffect(() => {
-  if (filteredAvailableOrders) {
-    setPages(Math.ceil(filteredAvailableOrders.length / rowsPerPage)); 
-  } 
-}, [availableOrders, availableFilters]);
+  const filteredDailyOrders = dailyOrders?.filter(order => {
+    const zone = order.address? order.address.zone : order.generator.address.zone
+    return (
+      (!dailyFilters.genName || order.generator_name.toLowerCase().includes(dailyFilters.genName.toLowerCase())) &&
+      (dailyFilters.wasteType.length == 0 || (dailyFilters.wasteType.length == 1 && !dailyFilters.wasteType[0]) || dailyFilters.wasteType.some(element => order.waste_types.includes(element))) &&
+      (dailyFilters.zones.length == 0 || (dailyFilters.zones.length == 1 && !dailyFilters.zones[0]) || dailyFilters.zones.includes(zone)) &&
+      (dailyFilters.orderStatus.length == 0 || (dailyFilters.orderStatus.length == 1 && !dailyFilters.orderStatus[0])  || dailyFilters.orderStatus.includes(mapRequestStatusToKey[order.status])) &&
+      (dailyFilters.genTypes.length == 0 || (dailyFilters.genTypes.length == 1 && !dailyFilters.genTypes[0]) || dailyFilters.genTypes.includes(order.generator_type))
+    );
+  });
 
-useEffect(() => {
-  if (filteredDailyOrders) {
-    setDailyPages(Math.ceil(filteredDailyOrders.length / rowsPerPage)); 
-  } 
-}, [dailyOrders, dailyFilters]);
+  useEffect(() => {
+    if (filteredAvailableOrders) {
+      setPages(Math.ceil(filteredAvailableOrders.length / rowsPerPage)); 
+    } 
+  }, [availableOrders, availableFilters]);
+
+  useEffect(() => {
+    if (filteredDailyOrders) {
+      setDailyPages(Math.ceil(filteredDailyOrders.length / rowsPerPage)); 
+    } 
+  }, [dailyOrders, dailyFilters]);
 
   const get_available_orders = React.useMemo(() => {
     if (filteredAvailableOrders) {
@@ -257,30 +262,56 @@ useEffect(() => {
   };
 
    const clearAvailableFilters = () => {
-    setAvailableFilters({ zone: [], wasteType: [], generatorType: [], date_from: null, date_to: null });
+    setAvailableFilters({ wasteType: [], date_from: null, date_to: null, orderStatus: [], genName: '', genTypes: [], zones: [] });
   }
 
   const clearDailyFilters = () => {
-    setDailyFilters({ zone: [], status: [], wasteType: [], generatorType: [], generator: '' });
+    setDailyFilters({ wasteType: [], date_from: null, date_to: null, orderStatus: [], genName: '', genTypes: [], zones: [] });
   }
+
+  const applyAvailableFilters = (mobileFilters) => {
+    setAvailableFilters(prevFilters => ({
+        ...prevFilters,
+        ...mobileFilters
+    }));
+    setIsAvailableFiltersModalOpen(false)
+  };
+
+  const applyDailyFilters = (mobileFilters) => {
+    setDailyFilters(prevFilters => ({
+        ...prevFilters,
+        ...mobileFilters
+    }));
+    setIsDailyFiltersModalOpen(false)
+  };
 
 
     return (
       <div className='flex flex-col py-1 px-2 lg:p-4 h-screen'>
         <ToastContainer/>
         <AcceptConfirmationModal isOpen={modalIsOpen} onRequestClose={() => setModalIsOpen(false)} onConfirm={acceptRequest} title='Deseas aceptar esta solicitud?' />
+        <FiltersModal isOpen={isAvailableFiltersModalOpen} onRequestClose={() => setIsAvailableFiltersModalOpen(false)} onConfirm={applyAvailableFilters} currentFilters={availableFilters}
+          showDate showZones showWasteTypes showGenTypes
+        />
+        <FiltersModal isOpen={isDailyFiltersModalOpen} onRequestClose={() => setIsDailyFiltersModalOpen(false)} onConfirm={applyDailyFilters} currentFilters={dailyFilters}
+          showGenName showZones showWasteTypes showStatus
+        />
         {loading  && <Spinner/>}
         {!loading &&
         <div className='flex flex-col gap-2 w-full home-col'>
           {availableOrders &&
           <div className='flex justify-between items-center mx-4'>
             <p className='text-start text-xl font-bold lg:ml-2'>Solicitudes de disponibles</p>
+            <Button type="button" className='bg-white md:hidden flex-col' onClick={() => setIsAvailableFiltersModalOpen(true)}>
+              <FilterAltIcon fontSize='small' className='cursor-pointer'/>
+              Filtros
+            </Button>
           </div>
           }
 
           {availableOrders &&
           <div className='flex flex-col my-2 gap-2'>
-            <Card className='rounded-md'>
+            <Card className='hidden md:flex rounded-md'>
             <CardBody>
             <div className="flex gap-4 items-center">
               <DateRangePicker label="Rango de fechas" className="" onChange={(e) => 
@@ -290,10 +321,10 @@ useEffect(() => {
               <Select
                   className='select'
                   placeholder="Zona"
-                  selectedKeys={availableFilters.zone}
+                  selectedKeys={availableFilters.zones}
                   options={zones}
                   selectionMode="multiple"
-                  onChange={(e) => setAvailableFilters({ ...availableFilters, zone: e.target.value.split(',')})}
+                  onChange={(e) => setAvailableFilters({ ...availableFilters, zones: e.target.value.split(',')})}
                   >
                     {zones.map((zone) => (
                       <SelectItem key={zone.value} value={zone.value}>
@@ -318,11 +349,11 @@ useEffect(() => {
                 <Select
                   className='select'
                   placeholder="Tipo de Generador"
-                  selectedKeys={availableFilters.generatorType}
+                  selectedKeys={availableFilters.genTypes}
                   options = {generatorTypes}
                   selectionMode="multiple"
                   onChange={(e) => {
-                    setAvailableFilters({ ...availableFilters, generatorType: e.target.value.split(',') }) }}
+                    setAvailableFilters({ ...availableFilters, genTypes: e.target.value.split(',') }) }}
                 >
                     {generatorTypes.map((type) => (
                       <SelectItem key={type.value} value={type.value}>
@@ -341,9 +372,9 @@ useEffect(() => {
               <Table
                    bottomContent={
                     <div className="flex w-full justify-between items-center">
-                    <span className='flex 1 invisible'>{get_available_orders.length} de {filteredAvailableOrders.length} solicitudes</span>
+                    <span className='flex invisible'>{get_available_orders.length} de {filteredAvailableOrders.length} solicitudes</span>
                     <Pagination
-                      className='flex 1'
+                      className='flex'
                       isCompact
                       showControls
                       showShadow
@@ -352,7 +383,7 @@ useEffect(() => {
                       total={pages}
                       onChange={(page) => setPage(page)}
                     />
-                    <span className='flex 1'>{get_available_orders.length} de {filteredAvailableOrders.length} solicitudes</span>
+                    <span className='hidden md:flex'>{get_available_orders.length} de {filteredAvailableOrders.length} solicitudes</span>
                   </div>}
               >
                 <TableHeader>
@@ -387,28 +418,32 @@ useEffect(() => {
           {dailyOrders &&
           <div className='flex justify-between items-center mx-4 mt-3'>
           < p className='text-start text-xl font-bold ml-2'>Recolecciónes del dia</p>
+          <Button type="button" className='bg-white md:hidden flex-col' onClick={() => setIsDailyFiltersModalOpen(true)}>
+            <FilterAltIcon fontSize='small' className='cursor-pointer'/>
+            Filtros
+          </Button>
           </div>
           }
           {dailyOrders &&
           <div className='flex flex-col my-2 gap-2'>
-            <Card className='rounded-md'>
+            <Card className='hidden md:flex rounded-md'>
             <CardBody>
             <div className="flex gap-4 items-center">
                 <Input
                   className='select'
                   placeholder="Generador"
                   onChange={(e) => {
-                    setDailyFilters({...dailyFilters, generator: e.target.value})
+                    setDailyFilters({...dailyFilters, genName: e.target.value})
                   }}>
                 </Input>
               <Select
                   className='select'
                   placeholder="Tipo de Generador"
-                  selectedKeys={dailyFilters.generatorType}
+                  selectedKeys={dailyFilters.genTypes}
                   options = {generatorTypes}
                   selectionMode="multiple"
                   onChange={(e) => {
-                    setDailyFilters({ ...dailyFilters, generatorType: e.target.value.split(',') }) }}
+                    setDailyFilters({ ...dailyFilters, genTypes: e.target.value.split(',') }) }}
                 >
                     {generatorTypes.map((type) => (
                       <SelectItem key={type.value} value={type.value}>
@@ -419,10 +454,10 @@ useEffect(() => {
               <Select
                   className='select'
                   placeholder="Zona"
-                  selectedKeys={dailyFilters.zone}
+                  selectedKeys={dailyFilters.zones}
                   options={zones}
                   selectionMode="multiple"
-                  onChange={(e) => setDailyFilters({ ...dailyFilters, zone: e.target.value.split(',') })}
+                  onChange={(e) => setDailyFilters({ ...dailyFilters, zones: e.target.value.split(',') })}
                 >
                     {zones.map((zone) => (
                       <SelectItem key={zone.value} value={zone.value}>
@@ -433,7 +468,7 @@ useEffect(() => {
 
                 <Select
                   className='select'
-                  placeholder="Tipo de material"
+                  placeholder="Tipo de Reciclables"
                   selectedKeys={dailyFilters.wasteType}
                   options={wasteTypesDefault}
                   selectionMode="multiple"
@@ -449,8 +484,9 @@ useEffect(() => {
                   className='select'
                   placeholder="Estado de la solicitud"
                   options={RequestStatus}
+                  selectedKeys={dailyFilters.orderStatus}
                   selectionMode="multiple"
-                  onChange={(e) => setDailyFilters({ ...dailyFilters, status: e.target.value.split(',') })}
+                  onChange={(e) => setDailyFilters({ ...dailyFilters, orderStatus: e.target.value.split(',') })}
                 >
                     {RequestStatus.map((status) => (
                       <SelectItem key={status.value} value={status.value}>
@@ -469,9 +505,9 @@ useEffect(() => {
               <Table
               bottomContent={
                 <div className="flex w-full justify-between items-center">
-                  <span className='flex 1 invisible'>{get_daily_orders.length} de {filteredDailyOrders.length} solicitudes</span>
+                  <span className='flex invisible'>{get_daily_orders.length} de {filteredDailyOrders.length} solicitudes</span>
                   <Pagination
-                    className='flex 1'
+                    className='flex'
                     isCompact
                     showControls
                     showShadow
@@ -480,7 +516,7 @@ useEffect(() => {
                     total={dailyPages}
                     onChange={(page) => setDailyPage(page)}
                   />
-                  <span className='flex 1'>{get_daily_orders.length} de {filteredDailyOrders.length} solicitudes</span>
+                  <span className='hidden md:flex'>{get_daily_orders.length} de {filteredDailyOrders.length} solicitudes</span>
                 </div>}>
                 <TableHeader>
                   <TableColumn className='text-small'>Fecha de creación</TableColumn>

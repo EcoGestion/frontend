@@ -25,7 +25,7 @@ export default function BasicFilterDemo() {
     const userSession = useSelector((state) => state.userSession);
 
     const [orders, setOrders] = useState(null)
-    const [filters, setFilters] = useState({ wasteType: [], date_from: null, date_to: null, status: []});
+    const [filters, setFilters] = useState({ wasteType: [], date_from: null, date_to: null, orderStatus: [], genName: '', genTypes: [], zones: [] });
     
     const [loading, setLoading] = useState(true);
 
@@ -51,7 +51,7 @@ export default function BasicFilterDemo() {
         return (
           ((!filters.date_from && !filters.date_to) ||
           (filters.date_from && filters.date_to && (order.pickup_date_to >= filters.date_from && order.pickup_date_from <= filters.date_to))) &&
-          (filters.status.length == 0 || (filters.status.length == 1 && !filters.status[0])  || filters.status.includes(mapRequestStatusToKey[order.status])) &&
+          (filters.orderStatus.length == 0 || (filters.orderStatus.length == 1 && !filters.orderStatus[0])  || filters.orderStatus.includes(mapRequestStatusToKey[order.status])) &&
           (filters.wasteType.length == 0 || (filters.wasteType.length == 1 && !filters.wasteType[0]) || filters.wasteType.every(element => order.waste_types.includes(element)))
         );
     });
@@ -179,7 +179,7 @@ export default function BasicFilterDemo() {
     };
 
     const clearFilters = () => {
-        setFilters({ zone: [], wasteType: [], generatorType: [], date_from: null, date_to: null, status: [] });
+        setFilters({ wasteType: [], date_from: null, date_to: null, orderStatus: [], genName: '', genTypes: [], zones: [] });
     }
 
     const applyMobileFilters = (mobileFilters) => {
@@ -192,7 +192,9 @@ export default function BasicFilterDemo() {
 
     return (
         <div className="overflow-x-auto max-w-full w-full text-2xs md:text-sm min-h-full flex flex-col">
-            <FiltersModal isOpen={isFiltersModalOpen} onRequestClose={() => setIsFiltersModalOpen(false)} onConfirm={applyMobileFilters} currentFilters={filters} />
+            <FiltersModal isOpen={isFiltersModalOpen} onRequestClose={() => setIsFiltersModalOpen(false)} onConfirm={applyMobileFilters} currentFilters={filters}
+                showDate showWasteTypes showStatus
+            />
             {loading && <Spinner/>}
             {!loading && orders &&
             <div className='flex justify-between items-center mt-4 mx-4'>
@@ -238,10 +240,10 @@ export default function BasicFilterDemo() {
                     <Select
                     className='select'
                     placeholder="Estado de la solicitud"
-                    selectedKeys={filters.status}
+                    selectedKeys={filters.orderStatus}
                     options={RequestStatus}
                     selectionMode="multiple"
-                    onChange={(e) => setFilters({ ...filters, status: e.target.value.split(',') })}>
+                    onChange={(e) => setFilters({ ...filters, orderStatus: e.target.value.split(',') })}>
 
                         {RequestStatus.map((status) => (
                         <SelectItem key={status.value} value={status.value}>

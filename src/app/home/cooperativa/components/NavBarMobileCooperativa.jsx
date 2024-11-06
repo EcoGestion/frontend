@@ -46,7 +46,9 @@ const NavBarMobileCooperativa = () => {
     };
 
     return (
-        <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className='flex bottom-0 justify-center border-1 md:hidden'>
+        <Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} position='sticky'
+        className='flex bottom-0 justify-center border-1 md:hidden'
+        >
         <NavbarContent className="flex md:hidden gap-9 xs:gap-14 sticky-bottom w-full" justify="center">
             <NavbarItem isActive={isActiveRoute('/home/cooperativa')}>
             <Link color="foreground" href="/home/cooperativa">

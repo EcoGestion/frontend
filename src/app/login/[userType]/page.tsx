@@ -13,6 +13,8 @@ import Spinner  from '../../../components/Spinner';
 import { setUserSession } from '../../../state/userSessionSlice';
 import React from 'react';
 import { userTypeMapping, UserType, mapUserType } from '@/constants/userTypes';
+import { ToastNotifier } from '@/components/ToastNotifier';
+import { ToastContainer } from 'react-toastify';
 
 // /login/{cooperativa/generador}
 
@@ -73,6 +75,10 @@ const Login = ({ params }: { params: { userType: string } }) => {
 
   const handleRegister = () => {
     // Redirigir a la página de registro
+    if (userType === 'conductor') {
+      ToastNotifier.error('Los conductores no pueden registrarse.\nPor favor, contacte a su cooperativa para que cree su perfil.');
+      return;
+    }
     router.push('/register/' + userType);
   };
 
@@ -87,6 +93,7 @@ const Login = ({ params }: { params: { userType: string } }) => {
 
   return (
     <div className="flex items-center justify-center h-screen bg-white mx-3 md:m-0">
+      <ToastContainer />
       {loading ? (
         <Spinner />
       ) : (
