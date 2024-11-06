@@ -415,10 +415,10 @@ const HomeConductor = () => {
           </Card>
           <Table
           bottomContent={
-            <div className="flex w-full justify-between items-center">
-              <span className='flex 1 invisible'>{get_orders.length} de {filteredRequests.length} solicitudes</span>
+            <div className="flex flex-col md:flex-row w-full justify-between items-center">
+              <span className='hidden md:flex md:invisible'>{get_orders.length} de {filteredRequests.length} solicitudes</span>
               <Pagination
-                className='flex 1'
+                className='flex'
                 isCompact
                 showControls
                 showShadow
@@ -427,7 +427,7 @@ const HomeConductor = () => {
                 total={pages}
                 onChange={(page) => setPage(page)}
               />
-              <span className='flex 1'>{get_orders.length} de {filteredRequests.length} solicitudes</span>
+              <span className='flex'>{get_orders.length} de {filteredRequests.length} solicitudes</span>
             </div>}>
             <TableHeader>
               <TableColumn>Id</TableColumn>

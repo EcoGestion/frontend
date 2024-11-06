@@ -203,13 +203,13 @@ const CreacionPedido = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center bg-white py-2 md:py-6 px-2">
+    <div className="h-screen bg-white py-2 md:py-6 px-2">
       <ToastContainer />
       <h1 className="text-2xl font-semibold pb-3 text-center">Solicita la recolección de tus reciclables</h1>
       {loading ? (
         <Spinner />
       ) : (
-    <Card className="max-w-2xl w-full mx-auto">
+    <div className="max-w-2xl w-full mx-auto">
       <Accordion key='details' variant="bordered">
 
         <AccordionItem key='datetime' title="Fecha de recolección">
@@ -306,15 +306,14 @@ const CreacionPedido = () => {
         </AccordionItem>
         
       </Accordion>
-      <Divider />
 
-      <CardFooter className="flex justify-center">
+      <div className="flex justify-center mt-2">
         <GreenRoundedButton
           onClick={handleConfirm}
           buttonTitle="Confirmar"
         />
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
     )}
   </div>
   );

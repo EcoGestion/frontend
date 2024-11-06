@@ -371,8 +371,8 @@ const HomeCooperativa = () => {
 
               <Table
                    bottomContent={
-                    <div className="flex w-full justify-between items-center">
-                    <span className='flex invisible'>{get_available_orders.length} de {filteredAvailableOrders.length} solicitudes</span>
+                    <div className="flex flex-col md:flex-row w-full justify-between items-center">
+                    <span className='hidden md:flex md:invisible'>{get_available_orders.length} de {filteredAvailableOrders.length} solicitudes</span>
                     <Pagination
                       className='flex'
                       isCompact
@@ -383,7 +383,7 @@ const HomeCooperativa = () => {
                       total={pages}
                       onChange={(page) => setPage(page)}
                     />
-                    <span className='hidden md:flex'>{get_available_orders.length} de {filteredAvailableOrders.length} solicitudes</span>
+                    <span className='flex'>{get_available_orders.length} de {filteredAvailableOrders.length} solicitudes</span>
                   </div>}
               >
                 <TableHeader>
@@ -504,8 +504,8 @@ const HomeCooperativa = () => {
 
               <Table
               bottomContent={
-                <div className="flex w-full justify-between items-center">
-                  <span className='flex invisible'>{get_daily_orders.length} de {filteredDailyOrders.length} solicitudes</span>
+                <div className="flex flex-col md:flex-row w-full justify-between items-center">
+                  <span className='hidden md:flex md:invisible'>{get_daily_orders.length} de {filteredDailyOrders.length} solicitudes</span>
                   <Pagination
                     className='flex'
                     isCompact
@@ -516,7 +516,7 @@ const HomeCooperativa = () => {
                     total={dailyPages}
                     onChange={(page) => setDailyPage(page)}
                   />
-                  <span className='hidden md:flex'>{get_daily_orders.length} de {filteredDailyOrders.length} solicitudes</span>
+                  <span className='flex'>{get_daily_orders.length} de {filteredDailyOrders.length} solicitudes</span>
                 </div>}>
                 <TableHeader>
                   <TableColumn className='text-small'>Fecha de creación</TableColumn>
@@ -554,8 +554,8 @@ const HomeCooperativa = () => {
           <div className='flex flex-col my-2 gap-2'>
             <Table
               bottomContent={
-                <div className="flex w-full justify-between items-center">
-                  <span className='flex 1 invisible'>{get_trucks.length} de {trucks.length} solicitudes</span>
+                <div className="flex flex-col md:flex-row w-full justify-between items-center">
+                  <span className='hidden md:flex md:invisible'>{get_trucks.length} de {trucks.length} solicitudes</span>
                   <Pagination
                     className='flex 1'
                     isCompact
@@ -566,7 +566,7 @@ const HomeCooperativa = () => {
                     total={truckPages}
                     onChange={(page) => setTruckPage(page)}
                   />
-                  <span className='flex 1'>{get_trucks.length} de {trucks.length} camiones</span>
+                  <span className='flex'>{get_trucks.length} de {trucks.length} camiones</span>
                 </div>}>
               <TableHeader>
                 <TableColumn>Marca</TableColumn>

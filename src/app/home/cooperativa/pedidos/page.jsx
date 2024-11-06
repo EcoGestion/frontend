@@ -28,7 +28,7 @@ export default function Orders() {
     const [pages, setPages] = React.useState(null); 
     const [orders, setOrders] = useState(null)
     const [filters, setFilters] = useState({ zone: [], wasteType: [], generatorType: [], date_from: null, date_to: null, status: []});
-    const rowsPerPage = 5;
+    const rowsPerPage = 10;
     const [loading, setLoading] = useState(true);
 
     const [orderToRelease, setOrderToRelease] = useState(null);
@@ -302,10 +302,10 @@ export default function Orders() {
                 
                 <Table
                         bottomContent={
-                        <div className="flex w-full justify-between items-center">
-                        <span className='flex 1 invisible'>{get_orders.length} de {filteredOrders.length} solicitudes</span>
+                        <div className="flex flex-col md:flex-row w-full justify-between items-center">
+                        <span className='hidden md:flex md:invisible'>{get_orders.length} de {filteredOrders.length} solicitudes</span>
                         <Pagination
-                        className='flex 1'
+                        className='flex'
                         isCompact
                         showControls
                         showShadow
@@ -314,7 +314,7 @@ export default function Orders() {
                         total={pages}
                         onChange={(page) => setPage(page)}
                         />
-                        <span className='flex 1'>{get_orders.length} de {filteredOrders.length} solicitudes</span>
+                        <span className='flex'>{get_orders.length} de {filteredOrders.length} solicitudes</span>
                     </div>}
                 >
                     <TableHeader>
