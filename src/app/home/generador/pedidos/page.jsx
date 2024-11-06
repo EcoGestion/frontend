@@ -29,7 +29,7 @@ export default function BasicFilterDemo() {
     
     const [loading, setLoading] = useState(true);
 
-    const rowsPerPage = 5;
+    const rowsPerPage = 10;
     const [page, setPage] = React.useState(1);
     const [pages, setPages] = React.useState(null); 
 
@@ -262,20 +262,20 @@ export default function BasicFilterDemo() {
 
                 <Table
                         bottomContent={
-                        <div className="flex w-full justify-between items-center">
-                        <span className='flex 1 invisible'>{get_orders.length} de {filteredOrders.length} solicitudes</span>
-                        <Pagination
-                        className='flex 1'
-                        isCompact
-                        showControls
-                        showShadow
-                        color="secondary"
-                        page={page}
-                        total={pages}
-                        onChange={(page) => setPage(page)}
-                        />
-                        <span className='flex 1'>{get_orders.length} de {filteredOrders.length} solicitudes</span>
-                    </div>}
+                        <div className="flex flex-col md:flex-row w-full justify-between items-center">
+                            <span className='hidden md:flex md:invisible'>{get_orders.length} de {filteredOrders.length} solicitudes</span>
+                            <Pagination
+                            className='flex'
+                            isCompact
+                            showControls
+                            showShadow
+                            color="secondary"
+                            page={page}
+                            total={pages}
+                            onChange={(page) => setPage(page)}
+                            />
+                            <span className='flex'>{get_orders.length} de {filteredOrders.length} solicitudes</span>
+                        </div>}
                 >
                     <TableHeader>
                     <TableColumn className='text-small'>Fecha de recolección</TableColumn>
