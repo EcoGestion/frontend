@@ -20,6 +20,8 @@ import { ToastNotifier } from '@/components/ToastNotifier';
 import { ToastContainer } from 'react-toastify';
 import AcceptConfirmationModal from '@/components/AcceptConfirmationModal';
 import { parseDate } from "@internationalized/date";
+import FiltersModal from '@components/FiltersModal';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
 
 export default function Orders() {
     const router = useRouter();
@@ -27,12 +29,14 @@ export default function Orders() {
     const [page, setPage] = React.useState(1);
     const [pages, setPages] = React.useState(null); 
     const [orders, setOrders] = useState(null)
-    const [filters, setFilters] = useState({ zone: [], wasteType: [], generatorType: [], date_from: null, date_to: null, status: []});
+    const [filters, setFilters] = useState({ wasteType: [], date_from: null, date_to: null, orderStatus: [], genName: '', genTypes: [], zones: [] });
     const rowsPerPage = 10;
     const [loading, setLoading] = useState(true);
 
     const [orderToRelease, setOrderToRelease] = useState(null);
     const [isModalReleaseOpen, setIsModalReleaseOpen] = useState(false);
+   
+    const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false);
     
     const [reload, setReload] = useState(false);
 
@@ -65,11 +69,11 @@ export default function Orders() {
         return (
           ((!filters.date_from && !filters.date_to) ||
           (filters.date_from && filters.date_to && (order.pickup_date_to >= filters.date_from && order.pickup_date_from <= filters.date_to))) &&
-          (!filters.generator || order.generator_name.toLowerCase().includes(filters.generator.toLowerCase())) &&
-          (filters.status.length == 0 || (filters.status.length == 1 && !filters.status[0])  || filters.status.includes(mapRequestStatusToKey[order.status])) &&
-          (filters.wasteType.length == 0 || (filters.wasteType.length == 1 && !filters.wasteType[0]) || filters.wasteType.every(element => order.waste_types.includes(element))) &&
-          (filters.zone.length == 0 || (filters.zone.length == 1 && !filters.zone[0]) || filters.zone.includes(zone)) &&
-          (filters.generatorType.length == 0 || (filters.generatorType.length == 1 && !filters.generatorType[0]) || filters.generatorType.includes(order.generator_type))
+          (!filters.genName || order.generator_name.toLowerCase().includes(filters.genName.toLowerCase())) &&
+          (filters.orderStatus.length == 0 || (filters.orderStatus.length == 1 && !filters.status[0])  || filters.orderStatus.includes(mapRequestStatusToKey[order.status])) &&
+          (filters.wasteType.length == 0 || (filters.wasteType.length == 1 && !filters.wasteType[0]) || filters.wasteType.some(element => order.waste_types.includes(element))) &&
+          (filters.zones.length == 0 || (filters.zones.length == 1 && !filters.zones[0]) || filters.zones.includes(zone)) &&
+          (filters.genTypes.length == 0 || (filters.genTypes.length == 1 && !filters.genTypes[0]) || filters.genTypes.includes(order.generator_type))
         );
     });
 
@@ -176,7 +180,7 @@ export default function Orders() {
     };
 
     const clearFilters = () => {
-        setFilters({ zone: [], wasteType: [], generatorType: [], date_from: null, date_to: null, status: [] });
+      setFilters({ wasteType: [], date_from: null, date_to: null, orderStatus: [], genName: '', genTypes: [], zones: [] });
     }
 
     const confirmReleaseOrder = (order) => {
@@ -201,14 +205,29 @@ export default function Orders() {
       } 
     }
 
+    const applyMobileFilters = (mobileFilters) => {
+      setFilters(prevFilters => ({
+          ...prevFilters,
+          ...mobileFilters
+      }));
+      setIsFiltersModalOpen(false)
+    }
+
     return (
         <div className="overflow-x-auto max-w-full w-full text-2xs md:text-sm min-h-full flex flex-col">
           <ToastContainer />
+          <FiltersModal isOpen={isFiltersModalOpen} onRequestClose={() => setIsFiltersModalOpen(false)} onConfirm={applyMobileFilters} currentFilters={filters}
+          showDate showGenName showZones showWasteTypes showGenTypes showStatus
+        />
           <AcceptConfirmationModal isOpen={isModalReleaseOpen} onRequestClose={() => setIsModalReleaseOpen(false)} onConfirm={releaseOrder} title='Desea liberar la solicitud?' message="Una vez liberada, la solicitud estará nuevamente disponible para todas las cooperativas." />
             {(loading || !orders) && <Spinner/>}
             {!loading && orders &&
             <div className='flex justify-between items-center mt-4 mx-4'>
                 <p className='text-start text-xl font-bold ml-2'>Solicitudes de recolección</p>
+                <Button type="button" className='bg-white md:hidden flex-col' onClick={() => setIsFiltersModalOpen(true)}>
+                    <FilterAltIcon fontSize='small' className='cursor-pointer'/>
+                    Filtros
+                </Button>
                 <Button type="button" className='bg-white' onClick={exportExcel} data-pr-tooltip="XLS">
                     <img src="/excel.svg" alt="box" className="w-7 md:w-10" />
                 </Button> 
@@ -220,7 +239,7 @@ export default function Orders() {
 
             {!loading && orders &&
             <div className='flex flex-col mx-4 my-4 gap-2'>
-                <Card className='rounded-md'>
+                <Card className='hidden md:flex rounded-md'>
                 <CardBody>
                 <div className="flex gap-4 items-center">
                 <DateRangePicker label="Fecha" className="max-w-[284px]" onChange={(e) => 
@@ -231,17 +250,18 @@ export default function Orders() {
                 <Input
                   className='select'
                   placeholder="Nombre del Generador"
+                  value={filters.genName}
                   onChange={(e) => {
-                    setFilters({...filters, generator: e.target.value})
+                    setFilters({...filters, genName: e.target.value})
                   }}>
                 </Input>                   
                 <Select
                     className='select'
                     placeholder="Zona"
-                    selectedKeys={filters.zone}
+                    selectedKeys={filters.zones}
                     options={zones}
                     selectionMode="multiple"
-                    onChange={(e) => setFilters({ ...filters, zone: e.target.value.split(',') })}
+                    onChange={(e) => setFilters({ ...filters, zones: e.target.value.split(',') })}
                     >
                         {zones.map((zone) => (
                         <SelectItem key={zone.value} value={zone.value}>
@@ -266,11 +286,11 @@ export default function Orders() {
                     <Select
                     className='select'
                     placeholder="Tipo de Generador"
-                    selectedKeys={filters.generatorType}
+                    selectedKeys={filters.genTypes}
                     options = {generatorTypes}
                     selectionMode="multiple"
                     onChange={(e) => {
-                        setFilters({ ...filters, generatorType: e.target.value.split(',') }) }}
+                        setFilters({ ...filters, genTypes: e.target.value.split(',') }) }}
                     >
                         {generatorTypes.map((type) => (
                         <SelectItem key={type.value} value={type.value}>
@@ -281,10 +301,10 @@ export default function Orders() {
                     <Select
                       className='select'
                       placeholder="Estado de la solicitud"
-                      selectedKeys={filters.status}
+                      selectedKeys={filters.orderStatus}
                       options={RequestStatus}
                       selectionMode="multiple"
-                      onChange={(e) => setFilters({ ...filters, status: e.target.value.split(',') })}
+                      onChange={(e) => setFilters({ ...filters, orderStatus: e.target.value.split(',') })}
                     >
                     {RequestStatus.map((status) => (
                       <SelectItem key={status.value} value={status.value}>
