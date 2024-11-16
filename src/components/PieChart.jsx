@@ -8,13 +8,14 @@ const PieChart = ({
   data = {},
   width = '100%',
   height = '100%',
-  options = {}
+  options = {},
+  label = ''
 }) => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [
       {
-        label: 'Label',
+        label: label,
         data: [],
         backgroundColor: [],
         borderColor: [],
@@ -34,7 +35,7 @@ const PieChart = ({
         labels,
         datasets: [
           {
-            label: 'Label',
+            label: label,
             data: values,
             backgroundColor: backgroundColors,
             borderColor: borderColors,

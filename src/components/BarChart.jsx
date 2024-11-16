@@ -4,12 +4,12 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const BarChart = ({ data = {}, displayTitle = false }) => {
+const BarChart = ({ data = {}, displayTitle = false, label = '' }) => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [
       {
-        label: 'Label',
+        label: label,
         data: [],
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         borderColor: 'rgba(75, 192, 192, 1)',
@@ -27,7 +27,7 @@ const BarChart = ({ data = {}, displayTitle = false }) => {
         labels,
         datasets: [
           {
-            label: 'Label',
+            label: label,
             data: values,
             backgroundColor: 'rgba(75, 192, 192, 0.2)',
             borderColor: 'rgba(75, 192, 192, 1)',

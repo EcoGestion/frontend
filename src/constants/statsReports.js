@@ -6,7 +6,7 @@ const typeOfReportsCoop = [
 
 const typeOfReportsGen = [
     {id: 1, key: 'WastebyType', value:'WastebyType', label: 'Residuos generados por tipo'},
-    {id: 2, key: 'WastebyStatus', value: 'WastebyStatus', label: 'Residuos generados por estado'},
+    {id: 2, key: 'WastebyStatus', value: 'WastebyStatus', label: 'Recolecciones realizadas por estado'},
     {id: 3, key: 'WastebyDay', value: 'WastebyDay', label: 'Residuos generados por día de la semana'},
 ]
 

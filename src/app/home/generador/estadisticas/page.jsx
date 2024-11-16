@@ -8,7 +8,7 @@ import { Card, CardBody,
   TableColumn, Pagination, Select, SelectItem, Input, DateRangePicker,
   DatePicker
  } from '@nextui-org/react';
-import { typeOfReportsCoop } from '@constants/statsReports';
+import { typeOfReportsGen } from '@constants/statsReports';
 import GreenRoundedButton from "@/components/greenRoundedButton";
 import { ToastNotifier } from "@/components/ToastNotifier";
 import { get_stats_reports, getUserById } from '@api/apiService';
@@ -20,7 +20,7 @@ import { mapRequestStatus } from "@/constants/request";
 import BarChart from "@/components/BarChart";
 import { parseDate } from "@internationalized/date";
 
-const estadisticasCooperativa = () => {
+const estadisticasGenerador = () => {
   const router = useRouter();
   const userSession = useSelector((state) => state.userSession);
   const [userInfo, setUserInfo] = useState(null);
@@ -115,7 +115,7 @@ const estadisticasCooperativa = () => {
   return (
     <div className='flex flex-col py-1 px-2 lg:p-4 h-screen'>
       <ToastContainer />
-      <h1 className='text-2xl font-bold'>Estadísticas de la cooperativa</h1>
+      <h1 className='text-2xl font-bold'>Estadísticas del usuario</h1>
 
       {loading ? (
         <Spinner /> ): (
@@ -146,7 +146,7 @@ const estadisticasCooperativa = () => {
               selectedKeys={[selectedTypeReport]}
               onChange={(e) => setSelectedTypeReport(e.target.value)}
             >
-              {typeOfReportsCoop.map((report) => (
+              {typeOfReportsGen.map((report) => (
                 <SelectItem key={report.key}>
                   {report.label}
                 </SelectItem>
@@ -164,7 +164,7 @@ const estadisticasCooperativa = () => {
 
         { responseStats && responseTypeReport && responseTypeReport === 'WastebyType' && (
           <div className='flex flex-col gap-2'>
-            <h2 className='text-xl font-bold'>Cantidad de residuos recibidos por cada tipo</h2>
+            <h2 className='text-xl font-bold'>Cantidad de residuos reciclados por cada tipo</h2>
             <div className="flex flex-col md:flex-row gap-2">
               <Table>
                 <TableHeader>
@@ -190,7 +190,7 @@ const estadisticasCooperativa = () => {
 
         { responseStats && responseTypeReport && responseTypeReport === 'WastebyStatus' && (
           <div className='flex flex-col gap-2'>
-            <h2 className='text-xl font-bold'>Cantidad de recolecciones recibidas y sus diferentes estados</h2>
+            <h2 className='text-xl font-bold'>Cantidad de recolecciones solicitadas y sus diferentes estados</h2>
             <div className="flex flex-col md:flex-row gap-2">
               <Table>
                 <TableHeader>
@@ -216,12 +216,12 @@ const estadisticasCooperativa = () => {
 
         { responseStats && responseTypeReport && responseTypeReport === 'WastebyDay' && (
           <div className='flex flex-col gap-2'>
-            <h2 className='text-xl font-bold'>Cantidad de residuos recibidos por dia de la semana</h2>
+            <h2 className='text-xl font-bold'>Cantidad de residuos reciclados por cada dia de la semana</h2>
             <div className="flex flex-col md:flex-row gap-2">
               <Table>
                 <TableHeader>
                   <TableColumn>Dia de la semana</TableColumn>
-                  <TableColumn>Cantidad de residuos</TableColumn>
+                  <TableColumn>Cantidad reciclada</TableColumn>
                 </TableHeader>
                 <TableBody>
                   {Object.keys(responseStats).map((key) => (
@@ -233,7 +233,7 @@ const estadisticasCooperativa = () => {
                 </TableBody>
               </Table>
               <div className='md:w-1/2 justify-center'>
-                <BarChart data={responseStats} label="Kilogramos" />
+                <BarChart data={responseStats} label="Kilogramos"/>
               </div>
             </div>
           </div>
@@ -247,4 +247,4 @@ const estadisticasCooperativa = () => {
   );
 };
 
-export default estadisticasCooperativa;
+export default estadisticasGenerador;
