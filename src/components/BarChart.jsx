@@ -4,25 +4,37 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const baseData = {
-  labels: [''],
-  datasets: [
-    {
-      label: 'Label',
-      data: [0],
-      backgroundColor: 'rgba(75, 192, 192, 0.2)',
-      borderColor: 'rgba(75, 192, 192, 1)',
-      borderWidth: 1,
-    },
-  ],
-};
-
-const BarChart = ({ data = baseData, displayTitle = false }) => {
-  const [chartData, setChartData] = useState(baseData);
+const BarChart = ({ data = {}, displayTitle = false, label = '' }) => {
+  const [chartData, setChartData] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: label,
+        data: [],
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1,
+      },
+    ],
+  });
 
   useEffect(() => {
     if (data) {
-      setChartData(data);
+      const labels = Object.keys(data);
+      const values = Object.values(data);
+
+      setChartData({
+        labels,
+        datasets: [
+          {
+            label: label,
+            data: values,
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1,
+          },
+        ],
+      });
     }
   }, [data]);
 

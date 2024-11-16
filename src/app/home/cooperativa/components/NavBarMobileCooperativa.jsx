@@ -24,7 +24,7 @@ const NavBarMobileCooperativa = () => {
       {key:1,  name: 'Inicio', route: '/home/cooperativa' },
       {key:2,  name: 'Solicitudes', route: '/home/cooperativa/pedidos' },
       {key:3,  name: 'Rutas', route: '/home/cooperativa/rutas' },
-      {key:4,  name: 'Reportes', route: '/home/cooperativa/reportes' },
+      {key:4,  name: 'Reportes', route: '/home/cooperativa/estadisticas' },
       {key:5,  name: 'Recursos', route: '/home/cooperativa/recursos' },
       {key:6,  name: 'Perfil', route: '/home/cooperativa/perfil' },
     ];
@@ -80,9 +80,9 @@ const NavBarMobileCooperativa = () => {
         </NavbarContent>
 
         <NavbarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
-            <NavbarItem key={`Reportes-1`} onClick={() => setIsMenuOpen(false)}>
-            <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/reportes" >
-              Reportes
+            <NavbarItem key={`Estadisticas-1`} onClick={() => setIsMenuOpen(false)}>
+            <Link color="foreground" className="w-full text-lg justify-start" href="/home/cooperativa/estadisticas" >
+              Estadisticas
             </Link>
             </NavbarItem>
 

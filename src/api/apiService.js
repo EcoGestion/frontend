@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://ecogestion-back.onrender.com';
+// const API_BASE_URL = 'https://ecogestion-back.onrender.com';
+const API_BASE_URL = 'http://3.20.73.155:443';
 
 export const createUser = async (userData) => {
   const response = await axios.post(`${API_BASE_URL}/user`, userData);
@@ -222,5 +223,10 @@ export const release_waste_request = async (routeRequestId, coopId) => {
 
 export const cancel_route = async (routeId) => {
   const response = await axios.put(`${API_BASE_URL}/route/${routeId}/cancel`);
+  return response.data;
+}
+
+export const get_stats_reports = async (reportType, body) => {
+  const response = await axios.post(`${API_BASE_URL}/stats/${reportType}`, body);
   return response.data;
 }
