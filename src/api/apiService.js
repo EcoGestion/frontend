@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://ecogestion-back.onrender.com';
-// const API_BASE_URL = 'http://3.20.73.155:443';
+// const API_BASE_URL = 'https://ecogestion-back.onrender.com';
+const API_BASE_URL = 'http://3.20.73.155:443';
 
 export const createUser = async (userData) => {
   const response = await axios.post(`${API_BASE_URL}/user`, userData);
