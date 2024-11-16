@@ -4,53 +4,48 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const baseData = {
-  labels: [''],
-  datasets: [
-    {
-      label: 'Label',
-      data: [0],
-      backgroundColor: [
-        'rgba(255, 99, 132, 0.2)',
-      ],
-      borderColor: [
-        'rgba(255, 99, 132, 1)',
-      ],
-      borderWidth: 1,
-    },
-  ],
-};
-
 const PieChart = ({
-  data = baseData,
+  data = {},
   width = '100%',
   height = '100%',
   options = {}
 }) => {
-  const [chartData, setChartData] = useState(baseData);
+  const [chartData, setChartData] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: 'Label',
+        data: [],
+        backgroundColor: [],
+        borderColor: [],
+        borderWidth: 1,
+      },
+    ],
+  });
 
   useEffect(() => {
     if (data) {
-      setChartData(data);
+      const labels = Object.keys(data);
+      const values = Object.values(data);
+      const backgroundColors = labels.map((_, index) => `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.2)`);
+      const borderColors = labels.map((_, index) => `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`);
+
+      setChartData({
+        labels,
+        datasets: [
+          {
+            label: 'Label',
+            data: values,
+            backgroundColor: backgroundColors,
+            borderColor: borderColors,
+            borderWidth: 1,
+          },
+        ],
+      });
     }
   }, [data]);
 
-  const defaultOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-    },
-    maintainAspectRatio: false,
-    ...options, // Merge custom options with default options
-  };
-
-  return (
-    <div style={{ width, height }}>
-      <Pie data={chartData} options={defaultOptions} />
-    </div>
-  );
+  return <Pie data={chartData} width={width} height={height} options={options} />;
 };
 
 export default PieChart;
