@@ -21,7 +21,7 @@ const OnboardingGeneradorFormStep1 = ({
   address = {street:'', number:'', zone:'', city:'', province:'', zip_code:0, lat:0, lng:0},
   setAddress
   }) => {
-  const [coordinates, setCoordinates] = useState(undefined);
+  const [coordinates, setCoordinates] = useState([-34.5814551, -58.4211107]);
   const [markers, setMarkers] = useState([]);
 
   const [isFormValid, setIsFormValid] = useState(false);

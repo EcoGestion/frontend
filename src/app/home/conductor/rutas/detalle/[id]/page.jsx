@@ -20,8 +20,8 @@ const detallesRuta = (props) => {
   const route_id = parseInt(props.params?.id ?? '0');
   const [loading, setLoading] = useState(false);
 
-  const [coopCoords, setCoopCoords] = useState([]);
-  const [coopInfo, setCoopInfo] = useState();
+  const [coopCoords, setCoopCoords] = useState([-34.5814551, -58.4211107]);
+  const [coopInfo, setCoopInfo] = useState(null);
   const [markers, setMarkers] = useState([]);
 
   const [routeInfo, setRouteInfo] = useState();
@@ -58,10 +58,10 @@ const detallesRuta = (props) => {
   };
 
   useEffect(() => {
-    if (coopCoords.length > 0) {
+    if (coopInfo) {
       setRouteCoordsFromRequests();
     }
-  }, [coopCoords]);
+  }, [coopInfo]);
 
 
   const setMarkersFromRequests = (requests) => {

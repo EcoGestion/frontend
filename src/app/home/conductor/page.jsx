@@ -51,7 +51,7 @@ const HomeConductor = () => {
   const [requests, setRequests] = useState(null)
   const [wastes, setWastes] = useState(null)
   const [routes, setRoutes] = useState(null)
-  const [coords, setCoords] = useState([0,0]);
+  const [coords, setCoords] = useState([-34.5814551, -58.4211107]);
   const [markers, setMarkers] = useState(null);
   const [routeCoords, setRouteCoords] = useState(null);
   const [filters, setFilters] = useState({ zone: [], status: [], generator: '' });

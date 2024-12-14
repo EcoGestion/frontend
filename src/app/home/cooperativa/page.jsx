@@ -59,6 +59,9 @@ const HomeCooperativa = () => {
   const [isAvailableFiltersModalOpen, setIsAvailableFiltersModalOpen] = useState(false);
   const [isDailyFiltersModalOpen, setIsDailyFiltersModalOpen] = useState(false);
 
+  const [centerCoords, setCenterCoords] = useState([-34.5814551, -58.4211107]);
+  // TODO: hange centerCoords to coopCoords
+
   const filteredAvailableOrders = availableOrders?.filter(order => {
     const zone = order.address? order.address.zone : order.generator.address.zone
     return (
@@ -590,12 +593,14 @@ const HomeCooperativa = () => {
             </div>
         }
 
-        <Card className='lg:mx-9 my-4'>
-          <CardHeader className='bg-green-dark text-white pl-4 text-lg font-semibold py-3'>UBICACIÓN DE LAS SOLICITUDES A REALIZAR HOY</CardHeader>
-          <CardBody className='p-0'>
-            <MapView className='w-max h-max' markers={points}/>
-          </CardBody>
-        </Card>
+        
+        <div className='flex justify-between items-center mx-4 mt-3'>
+          < p className='text-start text-xl font-bold ml-2'>Ubicación de las recolecciónes del dia</p>
+        </div>
+        <div className='flex justify-center'>
+          <MapView centerCoordinates={centerCoords} markers={points}/>
+        </div>
+
         </div>
         }
       </div>

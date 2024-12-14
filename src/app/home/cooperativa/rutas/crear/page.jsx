@@ -14,6 +14,7 @@ import { ToastContainer } from 'react-toastify';
 import { mapTruckStatus } from '@constants/truck';
 import { useRouter } from 'next/navigation';
 import { FormatTruckCapacityToFront } from '@utils/truckFormat';
+import { mapRequestStatus } from '@/constants/request';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
@@ -23,7 +24,7 @@ const crearRuta = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const [coopCoords, setCoopCoords] = useState([0,0]);
+  const [coopCoords, setCoopCoords] = useState([-34.5814551, -58.4211107]);
   const [markers, setMarkers] = useState([]);
   const [requests, setRequests] = useState([]);
   const [trucks, setTrucks] = useState([]);
@@ -147,7 +148,7 @@ const crearRuta = () => {
                 <TableCell>{formatTimeRange(request.pickup_date_from, request.pickup_date_to)}</TableCell>
                 <TableCell>{request.address ? request.address.zone : ""}</TableCell>
                 <TableCell>{request.address ? AddressFormat(request.address) : ""}</TableCell>
-                <TableCell>{request.status}</TableCell>
+                <TableCell>{mapRequestStatus[request.status]}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -185,7 +186,7 @@ const crearRuta = () => {
       </div>
       <div className='p-2 mt-4'>
         <h2 className='text-lg'>Aqui puedes ver todas las solicitudes que tienes pendientes</h2>
-        <MapView centerCoordinates={coopCoords} zoom={12} markers={markers}/>
+        <MapView centerCoordinates={coopCoords} zoom={13} markers={markers}/>
       </div>
       </div>
       )}

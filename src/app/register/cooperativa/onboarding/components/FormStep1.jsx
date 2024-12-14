@@ -20,7 +20,7 @@ const OnboardingCooperativaFormStep1 = ({
   setAddress
   }) => {
   
-  const [coordinates, setCoordinates] = useState(undefined);
+  const [coordinates, setCoordinates] = useState([-34.5814551, -58.4211107]);
   const [markers, setMarkers] = useState([]);
 
   const [isFormValid, setIsFormValid] = useState(false);

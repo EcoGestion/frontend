@@ -44,6 +44,8 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
     const [isCollapsedItems, setIsCollapsedItems] = useState(false);
     const [isCollapsedObservations, setIsCollapsedObservations] = useState(false);
 
+    const [centerCoords, setCenterCoords] = useState<[number, number] | null>([-34.5814551, -58.4211107]);
+
     const toggleCollapseItems = () => {
         setIsCollapsedItems(!isCollapsedItems);
     };
@@ -64,6 +66,7 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
                 setStatus(getStatus(responseOrder.status));
                 setProducts(responseOrder.waste_quantities);
                 setPoint([{position: [parseFloat(responseOrder.address.lat), parseFloat(responseOrder.address.lng)], content: responseOrder.generator.username, popUp: `${responseOrder.address.street} ${responseOrder.address.number}`}])
+                setCenterCoords([parseFloat(responseOrder.address.lat), parseFloat(responseOrder.address.lng)]);
                 setLoading(false);
             } catch (error) {
                 console.log("Error al obtener usuario", error);
@@ -169,7 +172,7 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
 
                         {point && 
                             <div>
-                                <MapView centerCoordinates={point.position} markers={point}/>
+                                <MapView centerCoordinates={centerCoords} markers={point} zoom={15}/>
                             </div>
                         }
 

@@ -9,7 +9,7 @@ const defaultCoordinates = [-34.5814551, -58.4211107];
 
 const styles = {
   map: {
-    height: "400px",
+    height: "450px",
     width: "100%",
     borderRadius: "10px",
     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
@@ -18,7 +18,7 @@ const styles = {
 };
 
 const MapView = ({
-  centerCoordinates = defaultCoordinates,
+  centerCoordinates,
   markers = [],
   zoom = defaultZoom,
 }) => {

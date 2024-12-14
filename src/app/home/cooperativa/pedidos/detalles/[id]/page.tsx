@@ -35,6 +35,7 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
   const [isCollapsedItems, setIsCollapsedItems] = useState(false);
   const [isCollapsedObservations, setIsCollapsedObservations] = useState(false);
   const router = useRouter();
+  const [centerCoords, setCenterCoords] = useState<[number, number]>([-34.5814551, -58.4211107]);
 
   const [isModalReleaseOpen, setIsModalReleaseOpen] = useState(false);
 
@@ -60,6 +61,7 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
               setProducts(responseOrder.waste_quantities);
               setAddress(responseOrder.address);
               setPoint([{position: [parseFloat(responseOrder.address.lat), parseFloat(responseOrder.address.lng)], content: responseOrder.generator.username, popUp: `${responseOrder.address.street} ${responseOrder.address.number}`}])
+              setCenterCoords([parseFloat(responseOrder.address.lat), parseFloat(responseOrder.address.lng)]);
 
               setLoading(false);
               setUserId(userSession? userSession.userId : null)
@@ -204,7 +206,7 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
 
                         {point && 
                         <div className="lg:mx-9 my-4 h-80">
-                        <MapView centerCoordinates={point.position} markers={point}/>
+                        <MapView centerCoordinates={centerCoords} markers={point} zoom={15}/>
                         </div>
                         }
 

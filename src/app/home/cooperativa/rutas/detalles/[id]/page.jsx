@@ -24,7 +24,7 @@ const detallesRuta = (props) => {
   const route_id = parseInt(props.params?.id ?? '0');
   const [loading, setLoading] = useState(false);
 
-  const [coopCoords, setCoopCoords] = useState([0,0]);
+  const [coopCoords, setCoopCoords] = useState([-34.5814551, -58.4211107]);
   const [markers, setMarkers] = useState([]);
 
   const [routeInfo, setRouteInfo] = useState();
@@ -181,7 +181,7 @@ const detallesRuta = (props) => {
 
         <div className='p-2 mt-4'>
           <h2 className='text-xl'>Recorrido</h2>
-          <MapView centerCoordinates={coopCoords} zoom={14} markers={markers} routeCoordinates={routeCoords}/>
+          <MapView centerCoordinates={coopCoords} zoom={13} markers={markers} routeCoordinates={routeCoords}/>
         </div>
       </div>
       )}
