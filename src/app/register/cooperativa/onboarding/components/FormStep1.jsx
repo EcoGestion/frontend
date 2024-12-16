@@ -22,6 +22,7 @@ const OnboardingCooperativaFormStep1 = ({
   
   const [coordinates, setCoordinates] = useState([-34.5814551, -58.4211107]);
   const [markers, setMarkers] = useState([]);
+  const [verified, setVerified] = useState(false);
 
   const [isFormValid, setIsFormValid] = useState(false);
   
@@ -56,19 +57,16 @@ const OnboardingCooperativaFormStep1 = ({
         popUp: 'Ubicación de la cooperativa'
       }
     ]);
+    setVerified(true);
   };
 
   const nextForm = async () => {
-    if (!coordinates) {
+    if (!verified) {
       ToastNotifier.error('Por favor verifique la dirección antes de continuar');
       return;
     }
     nextStep();
   }
-
-  useEffect(() => {
-    // Update the MapView with the new coordinates
-  }, [coordinates]);
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-white overflow-auto">
@@ -95,19 +93,19 @@ const OnboardingCooperativaFormStep1 = ({
           <MapView
             centerCoordinates={coordinates}
             markers={markers}
-            zoom={coordinates ? 15 : 13}
+            zoom={verified ? 15 : 13}
           />
         </CardBody>
         <Divider />
         <CardFooter className='flex flex-col mt-2 justify-center'>
           <div className="flex justify-center">
-          {!coordinates &&
+          {!verified &&
               <div className="flex justify-center">
                 <ClearIcon fontSize='small' color='error'/>
                 <p className="text-sm text-red-500">Dirección no verificada</p>
               </div>
             }
-            {coordinates &&
+            {verified &&
               <div className="flex justify-center">
                 <DoneIcon fontSize='small' color='success'/>
                 <p className="text-sm text-green-500">Dirección verificada</p>

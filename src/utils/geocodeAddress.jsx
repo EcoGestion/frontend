@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const api_key = "AIzaSyBe07QJnVCR-CqYYvSY23WJ-OOztS-xVT8";
+const api_key = "AIzaSyDzJyT7Wci5pXjqOY2Vd9WnPoRkiuuzO08";
 
 const geocodeAddress = async (addressObj) => {
   const { street, number, city, zip_code, province, country } = addressObj;

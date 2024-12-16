@@ -8,6 +8,7 @@ import { getGeneratorHomeStats, getGeneratorNotifications } from '@api/apiServic
 import { GenHomeStats, Notifications } from '@/types';
 import Spinner from '@/components/Spinner';
 import { formatDate, formatTime } from '@/utils/dateStringFormat';
+import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
 import 'dotenv/config'
 
 const HomeGenerador = () => {
@@ -17,22 +18,37 @@ const HomeGenerador = () => {
   const userSession = useSelector((state: RootState) => state.userSession);
 
   const [homeStats, setHomeStats] = useState<GenHomeStats | null>(null);
-  const [notifications, setNotifications] = useState<Notifications | null>(null);
+  const [notifications, setNotifications] = useState<Notifications | null>([]);
 
   useEffect(() => {
     const getHomeStats = async () => {
-      const response = await getGeneratorHomeStats(userSession.userId);
-      setHomeStats(response);
+      try {
+        const response = await getGeneratorHomeStats(userSession.userId);
+        setHomeStats(response);
+      }
+      catch (error) {
+        console.log(error);
+      }
+      finally {
       setLoadingStats(false);
+      }
     }
     getHomeStats();
   }, [])
 
+ 
   useEffect(() => {
     const getNotifications = async () => {
-      const response = await getGeneratorNotifications(userSession.userId);
-      setNotifications(response);
-      setLoadingNotifications(false);
+      try {
+        const response = await getGeneratorNotifications(userSession.userId);
+        setNotifications(response);
+      }
+      catch (error) {
+        console.log(error);
+      }
+      finally {
+        setLoadingNotifications(false);
+      }
     }
     getNotifications();
   }, [])
@@ -61,7 +77,7 @@ const HomeGenerador = () => {
         {loadingNotifications && <Spinner />}
 
         {!loadingNotifications &&
-        <div className='flex flex-col gap-2'>
+        <div className='flex flex-col gap-2 pt-1 pb-3'>
           {notifications?.map((notification, index) => (
           <Card className='flex flex-col justify-between items-center flex-1' key={notification.id}>
             <CardBody>{notification.details}</CardBody>
@@ -71,6 +87,29 @@ const HomeGenerador = () => {
           ))}
         </div>
         }
+
+        {
+          notifications?.length === 0 && (
+            <div style={{
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              padding: '20px', 
+              border: '1px solid #ddd', 
+              borderRadius: '8px', 
+              backgroundColor: '#f9f9f9',
+              color: '#555'
+            }}>
+              <HorizontalRuleIcon fontSize='large' className='mb-3' />
+              <p style={{ fontSize: '16px', margin: 0, textAlign: 'center' }}>
+                ¡Aún no tienes novedades!<br />
+                Comienza a solicitar recolecciones.
+              </p>
+            </div>
+          )
+        }
+
 
       </div>
     </div>
