@@ -68,60 +68,64 @@ const OnboardingCooperativaFormStep1 = ({
     nextStep();
   }
 
-  return (
-    <div className="flex flex-col items-center justify-center h-screen bg-white overflow-auto">
+    return (
+    <div className="flex flex-col items-center justify-center bg-white overflow-auto p-3 md:px-1">
       <ToastContainer />
-      <Card className="border border-gray-900/10 rounded-lg p-6 top-4">
-        <CardHeader className="text-base font-semibold leading-7 text-gray-900">
-          Información de la cooperativa
-        </CardHeader>
-        <CardBody className="mt-1 text-sm leading-6 text-gray-600">
-          <p>A continuación te pediremos información sobre la cooperativa a la que representas.</p>
-          <p>Estos datos nos servirán para validar el perfil y para que los usuarios Generadores</p>
-          <p>puedan conectar con tu Cooperativa en el momento de solicitar recolecciones.</p>
-        </CardBody>
-
-        <Divider className="mt-2 border-t border-gray-900/10" />
-
-        <CardBody>
-          <p className="mt-2 text-sm leading-6 font-bold text-gray-800">Dirección de la cooperativa</p>
-          <AddressForm address={address} setAddress={setAddress} />
-        </CardBody>
-        <Divider />
-        <CardBody>
-          <p className="mt-2 text-sm leading-6 font-bold text-gray-800">Ubicación de la cooperativa</p>
-          <MapView
-            centerCoordinates={coordinates}
-            markers={markers}
-            zoom={verified ? 15 : 13}
-          />
-        </CardBody>
-        <Divider />
-        <CardFooter className='flex flex-col mt-2 justify-center'>
-          <div className="flex justify-center">
-          {!verified &&
-              <div className="flex justify-center">
-                <ClearIcon fontSize='small' color='error'/>
-                <p className="text-sm text-red-500">Dirección no verificada</p>
+      <h1 className="text-2xl font-bold text-gray-800">
+        Información de la cooperativa
+      </h1>
+      <div className="text-sm text-gray-600 my-4">
+        <p>A continuación te pediremos información sobre la cooperativa a la que representas.</p>
+        <p>Estos datos nos servirán para validar el perfil y para que los usuarios Generadores</p>
+        <p>puedan conectar con tu Cooperativa en el momento de solicitar recolecciones.</p>
+      </div>
+      
+      <div className="flex flex-col md:flex-row w-full">
+        <Card className="border border-gray-900/10 rounded-lg w-full md:w-1/2">
+          <div className="p-2">
+            <CardBody>
+              <p className="mt-2 text-sm font-bold text-gray-800">Dirección de la cooperativa</p>
+              <AddressForm address={address} setAddress={setAddress} />
+            </CardBody>
+            <Divider />
+            <CardFooter className='flex flex-col mt-2 justify-center'>
+              <div className="flex flex-row gap-6">
+                <div className="mt-2 flex">
+                  <BlueRoundedButton onClick={updateCoordinates} buttonTitle='Verificar la direccion'/>
+                </div>
+                <div className="mt-2 flex">
+                  <GreenRoundedButton onClick={nextForm} buttonTitle='Siguiente'/>
+                </div>
               </div>
-            }
-            {verified &&
-              <div className="flex justify-center">
-                <DoneIcon fontSize='small' color='success'/>
-                <p className="text-sm text-green-500">Dirección verificada</p>
-              </div>
-            }
+            </CardFooter>
           </div>
-          <div className="flex flex-row gap-6">
-            <div className="mt-2 flex">
-              <BlueRoundedButton onClick={updateCoordinates} buttonTitle='Verificar la direccion'/>
-            </div>
-            <div className="mt-2 flex">
-              <GreenRoundedButton onClick={nextForm} buttonTitle='Siguiente'/>
+        </Card>
+
+        <div className="w-full md:w-1/2">
+          <div className="p-2">
+            <p className="mt-2 text-sm leading-6 font-bold text-gray-800">Ubicación de la cooperativa</p>
+            <MapView
+              centerCoordinates={coordinates}
+              markers={markers}
+              zoom={verified ? 15 : 13}
+            />
+            <div className="flex justify-center mt-4">
+              {!verified &&
+                <div className="flex justify-center">
+                  <ClearIcon fontSize='small' color='error'/>
+                  <p className="text-sm text-red-500">Dirección no verificada</p>
+                </div>
+              }
+              {verified &&
+                <div className="flex justify-center">
+                  <DoneIcon fontSize='small' color='success'/>
+                  <p className="text-sm text-green-500">Dirección verificada</p>
+                </div>
+              }
             </div>
           </div>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
