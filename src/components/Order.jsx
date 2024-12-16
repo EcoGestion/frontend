@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getUserById } from "../api/apiService";
+import { useSelector } from 'react-redux';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import Link from "next/link";
 
@@ -20,13 +21,14 @@ const monthNames = {
 
 const Order = ({order}) => {
     console.log(order)
+    const userSession = useSelector((state) => state.userSession);
     const [user, setUser] = useState(null);
 
     useEffect(() => {
         const fetchUser = async () => {
           if (order) {
             try {
-              const response = await getUserById(order.generator_id);
+              const response = await getUserById(order.generator_id, userSession.accessToken);
               console.log("Usuario: ", response);
               setUser(response); 
             } catch (error) {

@@ -77,7 +77,7 @@ const TruckModal = ({ isOpen, onRequestClose }) => {
     };
 
     try {
-      await createTruck(payload);
+      await createTruck(payload, userSession.accessToken);
       onRequestClose();
       ToastNotifier.success('Camión registrado correctamente');
     } catch (error) {

@@ -62,7 +62,7 @@ const RutasConductor = () => {
     const fetchRoutes = async () => {
       try {
         setLoading(true)
-        await getRoutesByDriverId(userSession.userId)
+        await getRoutesByDriverId(userSession.userId, userSession.accessToken)
         .then((response) => Promise.all(response.map(route => transform_route_data(route))))
         .then((transformed_routes) => {
           setRoutes(transformed_routes)

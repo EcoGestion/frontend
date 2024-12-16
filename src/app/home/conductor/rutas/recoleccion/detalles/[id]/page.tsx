@@ -2,6 +2,7 @@
 //import Order from "../../../../../../components/Order";
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../../../../../../../state/userProvider';
+import { RootState } from '@/state/store';
 import Spinner from "../../../../../../../components/Spinner";
 import { getOrderById, updateOrderById, getUserById } from "../../../../../../../api/apiService";
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
@@ -11,6 +12,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import dynamic from 'next/dynamic'
+import { useSelector } from 'react-redux';
 import "./style.css"
 import { Button } from "@nextui-org/react";
 import { useRouter } from 'next/navigation';
@@ -23,7 +25,8 @@ const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 const OrderDetails = (props: {params?: { id?: string } }) => {
     const {user} = useUser();
     const orderId = props.params?.id
-    
+
+    const userSession = useSelector((state: RootState) => state.userSession);
     const [loading, setLoading] = useState(true);
     const [update, setUpdate] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
@@ -44,8 +47,8 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const responseOrder = await getOrderById(orderId);
-                const responseGenerator = await getUserById(responseOrder.generator_id);
+                const responseOrder = await getOrderById(orderId, userSession.accessToken);
+                const responseGenerator = await getUserById(responseOrder.generator_id, userSession.accessToken);
                 setOrder(responseOrder);
                 setGenerator(responseGenerator);
 
@@ -72,8 +75,8 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
     
     const acceptRequest = async (rowData: any) => {
         setLoading(true);
-        updateOrderById(rowData.id, userId, "PENDING")
-        .then(() => getOrderById(orderId))
+        updateOrderById(rowData.id, userId, "PENDING", userSession.accessToken)
+        .then(() => getOrderById(orderId, userSession.accessToken))
         .then((response) => {
             setOrder(response);
             setLoading(false);

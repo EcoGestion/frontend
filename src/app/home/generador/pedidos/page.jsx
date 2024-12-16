@@ -118,7 +118,7 @@ export default function BasicFilterDemo() {
         const fetchOrders = async () => {
           if (userSession) {
             try {
-              await getGeneratorOrdersById(userSession.userId)
+              await getGeneratorOrdersById(userSession.userId, userSession.accessToken)
               .then((response) => Promise.all(response.map(order => transform_order_data(order))))
               .then((transformed_orders) => {
                 setOrders(transformed_orders)
@@ -138,7 +138,7 @@ export default function BasicFilterDemo() {
 
 
     const transform_order_data = async (order) => {
-        const response = await getUserById(order.generator_id);
+        const response = await getUserById(order.generator_id, userSession.accessToken);
         order.request_date = new Date(order.request_date)
         order.pickup_date_from = new Date(order.pickup_date_from)
         order.pickup_date_to = new Date(order.pickup_date_to)

@@ -21,7 +21,8 @@ const HomeGenerador = () => {
 
   useEffect(() => {
     const getHomeStats = async () => {
-      const response = await getGeneratorHomeStats(userSession.userId);
+      console.log(userSession)
+      const response = await getGeneratorHomeStats(userSession.userId, userSession.accessToken);
       setHomeStats(response);
       setLoadingStats(false);
     }
@@ -30,7 +31,7 @@ const HomeGenerador = () => {
 
   useEffect(() => {
     const getNotifications = async () => {
-      const response = await getGeneratorNotifications(userSession.userId);
+      const response = await getGeneratorNotifications(userSession.userId, userSession.accessToken);
       setNotifications(response);
       setLoadingNotifications(false);
     }

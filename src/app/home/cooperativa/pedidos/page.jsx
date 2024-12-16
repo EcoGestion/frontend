@@ -139,7 +139,7 @@ export default function Orders() {
         const fetchOrders = async () => {
           if (userSession.userId) {
             try {
-              await getCoopOrdersById(userSession.userId)
+              await getCoopOrdersById(userSession.userId, userSession.accessToken)
               .then((response) => Promise.all(response.map(order => transform_order_data(order))))
               .then((transformed_orders) => {
                 setOrders(transformed_orders)
@@ -193,7 +193,7 @@ export default function Orders() {
       try {
         setLoading(true);
         setIsModalReleaseOpen(false);
-        await release_waste_request(orderToRelease.id, orderToRelease.coop_id)
+        await release_waste_request(orderToRelease.id, orderToRelease.coop_id, userSession.accessToken)
         .then((r) => {
           ToastNotifier.success("Solicitud liberada exitosamente")
           setReload(!reload);

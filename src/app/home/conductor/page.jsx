@@ -131,10 +131,10 @@ const HomeConductor = () => {
       if(wastes) {
         try {
           setLoading(true)
-          await getRequestsByRouteId(routeActive)
+          await getRequestsByRouteId(routeActive, userSession.accessToken)
           .then((response) => Promise.all(response.map(request => transform_requests(request))))
           .then(async (transformed) => {
-            const coop = await getUserById(transformed[0].coop_id)
+            const coop = await getUserById(transformed[0].coop_id, userSession.accessToken)
             setRequests(transformed)
             setMarkersFromRequests(transformed, coop);
           })
@@ -154,10 +154,10 @@ const HomeConductor = () => {
       if(routeActive) {
         try {
           setLoading(true)
-          await getRouteById(routeActive)
+          await getRouteById(routeActive, userSession.accessToken)
           .then(async (response) => {
             setWastes(response.route_requests)
-            const coop = await getUserById(response.truck.coop_id)
+            const coop = await getUserById(response.truck.coop_id, userSession.accessToken)
             setCoords([parseFloat(coop.address.lat), parseFloat(coop.address.lng)]);
             setRouteCoordsFromRequests(response.route_requests, coop.address);
           })
@@ -205,7 +205,7 @@ const HomeConductor = () => {
     const fetchRoutes = async () => {
       try {
         setLoading(true)
-        await getDriverHomeRoutes(userSession.userId)
+        await getDriverHomeRoutes(userSession.userId, userSession.accessToken)
         .then((response) => Promise.all(response.map(route => transform_route_data(route))))
         .then((transformed_routes) => {
           const activeRoute = transformed_routes.find(route => route.status === "En proceso")
@@ -237,7 +237,7 @@ const HomeConductor = () => {
   };
 
   const handleStartRoute = async () => {
-    await startRouteById(routeToStart)
+    await startRouteById(routeToStart, userSession.accessToken)
     .then(() => setRouteActive(routeToStart))
     .catch((error) => {
       console.log("Error al comenzar ruta", error);
@@ -254,7 +254,7 @@ const HomeConductor = () => {
 
   const handleConfirmRequest = async (code) => {
     try {
-      const verification = await verifyGeneratorCode(requestToConfirm, code);
+      const verification = await verifyGeneratorCode(requestToConfirm, code, userSession.accessToken);
       if (verification.passed) {
         await updateRouteRequest(indexToConfirm, routeActive, "COMPLETED");
         ToastNotifier.success("Solicitud completada");
@@ -295,7 +295,7 @@ const HomeConductor = () => {
     try {
       setLoading(true)
       setIsModalCancelRouteOpen(false);
-      await cancel_route(routeToCancel)
+      await cancel_route(routeToCancel, userSession.accessToken)
       .then(() => {
         refresh()
         ToastNotifier.success("Ruta cancelada");
@@ -310,7 +310,7 @@ const HomeConductor = () => {
 
   const updateRouteRequest = async (id, routeId, status) => {
     setLoading(true)
-    await updateRouteRequestById(id, routeId, status)
+    await updateRouteRequestById(id, routeId, status, userSession.accessToken)
     .then((response) => {
       if(response.route_status == "COMPLETED" || response.route_status == "PARTIALLY_COMPLETED") {
         setRouteActive(null)

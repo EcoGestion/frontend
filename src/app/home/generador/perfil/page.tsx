@@ -22,7 +22,7 @@ const PerfilGenerador = () => {
 
     const retrieveData = async () => {
       try {
-          const response = await getUserById(userSession.userId);
+          const response = await getUserById(userSession.userId, userSession.accessToken);
           setTypeLabel(mapGenType(response.type));
           setUserInfo(response);
       } catch (error) {

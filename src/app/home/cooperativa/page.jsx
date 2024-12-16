@@ -172,7 +172,7 @@ const HomeCooperativa = () => {
       if (userSession.userId) {
         try {
           setLoading(true);
-          await getCoopOrdersById(userSession.userId)
+          await getCoopOrdersById(userSession.userId, userSession.accessToken)
           .then((response) => Promise.all(response.map(order => transform_order_data(order))))
           .then((transformed_orders) => {
             const filtered_orders = filter_daily_orders(transformed_orders)
@@ -198,7 +198,7 @@ const HomeCooperativa = () => {
       if (userSession.userId) {
         try {
           setLoading(true);
-          await getOpenOrders()
+          await getOpenOrders(userSession.accessToken)
           .then((response) => Promise.all(response.map(order => transform_order_data(order))))
           .then((transformed_orders) => {
             //const filtered_orders = filter_available_orders(transformed_orders)
@@ -224,7 +224,7 @@ const HomeCooperativa = () => {
       if (userSession.userId) {
         try {
           setLoading(true);
-          await getTrucksById(userSession.userId)
+          await getTrucksById(userSession.userId, userSession.accessToken)
             .then((response) => {
               const formattedTrucks = response.map(truck => FormatTruckCapacityToFront(truck))
               setTrucks(formattedTrucks)
@@ -252,7 +252,7 @@ const HomeCooperativa = () => {
   const acceptRequest = async () => {
     setLoading(true);
     setModalIsOpen(false);
-    await acceptOrderById(acceptedOrder.id, userSession.userId)
+    await acceptOrderById(acceptedOrder.id, userSession.userId, userSession.accessToken)
       .then(() => {
         ToastNotifier.success("Solicitud aceptada correctamente");
         setRefresh(!refresh);

@@ -28,9 +28,9 @@ const rutasCooperativa = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const activeRoutes = await getCoopActiveRoutes(userSession.userId);
+      const activeRoutes = await getCoopActiveRoutes(userSession.userId, userSession.accessToken);
       setActiveRoutes(activeRoutes);
-      const historyRoutes = await getCoopRoutes(userSession.userId);
+      const historyRoutes = await getCoopRoutes(userSession.userId, userSession.accessToken);
       setHistoryRoutes(historyRoutes);
     } catch (error) {
       console.error('Error retrieving routes:', error);

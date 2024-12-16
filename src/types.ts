@@ -28,6 +28,7 @@ export interface Address {
 
 export interface UserInfo {
   id: number;
+  accessToken: string;
   username: string;
   email: string;
   firebase_id: string;

@@ -43,7 +43,7 @@ const estadisticasCooperativa = () => {
   useEffect(() => {
     const retrieveData = async () => {
       try {
-          const response = await getUserById(userSession.userId);
+          const response = await getUserById(userSession.userId, userSession.accessToken);
           setUserInfo(response);
       } catch (error) {
           console.error('Error retrieving user data:', error);
@@ -68,7 +68,7 @@ const estadisticasCooperativa = () => {
     }
     try {
       setLoading(true);
-      const response = await get_stats_reports(selectedTypeReport, body);
+      const response = await get_stats_reports(selectedTypeReport, body, userSession.accessToken);
       processStats(response.data);
     } catch (error) {
       console.error('Error retrieving stats:', error);

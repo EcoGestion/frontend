@@ -53,7 +53,7 @@ const Perfil = () => {
 
     const retrieveData = async () => {
       try {
-          const response = await getUserById(userSession.userId);
+          const response = await getUserById(userSession.userId, userSession.accessToken);
           updateItems(response.waste_type_config);
           updateDays(response.days);
           setUserInfo(response);

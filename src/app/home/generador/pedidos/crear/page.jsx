@@ -54,7 +54,7 @@ const CreacionPedido = () => {
 
   const retrieveData = async () => {
     try {
-        const response = await getUserById(userSession.userId);
+        const response = await getUserById(userSession.userId, userSession.accessToken);
         setUserInfo(response);
     } catch (error) {
         console.error('Error retrieving user data:', error);
@@ -186,7 +186,7 @@ const CreacionPedido = () => {
     console.log(body);
     setLoading(true);
     try {
-      const response = await createRequest(body);
+      const response = await createRequest(body, userSession.accessToken);
       if (response.status !== 200) {
         throw new Error('Error creating request');
       }

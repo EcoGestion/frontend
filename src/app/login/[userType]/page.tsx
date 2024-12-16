@@ -33,13 +33,14 @@ const Login = ({ params }: { params: { userType: string } }) => {
     e.preventDefault();
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const accessToken = await userCredential.user.accessToken
       const firebaseToken = await userCredential.user.uid;
       
       const userData = {
         "email": userCredential.user.email,
         "firebase_id": firebaseToken
       }
-      const userInfo = await loginUser(userData)
+      const userInfo = await loginUser(userData, accessToken)
 
       const front_type = mapUserType(userInfo.type);
       if (front_type !== userType) {
@@ -56,6 +57,7 @@ const Login = ({ params }: { params: { userType: string } }) => {
       dispatch(setUserSession({
         email: userInfo.email,
         userId: userInfo.id,
+        accessToken: accessToken,
         name: userInfo.username,
       }));
       router.replace('/home/' + userType);

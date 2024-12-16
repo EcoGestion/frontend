@@ -20,7 +20,7 @@ const PerfilConductor = () => {
 
     const retrieveData = async () => {
       try {
-          const response = await getUserById(userSession.userId);
+          const response = await getUserById(userSession.userId, userSession.accessToken);
           setUserInfo(response);
       } catch (error) {
           console.error('Error retrieving user data:', error);

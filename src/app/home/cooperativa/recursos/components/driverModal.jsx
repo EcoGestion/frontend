@@ -103,6 +103,7 @@ const DriverModal = ({ isOpen, onRequestClose }) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+      const accessToken = user.accessToken;
       console.log(userSession)
 
       const form = {
@@ -119,7 +120,7 @@ const DriverModal = ({ isOpen, onRequestClose }) => {
       console.log(form);
 
       try {
-        await createUser(form);
+        await createUser(form, accessToken);
         onRequestClose();
         ToastNotifier.success('Conductor registrado correctamente');
       } catch (error) {

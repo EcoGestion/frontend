@@ -37,11 +37,11 @@ const recursosCooperativa = () => {
   const retrieveData = async () => {
     try {
       setLoading(true);
-      const camiones_response = await getTrucksByCoopId(userSession.userId);
+      const camiones_response = await getTrucksByCoopId(userSession.userId, userSession.accessToken);
       const camiones_formatted = camiones_response.map((camion: Truck) => FormatTruckCapacityToFront(camion));
       setCamiones(camiones_formatted);
 
-      const conductores_response = await getDriversByCoopId(userSession.userId);
+      const conductores_response = await getDriversByCoopId(userSession.userId, userSession.accessToken);
       setConductores(conductores_response);
     } catch (error) {
       console.error('Error retrieving user data:', error);
@@ -64,7 +64,7 @@ const recursosCooperativa = () => {
     }
     try {
       setModalDeleteTruckIsOpen(false);
-      await deleteTruck(deletedTruckId)
+      await deleteTruck(deletedTruckId, userSession.accessToken)
       ToastNotifier.success('Camión eliminado correctamente');
       retrieveData();
     } catch (error) {
@@ -79,7 +79,7 @@ const recursosCooperativa = () => {
     }
     try {
       setModalDeleteDriverIsOpen(false);
-      deleteUserById(deletedDriverId).then(() => {
+      deleteUserById(deletedDriverId, userSession.accessToken).then(() => {
         if (user) {
           deleteUser(user).then(() => {
             ToastNotifier.success('Conductor eliminado correctamente');
@@ -106,7 +106,7 @@ const recursosCooperativa = () => {
     const camion = camiones.find((c) => c.id === id);
     if (camion) {
       camion.status = 'DISABLE';
-      updateTruckStatus(camion.id, camion).then(() => {
+      updateTruckStatus(camion.id, camion, userSession.accessToken).then(() => {
         ToastNotifier.success('Camión deshabilitado correctamente');
         retrieveData();
       }).catch((error) => {
@@ -121,7 +121,7 @@ const recursosCooperativa = () => {
     const camion = camiones.find((c) => c.id === id);
     if (camion) {
       camion.status = 'ENABLED';
-      updateTruckStatus(camion.id, camion).then(() => {
+      updateTruckStatus(camion.id, camion, userSession.accessToken).then(() => {
         ToastNotifier.success('Camión habilitado correctamente');
         retrieveData();
       }).catch((error) => {

@@ -12,6 +12,7 @@ import Spinner from '../../../../components/Spinner.jsx';
 
 export default function Onboarding() {
   const user = useSelector((state) => state.userSession);
+  console.log(user)
   const dispatch = useDispatch();
   
   const router = useRouter();

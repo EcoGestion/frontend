@@ -1,6 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
 import dynamic from 'next/dynamic';
 import { Table, TableHeader, TableBody, TableRow, TableColumn, TableCell, Card, CardHeader, CardBody, Divider } from '@nextui-org/react';
 import { getRouteById, getUserById, getRequestsByRouteId } from "@api/apiService";
@@ -16,6 +17,7 @@ import { ToastContainer } from 'react-toastify';
 const MapView = dynamic(() => import('@/components/MapWithRouteView'), { ssr: false });
 
 const detallesRuta = (props) => {
+  const userSession = useSelector((state) => state.userSession);
   const router = useRouter();
   const route_id = parseInt(props.params?.id ?? '0');
   const [loading, setLoading] = useState(false);
@@ -37,16 +39,16 @@ const detallesRuta = (props) => {
   const retrieveData = async () => {
     setLoading(true);
     try {
-      const routeInfo_response = await getRouteById(route_id);
+      const routeInfo_response = await getRouteById(route_id, userSession.accessToken);
       setRouteInfo(routeInfo_response);
       setRequests(routeInfo_response.route_requests);
 
-      const coopInfo = await getUserById(routeInfo_response.truck.coop_id);
+      const coopInfo = await getUserById(routeInfo_response.truck.coop_id, userSession.accessToken);
       const coopCoordinates = [parseFloat(coopInfo?.address?.lat ?? "0"), parseFloat(coopInfo?.address?.lng ?? "0")];
       setCoopInfo(coopInfo);
       setCoopCoords(coopCoordinates);
 
-      const wasteRequests_response = await getRequestsByRouteId(route_id);
+      const wasteRequests_response = await getRequestsByRouteId(route_id, userSession.accessToken);
       setMarkersFromRequests(wasteRequests_response);
       setWasteRequests(wasteRequests_response);
     } catch (error) {

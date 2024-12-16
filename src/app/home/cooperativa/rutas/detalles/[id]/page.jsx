@@ -40,13 +40,13 @@ const detallesRuta = (props) => {
   const retrieveData = async () => {
     setLoading(true);
     try {
-      const userInfo = await getUserById(userSession.userId);
+      const userInfo = await getUserById(userSession.userId, userSession.accessToken);
       setCoopCoords([parseFloat(userInfo.address.lat), parseFloat(userInfo.address.lng)]);
-      const routeInfo_response = await getRouteById(route_id);
+      const routeInfo_response = await getRouteById(route_id, userSession.accessToken);
       setRouteInfo(routeInfo_response);
       setRequests(routeInfo_response.route_requests);
       setRouteCoordsFromRequests(routeInfo_response.route_requests, userInfo.address);
-      const wasteRequests_response = await getRequestsByRouteId(route_id);
+      const wasteRequests_response = await getRequestsByRouteId(route_id, userSession.accessToken);
       setMarkersFromRequests(wasteRequests_response, userInfo);
       setWasteRequests(wasteRequests_response);
     } catch (error) {

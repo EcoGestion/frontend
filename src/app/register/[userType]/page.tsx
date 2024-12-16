@@ -28,6 +28,7 @@ const SignUp = ({ params }: { params: { userType: string } }) => {
       dispatch(setUserSession({
         name: name,
         email: email,
+        accessToken: userCredential.user.accessToken,
         userId: '',
       }))
       router.replace("/register/" + userType + "/onboarding")

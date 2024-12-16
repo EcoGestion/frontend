@@ -12,6 +12,8 @@ import PinIcon from '@mui/icons-material/Pin';
 import { Address, UserInfo, WasteQuantities, WasteCollectionRequest } from '@/types';
 import { formatDateRange, formatDate } from "@/utils/dateStringFormat";
 import dynamic from 'next/dynamic'
+import { useSelector } from 'react-redux';
+import { RootState } from '@/state/store';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
@@ -38,6 +40,7 @@ const getStatus = (status : any) => {
 const OrderDetails = (props: {params?: { id?: string } }) => {
     const orderId = props.params?.id
     
+    const userSession = useSelector((state: RootState) => state.userSession);
     const [loading, setLoading] = useState(true);
     const [generator, setGenerator] = useState<UserInfo | null>(null);
     const [order, setOrder] = useState<WasteCollectionRequest | null>(null);
@@ -57,8 +60,8 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const responseOrder = await getOrderById(orderId);
-                const responseGenerator = await getUserById(responseOrder.generator_id);
+                const responseOrder = await getOrderById(orderId, userSession.accessToken);
+                const responseGenerator = await getUserById(responseOrder.generator_id, userSession.accessToken);
                 setOrder(responseOrder);
                 setGenerator(responseGenerator);
 

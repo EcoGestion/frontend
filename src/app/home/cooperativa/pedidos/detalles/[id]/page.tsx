@@ -10,7 +10,7 @@ import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import dynamic from 'next/dynamic'
 import "./style.css"
-import { Button } from "@nextui-org/react";
+import { Button, user } from "@nextui-org/react";
 import { useRouter } from 'next/navigation';
 import { Address, UserInfo, WasteQuantities, WasteCollectionRequest } from '@/types';
 import { RootState } from '@/state/store';
@@ -50,8 +50,8 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
   useEffect(() => {
       const fetchUser = async () => {
           try {
-              const responseOrder = await getOrderById(orderId);
-              const responseGenerator = await getUserById(responseOrder.generator_id);
+              const responseOrder = await getOrderById(orderId, userSession.accessToken);
+              const responseGenerator = await getUserById(responseOrder.generator_id, userSession.accessToken);
               setOrder(responseOrder);
               setGenerator(responseGenerator);
 
@@ -81,8 +81,8 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
   
   const acceptRequest = async (rowData: any) => {
       setLoading(true);
-      updateOrderById(rowData.id, userId, "PENDING")
-      .then(() => getOrderById(orderId))
+      updateOrderById(rowData.id, userId, "PENDING", userSession.accessToken)
+      .then(() => getOrderById(orderId, userSession.accessToken))
       .then((response) => {
           setOrder(response);
           setLoading(false);
@@ -101,7 +101,7 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
       setLoading(true);
       setIsModalReleaseOpen(false);
       try {
-        await release_waste_request(orderId, order.coop_id)
+        await release_waste_request(orderId, order.coop_id, userSession.accessToken)
         .then((r) => {
           router.replace("/home/cooperativa/pedidos")
         })

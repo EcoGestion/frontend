@@ -41,11 +41,11 @@ const crearRuta = () => {
   const retrieveData = async () => {
     try {
       setLoading(true);
-      const coop_info_response = await getUserById(userSession.userId);
-      const camiones_response = await getTrucksByCoopId(userSession.userId);
+      const coop_info_response = await getUserById(userSession.userId, userSession.accessToken);
+      const camiones_response = await getTrucksByCoopId(userSession.userId, userSession.accessToken);
       const camiones_formatted = camiones_response.map((truck) => (FormatTruckCapacityToFront(truck)));
-      const conductores_response = await getDriversByCoopId(userSession.userId);
-      const requests_response = await getCoopPendingRequests(userSession.userId);
+      const conductores_response = await getDriversByCoopId(userSession.userId, userSession.accessToken);
+      const requests_response = await getCoopPendingRequests(userSession.userId, userSession.accessToken);
       setCoopCoords([
         parseFloat(coop_info_response.address.lat), 
         parseFloat(coop_info_response.address.lng)
@@ -103,7 +103,7 @@ const crearRuta = () => {
     }
     console.log('Request body:', request_body);
     setLoading(true);
-    createRoute(request_body).then((response) => {
+    createRoute(request_body, userSession.accessToken).then((response) => {
       if (response) {
         ToastNotifier.success('Ruta generada correctamente');
         router.push('/home/cooperativa/rutas');
