@@ -20,6 +20,7 @@ import { formatDate, formatDateRange, formatTime } from '@/utils/dateStringForma
 import { ToastNotifier } from '@/components/ToastNotifier';
 import { ToastContainer } from 'react-toastify';
 import AcceptConfirmationModal from '@/components/AcceptConfirmationModal';
+import { mapMaterialNameToLabel } from '@/constants/recyclables';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 
@@ -154,7 +155,7 @@ const OrderDetails = (props: {params?: { id?: string } }) => {
                                         <div className="flex flex-row gap-3 justify-start mx-2 md:mx-5">
                                         <img src="/box.svg" alt="box" className="w-7" />
                                         <p className="card-text flex gap-3 items-center">
-                                            <span className="text-body-secondary font-semibold text-md">{product.waste_type}</span>
+                                            <span className="text-body-secondary font-semibold text-md">{mapMaterialNameToLabel[product.waste_type as keyof typeof mapMaterialNameToLabel]}</span>
                                             <small className="text-body-secondary text-md">{product.quantity} unidades</small>
                                         </p>
                                         </div>

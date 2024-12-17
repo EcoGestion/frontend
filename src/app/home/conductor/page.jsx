@@ -258,6 +258,9 @@ const HomeConductor = () => {
       if (verification.passed) {
         await updateRouteRequest(indexToConfirm, routeActive, "COMPLETED");
         ToastNotifier.success("Solicitud completada");
+        setTimeout(() => {
+          refresh()
+        }, 2000);
       } else {
         ToastNotifier.warning("Código incorrecto");
       }
@@ -278,6 +281,9 @@ const HomeConductor = () => {
     try {
       await updateRouteRequest(requestToReprogram, routeActive, "REPROGRAMED");
       ToastNotifier.success("Solicitud reprogramada");
+      setTimeout(() => {
+        refresh()
+      }, 2000);
     } catch (error) {
       console.log("Error al reprogramar solicitud", error);
       ToastNotifier.error("Error al reprogramar solicitud\nPor favor, intente nuevamente")
@@ -448,7 +454,7 @@ const HomeConductor = () => {
                   <TableCell>
                     <div className='flex gap-3'>
                       <Button className="" onClick={() => redirectDetailPage(request)}>Ver</Button>
-                      {request.route_request_status != "Completada" & request.route_request_status != "Reprogramada" &&
+                      {request.route_request_status != "Completada" && request.route_request_status != "Reprogramada" &&
                       <Button className='bg-white text-green-dark px-3 py-2 rounded-medium border-medium border-green-dark' onClick={() => confirmRequest(request.route_request_id, index + 1)}>Completar</Button> }
                       {(request.route_request_status == "Pendiente" || request.route_request_status == "En ruta") &&
                       <Button className='bg-white text-red-dark px-3 py-2 rounded-medium border-medium border-red-dark' onClick={() => reprogramRequest(index + 1)}>Reprogramar</Button>

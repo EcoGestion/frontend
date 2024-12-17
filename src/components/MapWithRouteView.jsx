@@ -25,15 +25,6 @@ const styles = {
   },
 };
 
-const MapUpdater = ({ centerCoordinates, zoom }) => {
-  const map = useMap();
-
-  useEffect(() => {
-    map.setView(centerCoordinates, zoom);
-  }, [centerCoordinates, zoom, map]);
-
-  return null;
-};
 
 const MapWithRouteView = ({
   centerCoordinates,
@@ -78,7 +69,7 @@ const MapWithRouteView = ({
           <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <MapUpdater centerCoordinates={centerCoordinates} zoom={zoom} />
+          
           {markers.map((marker) => (
           <Marker position={marker.position} icon={customIcon }>
               <Popup>
