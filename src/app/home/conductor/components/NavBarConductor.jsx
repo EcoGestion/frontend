@@ -43,7 +43,7 @@ const NavBarConductor = () => {
 
     const menuItems = [
       {key:1,  name: 'Inicio', route: '/home/conductor' },
-      {key:2,  name: 'Historial de recolecciones', route: '/home/conductor/rutas' },  
+      {key:2,  name: 'Historial de rutas', route: '/home/conductor/rutas' },  
       {key:3,  name: 'Perfil', route: '/home/conductor/perfil' },
     ];
 
@@ -73,7 +73,7 @@ const NavBarConductor = () => {
             <Link color="foreground" href="/home/conductor/rutas" >
                 <div className="flex flex-col items-center">
                   <MapIcon fontSize='medium' color={isActiveRoute('/home/conductor/rutas') ? 'success':''}/>
-                  <span className="text-sm text-black">Historial de recolecciones</span>
+                  <span className="text-sm text-black">Historial de rutas</span>
                 </div>
             </Link>
             </NavbarItem>

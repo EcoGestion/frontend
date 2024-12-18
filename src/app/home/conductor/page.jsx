@@ -378,7 +378,7 @@ const HomeConductor = () => {
 
     {!loading && requests &&
       <div className='flex flex-col mx-4 my-4 gap-2'>
-          <Card className='rounded-md'>
+          <Card className='hidden md:visible rounded-md'>
           <CardBody className='p-0'>
           <div className="flex gap-4 items-center my-3 mx-4">
             <Input
@@ -469,7 +469,7 @@ const HomeConductor = () => {
     }
 
       {!loading && requests &&
-      <div className='p-2 mt-4'>
+      <div className='p-2 mt-4 mb-2 justify-center md:ml-4'>
           <h2 className='text-xl'>Recorrido</h2>
           <div className='justify-center items-center'>
             <MapView centerCoordinates={coords} zoom={14} markers={markers} routeCoordinates={routeCoords}/>
