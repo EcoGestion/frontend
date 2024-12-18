@@ -70,7 +70,7 @@ export default function Orders() {
           ((!filters.date_from && !filters.date_to) ||
           (filters.date_from && filters.date_to && (order.pickup_date_to >= filters.date_from && order.pickup_date_from <= filters.date_to))) &&
           (!filters.genName || order.generator_name.toLowerCase().includes(filters.genName.toLowerCase())) &&
-          (filters.orderStatus.length == 0 || (filters.orderStatus.length == 1 && !filters.status[0])  || filters.orderStatus.includes(mapRequestStatusToKey[order.status])) &&
+          (filters.orderStatus.length == 0 || (filters.orderStatus.length == 1 && !filters.orderStatus[0])  || filters.orderStatus.includes(mapRequestStatusToKey[order.status])) &&
           (filters.wasteType.length == 0 || (filters.wasteType.length == 1 && !filters.wasteType[0]) || filters.wasteType.some(element => order.waste_types.includes(element))) &&
           (filters.zones.length == 0 || (filters.zones.length == 1 && !filters.zones[0]) || filters.zones.includes(zone)) &&
           (filters.genTypes.length == 0 || (filters.genTypes.length == 1 && !filters.genTypes[0]) || filters.genTypes.includes(order.generator_type))
